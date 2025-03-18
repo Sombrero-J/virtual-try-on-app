@@ -1,6 +1,6 @@
 <script lang="ts">
   import Taileo from "$lib/components/logo/logo.svelte";
-  import Button from "$lib/components/button.svelte";
+  import Button from "$lib/components/buttons/button.svelte";
 
   import { goto } from "$app/navigation";
   let { user } = $props();

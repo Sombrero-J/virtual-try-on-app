@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import TextButton from "$lib/components/buttons/textButton.svelte";
-  import Button from "$lib/components/button.svelte";
+  import Button from "$lib/components/buttons/button.svelte";
   import Icons from "$lib/svg/icons.svelte";
   import CloseButton from "$lib/svg/small/closeButton.svelte";
 

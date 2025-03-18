@@ -8,7 +8,7 @@
   import Dialog from "$lib/components/dialog/dialog.svelte";
   import BodyGuide from "$lib/content/vto-dialogs/bodyGuide.svelte";
   import Or from "$lib/components/text/or.svelte";
-  import Button from "$lib/components/button.svelte";
+  import Button from "$lib/components/buttons/button.svelte";
   import Qrcode from "$lib/content/vto-qr/qrcode.svelte";
   import StepIndicator from "$lib/components/visualiser/stepIndicator.svelte";
   import { applyAction } from "$app/forms";

@@ -8,7 +8,7 @@
 	import Dialog from '$lib/components/dialog/dialog.svelte';
 	import Or from '$lib/components/text/or.svelte';
 	import ClothingGuide from '$lib/content/vto-dialogs/clothingGuide.svelte';
-	import Button from '$lib/components/button.svelte';
+	import Button from '$lib/components/buttons/button.svelte';
 	import ImageButton from '$lib/components/form/imageButton.svelte';
 	import { subscribeToUploadChanges } from '$lib/clientUtil/realtime';
 	import type { RealtimeChannel } from '@supabase/supabase-js';

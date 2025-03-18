@@ -12,7 +12,7 @@
   import { page } from "$app/state";
   import { onMount } from "svelte";
   import ImageGenV2 from "$lib/components/form/image-gen-v2.svelte";
-  import Button from "$lib/components/button.svelte";
+  import Button from "$lib/components/buttons/button.svelte";
   import { goto } from "$app/navigation";
   import { enhance } from "$app/forms";
   import type { SubmitFunction } from "@sveltejs/kit";
