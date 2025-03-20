@@ -57,14 +57,22 @@
 <div
   class="flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-40 lg:pt-20 flex-1 py-8 w-8/10"
 >
-  <div class="flex flex-col justify-between lg:justify-center lg:min-h-[40rem]">
-    <div class="hidden">
-      <Back gotoPath="/" />
+  <div
+    class="relative flex flex-col justify-between lg:justify-center lg:min-h-[40rem] w-full"
+  >
+    <!-- Small screen -->
+    <div class="block lg:hidden">
+      <div class="relative flex justify-center items-center mb-8 w-full">
+        <StepIndicator steps={3} activeStep={1} />
+      </div>
     </div>
+
     <div class="flex flex-col gap-1 justify-center items-start">
       <!-- TITLE -->
       <div class="lg:mb-4 flex flex-col gap-1">
-        <StepIndicator steps={3} activeStep={1} />
+        <div class="hidden lg:block mb-4">
+          <StepIndicator steps={3} activeStep={2} />
+        </div>
         <Title title="Upload your body image" level="h1" />
         <Subtitle>
           <div>
@@ -87,7 +95,7 @@
       <!-- END SHOW EXAMPLE BUTTON -->
     </div>
   </div>
-  <div class="flex flex-col gap-2 w-full lg:w-1/3">
+  <div class="flex flex-col gap-2 w-full max-w-[30rem]">
     <!-- UPLOAD IMAGE BOX -->
     <ImageUploadV2
       bind:file
@@ -96,26 +104,26 @@
     />
 
     <!-- BUTTONS UNDER BOX -->
-      <form
-        action="?/flag"
-        method="post"
-        use:enhance={() => {
-          uploadBodyImage();
-          return async ({ result }) => {
-            console.log("hello");
-            await applyAction(result);
-            goto("/beta/vto-test/clothing-image-upload");
-          };
-        }}
-      >
-        <Button
-          disabled={!file}
-          text="Continue"
-          style="primary"
-          type="submit"
-          fullWidth={true}
-        />
-      </form>
+    <form
+      action="?/flag"
+      method="post"
+      use:enhance={() => {
+        uploadBodyImage();
+        return async ({ result }) => {
+          console.log("hello");
+          await applyAction(result);
+          goto("/beta/vto-test/clothing-image-upload");
+        };
+      }}
+    >
+      <Button
+        disabled={!file}
+        text="Continue"
+        style="primary"
+        type="submit"
+        fullWidth={true}
+      />
+    </form>
     <!-- END BUTTONS UNDER BOX -->
     <div class="hidden lg:block w-full">
       <Or />
@@ -141,92 +149,3 @@
     </Dialog>
   </div>
 </div>
-
-<dialog
-  class="relative top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-none rounded-lg text-center p-8 font-[Rethink_sans,_sans-serif]"
->
-  <div class="flex flex-col gap-8 justify-center items-center">
-    <h2 class="text-[color:var(--color-black-primary)] text-5xl font-semibold">
-      <!-- dialog content -->
-    </h2>
-  </div>
-</dialog>
-
-<div class="flex justify-center items-center gap-4">
-  <!-- dialog form content -->
-</div>
-<!-- 
-<style lang="scss">
-  .bigContainer {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-
-    gap: 10rem;
-    padding-top: 5rem;
-
-    flex-grow: 1;
-  }
-
-  dialog {
-    position: relative;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border: none;
-    border-radius: 0.5rem;
-
-    text-align: center;
-    padding: 2rem;
-
-    font-family: $lp-ff-landingpage;
-
-    .dialog-div {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-      justify-content: center;
-      align-items: center;
-    }
-    h2 {
-      color: $lp-color-black;
-
-      font-size: 3rem;
-      font-weight: 600;
-    }
-  }
-
-  dialog::backdrop {
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-  .dialog-form {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .left-bar {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    // gap: 5rem;
-
-    min-height: 40rem;
-  }
-
-  .right-bar {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .caption {
-    margin: auto 0;
-  }
-
-  .title-section {
-    margin-bottom: 1rem;
-  }
-</style> -->

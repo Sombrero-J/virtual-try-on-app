@@ -4,14 +4,15 @@
   --font-primary: Rethink sans, sans-serif;
   --font-secondary: Anth, sans-serif;
 
-  --color-brand-purple: hsla(275, 95%, 48%, 1);
-  --color-brand-blue: hsla(196, 85%, 97%, 1);
+  --color-brand: hsla(202, 97%, 36%, 1);
+  --color-brand-secondary: hsla(203, 100%, 97%, 1);
 
   --color-white-primary: hsla(240, 20%, 99%, 1);
 
   --color-gray-subtlest: hsla(222, 18%, 87%, 1);
   --color-gray-subtler: hsla(222, 18%, 75%, 1);
   --color-gray-disabled: hsla(0, 0%, 100%, 0.5);
+  --color-border-gray: hsla(0, 0%, 91%, 1);
 
   --color-black-primary: hsla(221, 26%, 8%, 1);
   --color-black-secondary: hsla(240, 1%, 19.8%, 1);
@@ -33,7 +34,7 @@
 }
 
 @utility bg-brand-gradient {
-  background-image: linear-gradient(90deg, #9400f0 0%, #00beed 100%);
+  background-image: linear-gradient(90deg, #0277B6 0%, #03045E 100%);
 }
 
 @utility font-subtitle {
@@ -44,6 +45,6 @@
 }
 
 @utility bg-brand-gradient-button {
-  background: linear-gradient(90deg, #9400f0 0%, #9400f0 55%, #00beed 100%);
+  background: linear-gradient(90deg, #0277B6 0%, #03045E 100%);
   background-size: 150%;
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Taileo from "$lib/components/logo/logo.svelte";
+
   import Button from "$lib/components/buttons/button.svelte";
 
   import { goto } from "$app/navigation";
@@ -7,7 +7,6 @@
 </script>
 
 <nav class="bg-brand-blue w-full flex justify-between items-center px-20 py-6 sticky top-0">
-  <Taileo />
 
   <div class="acc-buttons">
     {#if user}

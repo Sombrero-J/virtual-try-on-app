@@ -97,7 +97,7 @@ export const actions: Actions = {
     const modelFile = formData.get("modelFile") as File;
 
     const tryon = formData.get("tryonUrl") as string;
-    const tryonFile = await getImageData(tryon, `taileo_tryon_${user.id}`);
+    const tryonFile = await getImageData(tryon, `tryon_${user.id}`);
 
     const MAX_SIZE = 15 * 1024 * 1024;
     if (checkFileSize([clothingFile, modelFile, tryonFile], MAX_SIZE)) {

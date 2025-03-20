@@ -38,7 +38,7 @@
 </script>
 
 <div
-  class="relative text-center flex flex-col h-[20rem] w-full justify-center items-center gap-5 rounded-lg border border-brand-purple bg-brand-blue lg:h-[40rem]"
+  class="relative text-center flex flex-col h-[20rem] w-full justify-center items-center gap-5 rounded-lg border-1 border-dashed border-brand bg-brand-secondary lg:h-[40rem]"
 >
   {#if imageURl}
     <img
@@ -50,7 +50,7 @@
       class="flex gap-2 items-center justify-center pointer-events-none absolute top-[10px] right-[10px]"
     >
       <Icons name="restart" width="24px" height="24px" />
-      <p class="text-brand-purple text-xl font-medium">Replace photo</p>
+      <p class="text-brand text-xl font-medium">Replace photo</p>
     </div>
   {:else}
     <div class="lg:hidden">
@@ -59,7 +59,7 @@
     <div class="hidden lg:block">
       <img src={uploadIllus} alt="" />
     </div>
-    <p class=" text-brand-purple text-sm lg:text-2xl font-medium">
+    <p class=" text-brand text-sm lg:text-2xl font-medium">
       {placeholder}
     </p>
     <div class="flex flex-col gap-1">

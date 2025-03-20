@@ -39,6 +39,7 @@
 		"@supabase/ssr": "^0.5.2",
 		"@supabase/supabase-js": "^2.49.1",
 		"melt": "^0.17.1",
+		"openai": "^4.88.0",
 		"qrcode": "^1.5.4"
 	}
 }

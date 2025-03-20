@@ -75,12 +75,12 @@ export async function downloadFileFromBlob(url: string) {
   }
   const blob = await response.blob();
   const blobUrl = window.URL.createObjectURL(blob);
-  downloadFile(blobUrl, "taileo_tryon");
+  downloadFile(blobUrl, "tryon");
   // Clean up the blob URL after a short delay
   setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
 }
 
-function downloadFile(url: string, filename: string = "taileo_tryon") {
+function downloadFile(url: string, filename: string = "tryon") {
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;

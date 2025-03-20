@@ -17,7 +17,7 @@
   import { enhance } from "$app/forms";
   import type { SubmitFunction } from "@sveltejs/kit";
   import StepIndicator from "$lib/components/visualiser/stepIndicator.svelte";
-  
+
   let tryOn = tryOnStore();
   let modelFile = tryOn.modelImageFile;
   let taskID = $state("");
@@ -37,7 +37,7 @@
       if (data) {
         taskID = data;
         setTimeout(async () => {
-          progress = 70;
+          progress = 80;
           const res = await fetchQueryTask(data);
           if (res.url) {
             progress = 100;
@@ -87,15 +87,30 @@
   class="flex flex-col lg:flex-row justify-between items-start gap-5 lg:gap-40 lg:pt-20 flex-1 py-8 w-8/10"
 >
   <div
-    class="relative flex flex-col justify-between lg:justify-center lg:min-h-[40rem]"
+    class="relative flex flex-col justify-between lg:justify-center lg:min-h-[40rem] w-full"
   >
-    <div class="absolute top-0 left-0">
-      <Back gotoPath="/beta/vto-test/clothing-image-upload" />
+    <!-- Small screen -->
+    <div class="block lg:hidden">
+      <div class="relative flex justify-center items-center mb-8 w-full">
+        <div class="absolute left-0">
+          <Back gotoPath="/beta/vto-test/body-image-upload" />
+        </div>
+        <StepIndicator steps={3} activeStep={3} />
+      </div>
     </div>
+    <!-- Large screen -->
+    <div class="hidden lg:block">
+      <div class="absolute left-0 top-0">
+        <Back gotoPath="/beta/vto-test/body-image-upload" />
+      </div>
+    </div>
+
     <div class="flex flex-col gap-1 justify-center items-start">
       <!-- TITLE -->
       <div class="lg:mb-4 flex flex-col gap-1">
-        <StepIndicator steps={3} activeStep={3} />
+        <div class="hidden lg:block mb-4">
+          <StepIndicator steps={3} activeStep={2} />
+        </div>
         <Title title="Virtual Try On Generation" level="h1" />
         <Subtitle>
           {#if tryOnUrl}
@@ -112,7 +127,7 @@
       <!-- END TITLE -->
     </div>
   </div>
-  <div class="flex flex-col gap-2 w-full lg:w-1/3">
+  <div class="flex flex-col gap-2 w-full max-w-[30rem]">
     {#if tryOnUrl}
       <ImageGenV2 imageUrl={tryOnUrl}>
         {#snippet button()}
@@ -143,43 +158,7 @@
         {/snippet}
       </ImageGenV2>
     {:else}
-      <ImageScan imageFile={modelFile} progress={60} />
+      <ImageScan imageFile={modelFile} progress={progress} />
     {/if}
   </div>
 </div>
-<!-- 
-<style lang="scss">
-  .bigContainer {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-
-    gap: 10rem;
-    padding-top: 5rem;
-
-    flex-grow: 1;
-  }
-
-  .left-bar {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    // gap: 5rem;
-
-    min-height: 40rem;
-  }
-
-  .right-bar {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .caption {
-    margin: auto 0;
-  }
-
-  .title-section {
-    margin-bottom: 1rem;
-  }
-</style> -->

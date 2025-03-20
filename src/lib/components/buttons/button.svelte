@@ -39,11 +39,11 @@
     if (style === "primary") {
       return disabled
         ? "text-gray-disabled bg-brand-gradient-button cursor-not-allowed"
-        : "text-white-primary bg-brand-gradient-button bg-right duration-300 ease-in hover:bg-left hover:active:bg-brand-purple hover:active:brand-purple cursor-pointer";
+        : "text-white-primary bg-brand-gradient-button bg-right duration-300 ease-in hover:bg-left hover:active:bg-brand hover:active:brand cursor-pointer";
     } else if (style === "secondary") {
       return disabled
         ? "text-gray-subtler cursor-not-allowed"
-        : "text-black-primary border-1 border-brand-purple bg-white-primary relative duration-300 hover:text-white-primary hover:bg-brand-purple cursor-pointer";
+        : "text-black-primary border-1 border-brand bg-white-primary relative duration-300 hover:text-white-primary hover:bg-brand cursor-pointer";
     }
     return "";
   });

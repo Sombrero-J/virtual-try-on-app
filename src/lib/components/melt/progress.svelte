@@ -5,9 +5,10 @@
     value?: number;
     labelOutside?: string;
     labelInside?: boolean;
+    duration?: number;
   }
 
-  let { value = 0 }: Props = $props();
+  let { value = 0, duration = 5000 }: Props = $props();
 
   const progress = new Progress({
     value: () => value,
@@ -17,10 +18,10 @@
 
 <div
   {...progress.root}
-  class="h-4 w-full bg-brand-blue rounded-[10px] overflow-hidden relative"
+  class="h-4 w-full bg-brand-secondary rounded-[10px] overflow-hidden relative"
 >
   <div
     {...progress.progress}
-    class="h-full bg-brand-gradient rounded-[10px] w-full -translate-x-[var(--progress)] transition-all duration-300 ease-in-out"
+    class="h-full bg-brand-gradient rounded-[10px] w-full -translate-x-[var(--progress)] transition-all duration-${duration} ease-in"
   ></div>
 </div>
