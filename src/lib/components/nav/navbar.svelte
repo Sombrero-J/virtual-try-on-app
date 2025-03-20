@@ -6,9 +6,9 @@
   let { user } = $props();
 </script>
 
-<nav class="bg-brand-blue w-full flex justify-between items-center px-20 py-6 sticky top-0">
+<nav class="bg-brand-blue w-full flex justify-end items-center px-20 py-6 sticky top-0">
 
-  <div class="acc-buttons">
+  <div class="acc-buttons flex justify-center items-center gap-4">
     {#if user}
       <Button
         text="Log out"

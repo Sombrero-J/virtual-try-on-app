@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Icons from "$lib/svg/icons.svelte";
   import CardHeader from "$lib/components/card/cardheader.svelte";
   import Textbox from "$lib/components/form/textbox.svelte";
   import Button from "$lib/components/buttons/button.svelte";

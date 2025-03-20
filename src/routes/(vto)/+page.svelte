@@ -8,5 +8,8 @@
 <div class="flex h-screen flex-col items-center justify-center">
 	<h1 class="text-4xl font-bold">Virtual Try On</h1>
 	<p class="text-lg">Welcome to the Virtual Try On app</p>
-	<Button onclick={() => goto('/beta/vto-test/body-image-upload')} text="Start" />
+	<div class="flex gap-4">
+		<Button onclick={() => goto('/beta/vto-test/body-image-upload')} text="Start" />
+		<Button onclick={() => goto('/beta/melt')} text="Test" />
+	</div>
 </div>

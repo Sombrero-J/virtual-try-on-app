@@ -71,7 +71,7 @@
       <!-- TITLE -->
       <div class="lg:mb-4 flex flex-col gap-1">
         <div class="hidden lg:block mb-4">
-          <StepIndicator steps={3} activeStep={2} />
+          <StepIndicator steps={3} activeStep={1} />
         </div>
         <Title title="Upload your body image" level="h1" />
         <Subtitle>

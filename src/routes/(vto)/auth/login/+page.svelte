@@ -2,8 +2,8 @@
   import CardHeader from "$lib/components/card/cardheader.svelte";
   import Textbox from "$lib/components/form/textbox.svelte";
   import Button from "$lib/components/buttons/button.svelte";
-  import Icons from "$lib/svg/icons.svelte";
-  import { goto } from "$app/navigation";
+  import EyeOpened from "$lib/svg/eyeOpened.svelte";
+  import EyeClosed from "$lib/svg/eyeClosed.svelte";
   import type { ActionData } from "./$types";
 
   interface Props {
@@ -18,10 +18,23 @@
   });
   let password: string = $state("");
 
-  function navigate() {
-    goto("/");
-  }
+  let showPassword = $state(false);
+
 </script>
+
+{#snippet inputPassword()}
+  <button
+    type="button"
+    class="cursor-pointer"
+    onclick={() => (showPassword = !showPassword)}
+  >
+    {#if showPassword}
+      <EyeOpened />
+    {:else}
+      <EyeClosed />
+    {/if}
+  </button>
+{/snippet}
 
 <div class="flex flex-col items-start justify-center">
   <!-- <Button text="Back" style="secondary" size="large" onclick={navigate}>
@@ -48,6 +61,7 @@
         type="password"
         name="password"
         bind:value={password}
+        showPassword={inputPassword}
       />
       <a id="forgotpassword" href="/auth/reset">forgot password?</a>
       {#if form?.incorrect}

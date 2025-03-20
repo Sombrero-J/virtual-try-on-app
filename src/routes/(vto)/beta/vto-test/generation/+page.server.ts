@@ -123,19 +123,6 @@ export const actions: Actions = {
         user.id
       );
 
-      // 2. Get public URLs for each uploaded file
-      // const clothingUrl = await getStorageItemURL(
-      //   "clothings",
-      //   clothingPath,
-      //   supabase
-      // );
-      // const modelUrl = await getStorageItemURL("models", modelPath, supabase);
-      // const tryonUrl = await getStorageItemURL("tryon", tryonPath, supabase);
-
-      // if (!clothingUrl || !modelUrl || !tryonUrl) {
-      //   return fail(400, { message: "Save error: storage" });
-      // }
-
       // 3. Call the RPC function to create database entries
       const { data, error } = await supabase.rpc("save_try_on_to_wardrobe", {
         p_user_id: user.id,
