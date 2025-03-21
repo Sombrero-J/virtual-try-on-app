@@ -49,19 +49,24 @@ export async function describeImage(base64Image: string) {
 			store: true
 		});
 
-		const content = response.output[0].content[0];
+		const outputItem = response.output[0];
 
-		if (content.type === 'refusal') {
-			// handle refusal
-			console.log(content.refusal);
-			return content.refusal;
+		if ('content' in outputItem) {
+			const contentItem = outputItem.content[0];
+
+			if (contentItem.type === 'refusal') {
+				console.error(contentItem.refusal);
+				return { result: null, error: contentItem.refusal };
+			} else {
+				console.log(response.output_text);
+				return { result: response.output_text, error: null};
+			}
 		} else {
-			console.log(response.output_text);
-
-			const { description, brand, color, material, category } = JSON.parse(response.output_text);
-			return { description, brand, color, material, category };
+			console.error('Unexpected output type', outputItem);
+			throw new Error('Invalid response format: missing content');
 		}
 	} catch (error) {
 		console.error('Error while describing the image:', error);
+		return { result: null, error: 'Error while describing the image' };
 	}
 }

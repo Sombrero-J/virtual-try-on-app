@@ -127,8 +127,10 @@
 		type="button"
 		text="Generate"
 		style="primary"
+		loading={showLoader}
 		onclick={() => {
 		  openDialog = true;
+		  showLoader = true;
 		}}
 	  />
 	  <!-- END BUTTONS UNDER BOX -->

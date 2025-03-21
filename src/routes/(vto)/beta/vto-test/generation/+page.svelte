@@ -69,7 +69,7 @@
     return async ({ result }) => {
       if (result.type == "success") {
         console.log("Data: " + result.data);
-        goto("/beta/wardrobe");
+        goto("/wardrobe");
       } else if (result.type == "failure") {
         alert("Saving failed: " + result.data);
       }
@@ -95,7 +95,7 @@
         <div class="absolute left-0">
           <Back gotoPath="/beta/vto-test/body-image-upload" />
         </div>
-        <StepIndicator steps={3} activeStep={3} />
+        <StepIndicator steps={3} activeStep={2} />
       </div>
     </div>
     <!-- Large screen -->

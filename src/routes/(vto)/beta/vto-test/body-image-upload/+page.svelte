@@ -109,8 +109,8 @@
       method="post"
       use:enhance={() => {
         uploadBodyImage();
+        showLoader = true;
         return async ({ result }) => {
-          console.log("hello");
           await applyAction(result);
           goto("/beta/vto-test/clothing-image-upload");
         };
@@ -121,6 +121,7 @@
         text="Continue"
         style="primary"
         type="submit"
+        loading={showLoader}
         fullWidth={true}
       />
     </form>
