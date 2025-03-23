@@ -8,7 +8,11 @@
 	import WardrobeItem from '$lib/components/wardrobe/wardrobeItem.svelte';
 	import type { ClothingWithTryOnsType } from '$lib/server/database_helpers/queryDb';
 	import { onMount } from 'svelte';
+	import Button from '$lib/components/buttons/button.svelte';
+	import { enhance } from '$app/forms';
+
 	let openClothingDialog = $state(false);
+	let changed = $state(false);
 
 	const tabIds = ['Images', 'Models'];
 	type TabId = (typeof tabIds)[number];
@@ -120,14 +124,16 @@
 				class="h-40 w-auto object-contain lg:h-90"
 			/>
 		{/if}
-		<Textbox name="name" label="Name" value={selectedClothing?.name ?? ''} />
-		<Textbox name="brand" label="Brand" value={selectedClothing?.brands?.name ?? 'undecided'} />
-		<Textbox name="category" label="Category" value={selectedClothing?.categories?.name} />
-		<Textbox
-			name="material"
-			label="Material"
-			value={selectedClothing?.materials?.name ?? 'undecided'}
-		/>
-		<Textbox name="color" label="Color" value={selectedClothing?.colors?.[0]?.name} />
+		<form method="post" action="?/update" use:enhance>
+			<Textbox name="name" value={selectedClothing?.name ?? ''} bind:changed />
+			<Textbox name="brand" value={selectedClothing?.brands?.name ?? 'undecided'} />
+			<Textbox name="category" value={selectedClothing?.categories?.name} />
+			<Textbox name="material" value={selectedClothing?.materials?.name ?? 'undecided'} />
+			<Textbox name="color" value={selectedClothing?.colors?.[0]?.name} />
+			<input type="hidden" name="id" value={selectedClothing?.id} />
+			{#if changed}
+				<Button type="submit" text="Update" fullWidth={true} />
+			{/if}
+		</form>
 	</div>
 </Dialog>

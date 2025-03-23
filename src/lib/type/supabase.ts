@@ -630,39 +630,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_clothing_with_details:
-        | {
-            Args: {
-              p_clothing_name: string
-              p_clothing_image_url: string
-              p_user_id: number
-              p_try_on_image_url: string
-              p_task_id: number
-              p_model_image_url: string
-              p_description: string
-              p_colors: string[]
-              p_brands: string
-              p_materials: string
-              p_category: string
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              p_clothing_name: string
-              p_clothing_image_url: string
-              p_user_id: string
-              p_try_on_image_url: string
-              p_task_id: string
-              p_model_image_url: string
-              p_description: string
-              p_colors: string[]
-              p_brands: string
-              p_materials: string
-              p_category: string
-            }
-            Returns: number
-          }
+      create_clothing_with_details: {
+        Args: {
+          p_clothing_name: string
+          p_clothing_image_url: string
+          p_user_id: string
+          p_try_on_image_url: string
+          p_task_id: string
+          p_model_image_url: string
+          p_description: string
+          p_colors: string[]
+          p_brands: string
+          p_materials: string
+          p_category: string
+        }
+        Returns: number
+      }
       get_clothings_for_outfit: {
         Args: {
           p_outfit_id: number
@@ -687,6 +670,18 @@ export type Database = {
           p_try_on_image_url: string
         }
         Returns: number
+      }
+      update_clothing_metadata: {
+        Args: {
+          p_user_id: string
+          p_id: number
+          p_name: string
+          p_brands: string
+          p_categories: string
+          p_materials: string
+          p_colors: string[]
+        }
+        Returns: undefined
       }
       upload_clothings: {
         Args: {

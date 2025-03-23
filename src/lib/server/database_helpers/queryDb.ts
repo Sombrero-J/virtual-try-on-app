@@ -22,7 +22,7 @@ export async function getClothingWithTryOns(
   const response = supabase
     .from("clothings")
     .select(
-      "name, categories_id, brands_id, materials_id, front_image_url, back_image_url, signed_front, signed_back, expiry_front, expiry_back, try_on_sessions(try_on_url, signed_try_on, signed_expiry), brands(name), categories(name), materials(name), colors(name)"
+      "id, name, categories_id, brands_id, materials_id, front_image_url, back_image_url, signed_front, signed_back, expiry_front, expiry_back, try_on_sessions(try_on_url, signed_try_on, signed_expiry), brands(name), categories(name), materials(name), colors(name)"
     )
     .eq("user_id", user_id)
     .order("last_modified", { ascending: false });
@@ -38,6 +38,15 @@ export async function getClothingWithTryOns(
   );
   return processedData;
 }
+
+type UpdateClothingFields = {
+  id: number;
+  name?: string;
+  brands?: string;
+  categories?: string;
+  materials?: string;
+  colors?: string[];
+};
 
 export async function getOutfits(supabase: supabaseFull, user_id: string) {
   const { data, error } = await supabase

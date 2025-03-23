@@ -14,6 +14,8 @@
     iconleft?: Snippet;
     iconright?: Snippet;
     showPassword?: Snippet;
+    onchange?: (value: string) => void;
+    changed?: boolean;
   }
 
   let {
@@ -28,7 +30,14 @@
     iconleft,
     iconright,
     showPassword,
+    onchange,
+    changed = $bindable(false)
   }: Props = $props();
+
+  function handleChange(event: Event) {
+    onchange?.(event.target.value);
+    changed = true;
+  }
 </script>
 
 <div
@@ -52,6 +61,7 @@
         {disabled}
         {required}
         class="bg-transparent border-0 w-full focus:outline-none"
+        {onchange}
       />
     {:else if type === "email"}
       <input

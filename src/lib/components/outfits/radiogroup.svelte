@@ -21,7 +21,7 @@
 		'text-white-primary border-1 border-border-gray bg-brand-gradient-button bg-right';
 
 	const unchecked =
-		'text-black-primary border-1 border-border-gray bg-white-primary relative duration-300 hover:text-white-primary hover:bg-brand cursor-pointer';
+		'text-black-primary border-1 border-border-gray bg-white-primary relative duration-300 hover:bg-border-gray cursor-pointer';
 </script>
 
 <div {...group.root} class="flex flex-col items-start justify-center gap-1">
