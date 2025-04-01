@@ -4,14 +4,17 @@
 	import { Tabs } from 'melt/builders';
 	import Dialog from '$lib/components/dialog/dialog.svelte';
 	import Textbox from '$lib/components/form/textbox.svelte';
-	import type { Database } from '$lib/type/supabase';
 	import WardrobeItem from '$lib/components/wardrobe/wardrobeItem.svelte';
 	import type { ClothingWithTryOnsType } from '$lib/server/database_helpers/queryDb';
 	import { onMount } from 'svelte';
 	import Button from '$lib/components/buttons/button.svelte';
 	import { enhance } from '$app/forms';
+	import Select from '$lib/components/melt/select.svelte';
+	import FloatTextbox from '$lib/components/form/floatTextbox.svelte';
+	import Info from '$lib/svg/info.svelte';
 
 	let openClothingDialog = $state(false);
+	let showTagInfo = $state(false);
 	let changed = $state(false);
 
 	const tabIds = ['Images', 'Models'];
@@ -124,16 +127,87 @@
 				class="h-40 w-auto object-contain lg:h-90"
 			/>
 		{/if}
-		<form method="post" action="?/update" use:enhance>
-			<Textbox name="name" value={selectedClothing?.name ?? ''} bind:changed />
-			<Textbox name="brand" value={selectedClothing?.brands?.name ?? 'undecided'} />
-			<Textbox name="category" value={selectedClothing?.categories?.name} />
-			<Textbox name="material" value={selectedClothing?.materials?.name ?? 'undecided'} />
-			<Textbox name="color" value={selectedClothing?.colors?.[0]?.name} />
+
+		<form method="post" class="flex flex-col gap-4" action="?/update" use:enhance>
+			<FloatTextbox
+				label="Name"
+				name="name"
+				placeholder="My Favourite..."
+				value={selectedClothing?.name ?? ''}
+				bind:changed
+			/>
+			<FloatTextbox
+				label="Brand"
+				name="brand"
+				placeholder="Gucci, Polo..."
+				value={selectedClothing?.brands?.name ?? null}
+				bind:changed
+			/>
+			<FloatTextbox
+				label="Category"
+				name="category"
+				placeholder="T-shirt, Dress..."
+				value={selectedClothing?.categories?.name ?? null}
+				bind:changed
+			/>
+			<FloatTextbox
+				label="Material"
+				name="material"
+				placeholder="Cotton, Wool..."
+				value={selectedClothing?.materials?.name ?? null}
+				bind:changed
+			/>
+
+			<Select
+				label="Color"
+				options={[
+					'red',
+					'blue',
+					'green',
+					'yellow',
+					'purple',
+					'orange',
+					'pink',
+					'brown',
+					'black',
+					'white',
+					'gray',
+					'silver',
+					'gold',
+					'beige',
+					'turquoise',
+					'maroon',
+					'navy',
+					'teal',
+					'lime',
+					'olive',
+					'azure',
+					'ivory',
+					'fuchsia',
+					'khaki',
+					'magenta',
+					'plum',
+					'salmon',
+					'tan',
+					'turquoise',
+					'violet',
+					'wheat',
+					'zinc'
+				]}
+			/>
+			<FloatTextbox label="Tag" name="tag" placeholder="Summer, Dinner...">
+				{#snippet iconright()}
+					<button class="cursor-pointer" onclick={() => (showTagInfo = !showTagInfo)}>
+						<Info />
+					</button>
+				{/snippet}
+			</FloatTextbox>
 			<input type="hidden" name="id" value={selectedClothing?.id} />
-			{#if changed}
-				<Button type="submit" text="Update" fullWidth={true} />
-			{/if}
+			<Button type="submit" text="Update" fullWidth={true} disabled={!changed} />
 		</form>
 	</div>
+</Dialog>
+
+<Dialog title="Tag Info" button={false} bind:open={showTagInfo}>
+	<p>A Tag is a way to categorise or label your clothing items, making it easier to search and organise your wardrobe.</p>
 </Dialog>

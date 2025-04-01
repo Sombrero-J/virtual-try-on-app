@@ -1,10 +1,13 @@
 <script lang="ts">
-  interface Props {
-    label?: string;
-    target?: string;
-  }
+	interface Props {
+		label?: string;
+		target?: string;
+		twClass?: string;
+	}
 
-  let { label = "Default Label", target = "Default For" }: Props = $props();
+	let { label = 'Default Label', target = 'Default For', twClass = "" }: Props = $props();
 </script>
 
-<label class="text-black-primary text-base font-medium mb-1" for={target}>{label}</label>
+<label class={['text-black-secondary mb-1 text-base font-normal', twClass]} for={target}
+	>{label}</label
+>

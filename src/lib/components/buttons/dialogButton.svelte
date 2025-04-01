@@ -3,32 +3,22 @@
 
 	interface Props {
 		text?: string;
-		type?: 'button' | 'submit' | 'reset';
-		style?: 'primary' | 'secondary';
 		loading?: boolean;
-		size?: 'small' | 'large';
 		disabled?: boolean;
 		onclick?: () => void;
 		ariaLabel?: string;
 		fullWidth?: boolean;
-		lefticon?: any;
-		righticon?: any;
 		twClass?: string;
 		children?: Snippet;
 	}
 
 	let {
 		text,
-		type = 'submit',
-		style = 'primary',
 		loading = false,
-		size = 'large',
 		disabled = false,
 		onclick = () => {},
 		ariaLabel,
 		fullWidth = false,
-		lefticon,
-		righticon,
 		twClass,
 		children
 	}: Props = $props();
@@ -39,24 +29,14 @@
 	let variantClasses = $derived(() => {
 		if (loading) {
 			return 'text-gray-disabled bg-brand-gradient-button bg-left cursor-not-allowed';
-		} else if (style === 'primary') {
+		} else {
 			return disabled
 				? 'text-gray-disabled bg-brand-gradient-button-disabled cursor-not-allowed'
-				: 'text-white-primary bg-brand-gradient-button bg-right duration-300 ease-in hover:bg-left hover:active:bg-brand hover:active:brand cursor-pointer';
-		} else if (style === 'secondary') {
-			return disabled
-				? 'text-black-tertiary cursor-not-allowed border-1 border-border-gray'
-				: 'text-black-primary border-1 border-brand bg-white-primary relative duration-300 hover:text-white-primary hover:bg-brand-gradient-button cursor-pointer';
+				: 'text-black-primary bg-brand-secondary cursor-pointer focus:outline-1 focus:outline-offset-1 focus:outline-brand';
 		}
-		return '';
 	});
 
-	const sizeClasses =
-		size === 'large'
-			? 'min-h-[44px] py-[0.5em] px-[1.5em] text-base'
-			: size === 'small'
-				? 'py-[0.25em] px-[0.5em] text-sm'
-				: '';
+	const sizeClasses = 'min-h-[44px] py-[0.5em] px-[1.5em] text-base';
 
 	const computedClasses = $derived([
 		baseClasses,
@@ -76,13 +56,10 @@
 	</div>
 {/snippet}
 
-<button class={computedClasses} {type} {onclick} aria-label={ariaLabel} {disabled}>
+<button class={computedClasses} {onclick} aria-label={ariaLabel} {disabled}>
 	{#if loading}
 		{@render loadingIcons()}
 	{:else}
-		{@render lefticon?.()}
 		{text}
-		{@render children?.()}
-		{@render righticon?.()}
 	{/if}
 </button>

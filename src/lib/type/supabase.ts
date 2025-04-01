@@ -393,22 +393,28 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          expiry_signed: string | null
           id: number
           image_url: string
+          signed_url: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           description?: string | null
+          expiry_signed?: string | null
           id?: number
           image_url: string
+          signed_url?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           description?: string | null
+          expiry_signed?: string | null
           id?: number
           image_url?: string
+          signed_url?: string | null
           user_id?: string
         }
         Relationships: [

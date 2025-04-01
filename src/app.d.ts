@@ -15,8 +15,8 @@ declare global {
       }>;
       session: Session | null;
       user: User | null;
-      uploadedBody: boolean;
-      uploadedClothing: boolean;
+      // uploadedBody: boolean;
+      // uploadedClothing: boolean;
     }
     interface PageData {
       session: Session | null;

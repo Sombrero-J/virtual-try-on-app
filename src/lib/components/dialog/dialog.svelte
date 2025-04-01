@@ -1,74 +1,170 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
-  import TextButton from "$lib/components/buttons/textButton.svelte";
-  import Button from "$lib/components/buttons/button.svelte";
-  import Icons from "$lib/svg/icons.svelte";
-  import CloseButton from "$lib/svg/small/closeButton.svelte";
+	import { onMount, type Snippet } from 'svelte';
+	import TextButton from '$lib/components/buttons/textButton.svelte';
+	import Button from '$lib/components/buttons/button.svelte';
+	import Icons from '$lib/svg/icons.svelte';
+	import CloseButton from '$lib/svg/small/closeButton.svelte';
+	import { innerWidth, innerHeight } from 'svelte/reactivity/window';
+	import { fly } from 'svelte/transition';
 
-  // let open = $state(false);
+	let startY = $state(0);
+	let isDragging = $state(false);
+	let draggable = $state<HTMLDivElement | null>(null);
 
-  interface Props {
-    title: string;
-    children: Snippet;
-    open?: boolean;
-    button?: boolean;
-    understood?: boolean;
-  }
+	let containerHeight = $derived.by(() => {
+		if (draggable) {
+			return draggable.offsetHeight;
+		} else {
+			return 300;
+		}
+	});
 
-  let { children, title, open = $bindable(), button = true, understood = true }: Props = $props();
+	let translateY = $state(0);
+	let maxTranslateY = $derived((innerHeight.current || 800) - 100);
+	let closeThreshold = $derived(containerHeight * 0.5);
+	let startTranslateY = $state(0);
+
+	function handleMouseDown(e: PointerEvent) {
+		// Prevent text selection during drag
+		e.preventDefault();
+
+		isDragging = true;
+		startY = e.clientY;
+		startTranslateY = translateY;
+	}
+
+	function handlePointerMove(e: PointerEvent) {
+		if (!isDragging || !draggable) return;
+
+		let clientY = e.clientY;
+		let deltaY = clientY - startY; // positive means dragging down
+		let newTranslateY = startTranslateY + deltaY;
+
+		// Clamp translation: cannot drag further up than 0
+		translateY = Math.max(0, newTranslateY);
+		// Optional: Clamp to maxTranslateY if you want a hard stop at the bottom
+		// translateY = Math.min(maxTranslateY, Math.max(0, newTranslateY));
+	}
+
+	function handlePointerUp() {
+		if (!isDragging) return;
+		isDragging = false;
+
+		if (translateY > closeThreshold) {
+			open = false;
+		}
+		// translateY must go back to 0 to ensure reopen works
+		translateY = 0;
+	}
+
+	interface Props {
+		title: string;
+		children: Snippet;
+		open?: boolean;
+		button?: boolean;
+		understood?: boolean;
+	}
+
+	let { children, title, open = $bindable(), button = true, understood = true }: Props = $props();
+
+	let isMobile = $derived((innerWidth.current && innerWidth.current < 1024) || false);
+
+	let sheetStyle = $derived(`
+        transform: translateY(${open ? translateY : containerHeight}px);
+        transition: ${isDragging ? 'none' : 'transform 0.3s ease-out'};
+        touch-action: ${isDragging ? 'none' : 'auto'}; /* Prevent scroll interference ONLY during drag */
+    `);
 </script>
 
 <svelte:window
-  onkeydown={(e) => {
-    if (e.key === "Escape" && open) {
-      open = false;
-    }
-  }}
+	onkeydown={(e) => {
+		if (e.key === 'Escape' && open) {
+			open = false;
+		}
+	}}
+	onpointerup={handlePointerUp}
+	onpointermove={handlePointerMove}
 />
 
 {#if button}
-  <TextButton onclick={() => (open = !open)} text="Show Examples" />
+	<TextButton onclick={() => (open = !open)} text="Show Examples" />
 {/if}
 
-{#if open}
-  <div
-    class="fixed bg-neutral-200/50 top-0 left-0 size-full flex justify-center items-center z-[100]"
-    role="presentation"
-    onclick={(event) => {
-      if (event.target === event.currentTarget) {
-        open = false;
-      }
-    }}
-  >
-    <div
-      class="max-w-8/10 max-h-2/3 rounded-3xl p-7 bg-white flex flex-col gap-5 justify-top items-center shadow-xl"
-    >
-      <div class="w-full flex justify-center items-center gap-2">
-        <h1 class="flex-1 text-base lg:text-4xl font-medium">{title}</h1>
-        <button
-          class="right-0 cursor-pointer"
-          aria-label="Close modal"
-          onclick={() => (open = false)}
-        >
-          <div class="lg:hidden">
-            <CloseButton />
-          </div>
-          <div class="hidden lg:block">
-            <Icons name="crossBlack" width="44px" height="44px" />
-          </div>
-        </button>
-      </div>
-      <div class="overflow-y-auto h-full">
-        {@render children?.()}
-      </div>
-      {#if understood}
-        <Button
-          twClass={"cursor-pointer"}
-          fullWidth={true}
-          text="Understood"
-          onclick={() => (open = false)}
-        />
-      {/if}
-    </div>
-  </div>
+{#if open && !isMobile}
+	<div
+		class="fixed top-0 left-0 z-[100] flex size-full items-center justify-center bg-neutral-200/50"
+		role="presentation"
+		onclick={(event) => {
+			if (event.target === event.currentTarget) {
+				open = false;
+			}
+		}}
+	>
+		<div
+			class="justify-top flex max-h-2/3 max-w-8/10 flex-col items-center gap-5 rounded-3xl bg-white p-7 shadow-xl"
+		>
+			<div class="flex w-full items-center justify-center gap-2">
+				<h1 class="flex-1 text-4xl font-medium">{title}</h1>
+				<button
+					class="right-0 cursor-pointer"
+					aria-label="Close modal"
+					onclick={() => (open = false)}
+				>
+					<div class="hidden lg:block">
+						<Icons name="crossBlack" width="44px" height="44px" />
+					</div>
+				</button>
+			</div>
+			<div class="h-full overflow-y-auto">
+				{@render children?.()}
+			</div>
+			{#if understood}
+				<Button
+					twClass={'cursor-pointer'}
+					fullWidth={true}
+					text="Understood"
+					onclick={() => (open = false)}
+				/>
+			{/if}
+		</div>
+	</div>
+{:else if open && isMobile}
+	<!-- Positioning (bottom): You're directly manipulating a bottom state variable. It's often better for performance, especially with animations, to use CSS transform: translateY() instead of changing layout properties like bottom. We'll keep a state variable, but have it represent the translateY value. -->
+	<div
+		class="fixed top-0 left-0 z-[100] flex size-full items-center justify-center bg-neutral-200/50"
+		role="presentation"
+		onclick={(event) => {
+			if (event.target === event.currentTarget) {
+				open = false;
+			}
+		}}
+	>
+		<div
+			bind:this={draggable}
+			class="bg-white-primary fixed bottom-0 left-0 min-h-[10rem] w-full overflow-hidden rounded-t-3xl px-4 py-2"
+			style={sheetStyle}
+			transition:fly={{ y: 200, duration: 500 }}
+		>
+			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+			<div class="flex w-full flex-col items-center justify-start gap-3 text-center">
+				<div
+					role="dialog"
+					aria-label="Uploaded Items Bottom Sheet"
+					class="flex w-full cursor-move flex-col items-center justify-center gap-2"
+					onpointerdown={handleMouseDown}
+				>
+					<div class="bg-gray-subtlest h-[2px] w-1/10 rounded-full"></div>
+					<div class="flex w-full items-center">
+						<h1 class="flex-1 pl-[24px] text-base font-medium">{title}</h1>
+						<button class="cursor-pointer" onclick={() => open = false}>
+							<Icons name="crossBlack" width="24px" height="24px" />
+						</button>
+					</div>
+				</div>
+				<div class="w-full">
+					{@render children?.()}
+				</div>
+			</div>
+		</div>
+	</div>
 {/if}

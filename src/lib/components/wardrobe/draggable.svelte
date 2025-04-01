@@ -60,25 +60,25 @@
 
 <div
 	bind:this={draggable}
-	class="bg-white-primary absolute left-0 h-9/10 w-full overflow-hidden rounded-t-3xl px-4"
+	class="bg-white-primary absolute left-0 h-9/10 w-full overflow-hidden rounded-t-3xl px-4 py-2"
 	style="bottom: {bottom}px ;"
 >
 	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-	<div class="flex h-full w-full flex-col items-stretch justify-start gap-3 text-center">
+	<div class="flex w-full flex-col items-center justify-start gap-3 text-center">
 		<div
 			role="dialog"
 			aria-label="Uploaded Items Bottom Sheet"
-			class="mt-2 flex h-5 w-full cursor-move items-center justify-center"
+			class="flex w-full cursor-move flex-col items-center justify-center gap-2"
 			onmousedown={handleMouseDown}
 			ontouchstart={handleMouseDown}
 		>
-			<div class="bg-black-tertiary h-1/5 w-1/10 rounded-full"></div>
-		</div>
-		<h2 class="text-base font-semibold">Uploaded Items</h2>
-		<div class="flex items-center justify-start gap-2 overflow-x-auto">
-			{#each filterArray as filter}
-				<FilterButton {filter} />
-			{/each}
+			<div class="bg-gray-subtlest h-[2px] w-1/10 rounded-full"></div>
+			<h2 class="text-base font-semibold">Uploaded Items</h2>
+			<div class="flex items-center justify-start gap-2 overflow-x-auto">
+				{#each filterArray as filter}
+					<FilterButton {filter} />
+				{/each}
+			</div>
 		</div>
 		<div class="overflow-auto">
 			{@render children()}

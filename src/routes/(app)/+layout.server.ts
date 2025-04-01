@@ -1,24 +1,22 @@
-import type { LayoutServerLoad } from "./$types";
-import {
-  getClothingWithTryOns,
-} from "$lib/server/database_helpers/queryDb";
+import type { LayoutServerLoad } from './$types';
+import { getClothingWithTryOns } from '$lib/server/database_helpers/queryDb';
 
-import { fail } from "@sveltejs/kit";
+import { redirect } from '@sveltejs/kit';
 
 export const load: LayoutServerLoad = async ({
-  locals: { supabase, user, session },
-  cookies,
+	locals: { supabase, session, user },
+	cookies
 }) => {
-  if (!session || !user) {
-    return fail(401, { clothes: [], tryOns: [], user: null });
-  }
+	if (!session || !user) {
+		redirect(302, '/auth/login');
+	}
 
-  const clothingsWithTryOns = getClothingWithTryOns(supabase, user.id);
+	const clothingsWithTryOns = getClothingWithTryOns(supabase, user.id);
 
-  return {
-    clothingsWithTryOns,
-    user,
-    session,
-    cookies: cookies.getAll(),
-  };
+	return {
+		clothingsWithTryOns,
+		user,
+		session,
+		cookies: cookies.getAll()
+	};
 };

@@ -10,7 +10,7 @@
   import { page } from '$app/state';
   let { data, children }: LayoutProps = $props();
 
-  let selectedTab = $state<"Outfits" | "Uploaded items" | "Wardrobe">(page.data.title);
+  let selectedTab = $state<"Outfits" | "All items" | "Wardrobe">(page.data.title);
 </script>
 
 <div class="h-svh w-svw max-h-svh flex flex-col justify-between">
@@ -36,9 +36,9 @@
         <Outfit selected={selectedTab === "Outfits"} />
       {/snippet}
     </NavButton>
-    <NavButton text="Uploaded items" href="/home" onclick={() => (selectedTab = "Uploaded items")}>
+    <NavButton text="All items" href="/home" onclick={() => (selectedTab = "All items")}>
       {#snippet icon()}
-        <Uploaded selected={selectedTab === "Uploaded items"} />
+        <Uploaded selected={selectedTab === "All items"} />
       {/snippet}
     </NavButton>
     <NavButton text="Wardrobe" href="/wardrobe" onclick={() => (selectedTab = "Wardrobe")}>

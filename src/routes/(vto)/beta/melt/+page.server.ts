@@ -80,4 +80,10 @@ export const actions: Actions = {
     const result = await describeImage(base64Image);
     return { success: true, result };
   },
+  select: async ({ request }) => {
+    const formData = await request.formData();
+    const color = formData.get("color") as string;
+    console.log("From server: ", color);
+    return { success: true, color };
+  },
 };
