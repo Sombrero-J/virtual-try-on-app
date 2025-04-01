@@ -14,6 +14,7 @@
 	import WardrobeItem from '$lib/components/wardrobe/wardrobeItem.svelte';
 	import DialogButton from '$lib/components/buttons/dialogButton.svelte';
 	import ImageUploadV2 from '$lib/components/form/image-upload-v2.svelte';
+	import { fly } from 'svelte/transition';
 
 	let { data, form }: PageProps = $props();
 
@@ -94,11 +95,12 @@
 								}}
 								>+
 							</button>
-							{#each clothingsWithTryOns as item}
+							{#each clothingsWithTryOns as item, i}
 								<WardrobeItem
 									src={item.signed_front}
 									alt="front side of ${item.name}"
 									selected={selectedItem?.front_image_url === item.front_image_url}
+									transitionIndex={i}
 								/>
 							{/each}
 						</div>
@@ -167,7 +169,8 @@
 		<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
 			<div
 				class="bg-brand-secondary text-black-primary flex aspect-square cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
-			>+
+			>
+				+
 				<input
 					type="file"
 					name="new_model_image"
