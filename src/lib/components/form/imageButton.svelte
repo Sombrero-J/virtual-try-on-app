@@ -1,32 +1,37 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
+	import type { Snippet } from 'svelte';
 
+	interface Props {
+		text?: string;
+		type?: 'button' | 'submit' | 'reset';
+		onclick?: () => void;
+		ariaLabel?: string;
+		pic?: Snippet;
+		src: any;
+		alt: string;
+	}
 
-  interface Props {
-    text?: string;
-    type?: "button" | "submit" | "reset";
-    onclick?: () => void;
-    ariaLabel?: string;
-    pic: Snippet;
-  }
-
-  let {
-    text = "Default Text",
-    type = "submit",
-    onclick = () => {},
-    ariaLabel = "",
-    pic,
-  }: Props = $props();
+	let {
+		text = 'Default Text',
+		type = 'submit',
+		onclick = () => {},
+		ariaLabel = '',
+		src,
+		alt
+	}: Props = $props();
 </script>
 
 <button
-  {type}
-  {onclick}
-  aria-label={ariaLabel}
-  class="flex flex-col justify-end items-center rounded-2xl border border-gray-subtler hover:border-black cursor-pointer p-0 bg-transparent overflow-hidden w-[13rem] h-[15rem]"
+	{type}
+	{onclick}
+	aria-label={ariaLabel}
+	class="bg-brand-secondary focus:ring-brand flex w-full cursor-pointer items-center justify-start gap-5 rounded-2xl p-4 focus:ring-1 lg:max-w-50 lg:flex-col lg:gap-0 lg:p-0"
 >
-  {@render pic?.()}
-  <p class="text-black-primary text-2xl font-medium py-1">
-    {text}
-  </p>
+	<!-- <div>
+		{@render pic?.()}
+	</div> -->
+	<enhanced:img {src} {alt} class="h-30 w-auto object-cover lg:h-auto lg:w-full"/>
+	<p class="text-black-primary py-1 text-2xl font-medium lg:px-5">
+		{text}
+	</p>
 </button>

@@ -4,7 +4,6 @@
   import { goto } from "$app/navigation";
   import Title from "$lib/components/text/title.svelte";
   import Subtitle from "$lib/components/text/subtitle.svelte";
-  import Back from "$lib/components/buttons/back.svelte";
   import Dialog from "$lib/components/dialog/dialog.svelte";
   import BodyGuide from "$lib/content/vto-dialogs/bodyGuide.svelte";
   import Or from "$lib/components/text/or.svelte";

@@ -6,6 +6,7 @@
 	import CloseButton from '$lib/svg/small/closeButton.svelte';
 	import { innerWidth, innerHeight } from 'svelte/reactivity/window';
 	import { fly } from 'svelte/transition';
+	import Back from '../buttons/back.svelte';
 
 	let startY = $state(0);
 	let isDragging = $state(false);
@@ -58,14 +59,24 @@
 	}
 
 	interface Props {
-		title: string;
+		title?: string;
+		titleholder?: Snippet;
 		children: Snippet;
 		open?: boolean;
 		button?: boolean;
 		understood?: boolean;
+		backFn?: () => void;
 	}
 
-	let { children, title, open = $bindable(), button = true, understood = true }: Props = $props();
+	let {
+		children,
+		title,
+		titleholder,
+		open = $bindable(),
+		button = true,
+		understood = true,
+		backFn
+	}: Props = $props();
 
 	let isMobile = $derived((innerWidth.current && innerWidth.current < 1024) || false);
 
@@ -155,8 +166,17 @@
 				>
 					<div class="bg-gray-subtlest h-[2px] w-1/10 rounded-full"></div>
 					<div class="flex w-full items-center">
-						<h1 class="flex-1 pl-[24px] text-base font-medium">{title}</h1>
-						<button class="cursor-pointer" onclick={() => open = false}>
+						{#if backFn}
+							<Back onclick={backFn} />
+						{/if}
+						{#if title}
+							<h1 class={['flex-1 text-xl font-medium', !backFn && 'pl-[24px]']}>{title}</h1>
+						{:else if titleholder}
+							<div class={['flex-1', !backFn && 'pl-[24px]']}>
+								{@render titleholder?.()}
+							</div>
+						{/if}
+						<button class="cursor-pointer" onclick={() => (open = false)}>
 							<Icons name="crossBlack" width="24px" height="24px" />
 						</button>
 					</div>

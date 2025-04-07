@@ -23,7 +23,8 @@
 		children
 	}: Props = $props();
 
-	const baseClasses = 'flex justify-center items-center whitespace-nowrap rounded-md border-0';
+	const baseClasses =
+		'relative flex justify-center items-center whitespace-nowrap rounded-md border-0';
 
 	// variantClasses is reactive to "disabled"
 	let variantClasses = $derived(() => {
@@ -60,6 +61,6 @@
 	{#if loading}
 		{@render loadingIcons()}
 	{:else}
-		{text}
+		{text} {@render children?.()}
 	{/if}
 </button>

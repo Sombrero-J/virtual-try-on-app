@@ -1,13 +1,13 @@
 <script lang="ts">
   interface Props {
-    steps?: number;
-    activeStep?: number;
+    steps: number;
+    activeStep: number;
   }
 
   let { steps = 3, activeStep = 1 }: Props = $props();
 </script>
 
-<div class="flex gap-1">
+<div class="flex gap-1 justify-center items-center">
   {#each Array(steps) as _, index}
     <div
       class={[

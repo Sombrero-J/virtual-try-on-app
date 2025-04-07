@@ -1,0 +1,232 @@
+Date : 2025-04-07 11:06:00
+Directory : /Users/jayden/Desktop/FYP/virtual-try-on-app/src
+Total : 133 files,  7684 codes, 372 comments, 853 blanks, all 8909 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| Svelte     |         88 |      4,369 |        158 |        437 |      4,964 |
+| TypeScript |         38 |      2,997 |        187 |        389 |      3,573 |
+| XML        |          4 |        233 |          0 |          3 |        236 |
+| PostCSS    |          1 |         53 |          0 |         13 |         66 |
+| HTML       |          1 |         32 |          1 |          3 |         36 |
+| JavaScript |          1 |          0 |         26 |          8 |         34 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                              | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                 |        133 |      7,684 |        372 |        853 |      8,909 |
+| . (Files)                                                                                                         |          4 |        156 |         31 |         30 |        217 |
+| lib                                                                                                               |         84 |      4,158 |        153 |        414 |      4,725 |
+| lib/clientUtil                                                                                                    |          1 |         41 |         13 |          8 |         62 |
+| lib/components                                                                                                    |         34 |      1,556 |         17 |        204 |      1,777 |
+| lib/components (Files)                                                                                            |          2 |        107 |          1 |          8 |        116 |
+| lib/components/buttons                                                                                            |          5 |        196 |          0 |         29 |        225 |
+| lib/components/card                                                                                               |          1 |         11 |          0 |          2 |         13 |
+| lib/components/dialog                                                                                             |          1 |        171 |          2 |         18 |        191 |
+| lib/components/form                                                                                               |          6 |        429 |          5 |         48 |        482 |
+| lib/components/imageScan                                                                                          |          1 |         27 |          0 |          5 |         32 |
+| lib/components/logo                                                                                               |          1 |          9 |          0 |          3 |         12 |
+| lib/components/melt                                                                                               |          4 |        195 |          5 |         31 |        231 |
+| lib/components/nav                                                                                                |          1 |         78 |          1 |          5 |         84 |
+| lib/components/outfits                                                                                            |          1 |         38 |          1 |          7 |         46 |
+| lib/components/profile                                                                                            |          2 |         32 |          0 |          8 |         40 |
+| lib/components/text                                                                                               |          3 |         29 |          0 |          6 |         35 |
+| lib/components/visualiser                                                                                         |          1 |         19 |          0 |          2 |         21 |
+| lib/components/wardrobe                                                                                           |          5 |        215 |          2 |         32 |        249 |
+| lib/content                                                                                                       |          3 |        112 |          6 |         21 |        139 |
+| lib/content/vto-dialogs                                                                                           |          2 |         86 |          6 |         14 |        106 |
+| lib/content/vto-qr                                                                                                |          1 |         26 |          0 |          7 |         33 |
+| lib/server                                                                                                        |         10 |        572 |        114 |        113 |        799 |
+| lib/server (Files)                                                                                                |          1 |          0 |         26 |          8 |         34 |
+| lib/server/aws                                                                                                    |          2 |         41 |          4 |          9 |         54 |
+| lib/server/database_helpers                                                                                       |          4 |        239 |         74 |         57 |        370 |
+| lib/server/huggingface                                                                                            |          1 |         27 |          2 |          5 |         34 |
+| lib/server/openai                                                                                                 |          1 |        131 |          7 |         15 |        153 |
+| lib/server/vto                                                                                                    |          1 |        134 |          1 |         19 |        154 |
+| lib/state                                                                                                         |          1 |         48 |          2 |         15 |         65 |
+| lib/svg                                                                                                           |         34 |      1,016 |          1 |         45 |      1,062 |
+| lib/svg (Files)                                                                                                   |         10 |        505 |          1 |         17 |        523 |
+| lib/svg/indicators                                                                                                |          2 |         65 |          0 |          2 |         67 |
+| lib/svg/small                                                                                                     |         22 |        446 |          0 |         26 |        472 |
+| lib/svg/small (Files)                                                                                             |          6 |        138 |          0 |          4 |        142 |
+| lib/svg/small/profile                                                                                             |         10 |        129 |          0 |         10 |        139 |
+| lib/svg/small/wardrobe                                                                                            |          6 |        179 |          0 |         12 |        191 |
+| lib/type                                                                                                          |          1 |        813 |          0 |          8 |        821 |
+| routes                                                                                                            |         45 |      3,370 |        188 |        409 |      3,967 |
+| routes (Files)                                                                                                    |          3 |         53 |          9 |         11 |         73 |
+| routes/(app)                                                                                                      |         16 |      1,502 |         44 |        159 |      1,705 |
+| routes/(app) (Files)                                                                                              |          2 |         61 |          0 |         10 |         71 |
+| routes/(app)/by                                                                                                   |          5 |        149 |         20 |         20 |        189 |
+| routes/(app)/by (Files)                                                                                           |          1 |         19 |          0 |          4 |         23 |
+| routes/(app)/by/myphotos                                                                                          |          2 |         40 |          0 |          6 |         46 |
+| routes/(app)/by/profile                                                                                           |          2 |         90 |         20 |         10 |        120 |
+| routes/(app)/home                                                                                                 |          2 |        885 |         20 |         81 |        986 |
+| routes/(app)/outfits                                                                                              |          5 |        168 |          2 |         28 |        198 |
+| routes/(app)/outfits (Files)                                                                                      |          2 |        108 |          2 |         20 |        130 |
+| routes/(app)/outfits/create-ai                                                                                    |          2 |         56 |          0 |          6 |         62 |
+| routes/(app)/outfits/create-custom                                                                                |          1 |          4 |          0 |          2 |          6 |
+| routes/(app)/wardrobe                                                                                             |          2 |        239 |          2 |         20 |        261 |
+| routes/(vto)                                                                                                      |         24 |      1,488 |        130 |        193 |      1,811 |
+| routes/(vto) (Files)                                                                                              |          4 |         59 |          8 |         11 |         78 |
+| routes/(vto)/auth                                                                                                 |         11 |        481 |         41 |         59 |        581 |
+| routes/(vto)/auth/confirm                                                                                         |          1 |         24 |          6 |          6 |         36 |
+| routes/(vto)/auth/error                                                                                           |          1 |          1 |          0 |          0 |          1 |
+| routes/(vto)/auth/login                                                                                           |          2 |         95 |          5 |         10 |        110 |
+| routes/(vto)/auth/logout                                                                                          |          1 |          5 |          0 |          2 |          7 |
+| routes/(vto)/auth/password_reset                                                                                  |          2 |        145 |          5 |         16 |        166 |
+| routes/(vto)/auth/reset                                                                                           |          2 |         57 |          5 |         10 |         72 |
+| routes/(vto)/auth/signup                                                                                          |          2 |        154 |         20 |         15 |        189 |
+| routes/(vto)/beta                                                                                                 |          9 |        948 |         81 |        123 |      1,152 |
+| routes/(vto)/beta/melt                                                                                            |          2 |        135 |         29 |         22 |        186 |
+| routes/(vto)/beta/vto-test                                                                                        |          7 |        813 |         52 |        101 |        966 |
+| routes/(vto)/beta/vto-test/body-image-upload                                                                      |          2 |        142 |          8 |         16 |        166 |
+| routes/(vto)/beta/vto-test/clothing-image-upload                                                                  |          2 |        179 |         33 |         21 |        233 |
+| routes/(vto)/beta/vto-test/generation                                                                             |          3 |        492 |         11 |         64 |        567 |
+| routes/api                                                                                                        |          2 |        327 |          5 |         46 |        378 |
+| routes/api/queryTask                                                                                              |          1 |        105 |          3 |         16 |        124 |
+| routes/api/submitTask                                                                                             |          1 |        222 |          2 |         30 |        254 |
++-------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                          | language   | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/app.css                                                          | PostCSS    |         53 |          0 |         13 |         66 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/app.d.ts                                                         | TypeScript |         20 |          7 |          3 |         30 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/app.html                                                         | HTML       |         32 |          1 |          3 |         36 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/hooks.server.ts                                                  | TypeScript |         51 |         23 |         11 |         85 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/clientUtil/realtime.ts                                       | TypeScript |         41 |         13 |          8 |         62 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/buttons/back.svelte                               | Svelte     |         21 |          0 |          4 |         25 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/buttons/button.svelte                             | Svelte     |         80 |          0 |          9 |         89 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/buttons/dialogButton.svelte                       | Svelte     |         58 |          0 |          9 |         67 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/buttons/navButton.svelte                          | Svelte     |         27 |          0 |          5 |         32 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/buttons/textButton.svelte                         | Svelte     |         10 |          0 |          2 |         12 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/card/cardheader.svelte                            | Svelte     |         11 |          0 |          2 |         13 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/dialog/dialog.svelte                              | Svelte     |        171 |          2 |         18 |        191 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/form/floatTextbox.svelte                          | Svelte     |        101 |          1 |          7 |        109 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/form/image-gen-v2.svelte                          | Svelte     |         22 |          0 |          3 |         25 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/form/image-upload-v2.svelte                       | Svelte     |         72 |          0 |          6 |         78 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/form/imageButton.svelte                           | Svelte     |         31 |          3 |          4 |         38 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/form/selectInput.svelte                           | Svelte     |        104 |          0 |         21 |        125 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/form/textbox.svelte                               | Svelte     |         99 |          1 |          7 |        107 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/imageScan/imageScan.svelte                        | Svelte     |         27 |          0 |          5 |         32 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/label.svelte                                      | Svelte     |         11 |          0 |          3 |         14 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/logo/logo.svelte                                  | Svelte     |          9 |          0 |          3 |         12 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/melt/fileupload.svelte                            | Svelte     |         49 |          0 |          5 |         54 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/melt/progress.svelte                              | Svelte     |         23 |          0 |          4 |         27 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/melt/select.svelte                                | Svelte     |         67 |          0 |         14 |         81 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/melt/toast.svelte                                 | Svelte     |         56 |          5 |          8 |         69 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/nav/navbar.svelte                                 | Svelte     |         78 |          1 |          5 |         84 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/outfits/radiogroup.svelte                         | Svelte     |         38 |          1 |          7 |         46 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/profile/section.svelte                            | Svelte     |         14 |          0 |          4 |         18 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/profile/sectionbutton.svelte                      | Svelte     |         18 |          0 |          4 |         22 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/text/or.svelte                                    | Svelte     |          5 |          0 |          0 |          5 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/text/subtitle.svelte                              | Svelte     |         10 |          0 |          3 |         13 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/text/title.svelte                                 | Svelte     |         14 |          0 |          3 |         17 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/textbox.svelte                                    | Svelte     |         96 |          1 |          5 |        102 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/visualiser/stepIndicator.svelte                   | Svelte     |         19 |          0 |          2 |         21 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/wardrobe/draggable.svelte                         | Svelte     |         73 |          1 |         14 |         88 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/wardrobe/filterButton.svelte                      | Svelte     |         31 |          0 |          4 |         35 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/wardrobe/grids.svelte                             | Svelte     |         67 |          0 |          6 |         73 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/wardrobe/newIcons.svelte                          | Svelte     |         25 |          1 |          4 |         30 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/components/wardrobe/wardrobeItem.svelte                      | Svelte     |         19 |          0 |          4 |         23 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/content/vto-dialogs/bodyGuide.svelte                         | Svelte     |         43 |          3 |          7 |         53 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/content/vto-dialogs/clothingGuide.svelte                     | Svelte     |         43 |          3 |          7 |         53 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/content/vto-qr/qrcode.svelte                                 | Svelte     |         26 |          0 |          7 |         33 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/aws/rekognition.ts                                    | TypeScript |         35 |          4 |          6 |         45 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/aws/rekognitionClient.ts                              | TypeScript |          6 |          0 |          3 |          9 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/database_helpers/getStorageItemURL.ts                 | TypeScript |         14 |          0 |          3 |         17 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/database_helpers/queryDb.ts                           | TypeScript |        173 |         19 |         38 |        230 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/database_helpers/storage.ts                           | TypeScript |         52 |          1 |          9 |         62 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/database_helpers/uploadClothing.ts                    | TypeScript |          0 |         54 |          7 |         61 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/huggingface/inference.ts                              | TypeScript |         27 |          2 |          5 |         34 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/openai/openai.ts                                      | TypeScript |        131 |          7 |         15 |        153 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/server.js                                             | JavaScript |          0 |         26 |          8 |         34 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/server/vto/tryonfunctions.ts                                 | TypeScript |        134 |          1 |         19 |        154 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/state/vto.svelte.ts                                          | TypeScript |         48 |          2 |         15 |         65 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/Lines-hiw.svg                                            | XML        |         72 |          0 |          1 |         73 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/Lines.svg                                                | XML        |        106 |          0 |          0 |        106 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/eyeClosed.svelte                                         | Svelte     |         12 |          0 |          1 |         13 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/eyeOpened.svelte                                         | Svelte     |         12 |          0 |          1 |         13 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/hamburger.svelte                                         | Svelte     |          6 |          0 |          1 |          7 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/icons.svelte                                             | Svelte     |        215 |          1 |          8 |        224 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/indicators/success.svelte                                | Svelte     |         29 |          0 |          1 |         30 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/indicators/warning.svelte                                | Svelte     |         36 |          0 |          1 |         37 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/info.svelte                                              | Svelte     |         10 |          0 |          1 |         11 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/login_background.svg                                     | XML        |         33 |          0 |          1 |         34 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/pin.svelte                                               | Svelte     |         17 |          0 |          2 |         19 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/signup_background.svg                                    | XML        |         22 |          0 |          1 |         23 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/BigUploadClothing.svelte                           | Svelte     |         40 |          0 |          1 |         41 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/BigUploadModel.svelte                              | Svelte     |         46 |          0 |          1 |         47 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/closeButton.svelte                                 | Svelte     |         14 |          0 |          1 |         15 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/editProfile.svelte                         | Svelte     |          6 |          0 |          1 |          7 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/help.svelte                                | Svelte     |          9 |          0 |          1 |         10 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/information.svelte                         | Svelte     |         10 |          0 |          1 |         11 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/instagram.svelte                           | Svelte     |         12 |          0 |          1 |         13 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/link.svelte                                | Svelte     |          8 |          0 |          1 |          9 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/lock.svelte                                | Svelte     |         12 |          0 |          1 |         13 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/noteboard.svelte                           | Svelte     |         12 |          0 |          1 |         13 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/photos.svelte                              | Svelte     |         37 |          0 |          1 |         38 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/thumbsup.svelte                            | Svelte     |         11 |          0 |          1 |         12 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/profile/trashcan.svelte                            | Svelte     |         12 |          0 |          1 |         13 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/restart.svelte                                     | Svelte     |          6 |          0 |          1 |          7 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/share.svelte                                       | Svelte     |         12 |          0 |          0 |         12 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/uploadClothing.svelte                              | Svelte     |         20 |          0 |          0 |         20 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/wardrobe/edit.svelte                               | Svelte     |         12 |          0 |          1 |         13 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/wardrobe/hangar.svelte                             | Svelte     |         26 |          0 |          3 |         29 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/wardrobe/outfit.svelte                             | Svelte     |         37 |          0 |          3 |         40 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/wardrobe/profileHead.svelte                        | Svelte     |         48 |          0 |          1 |         49 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/wardrobe/uploaded.svelte                           | Svelte     |         40 |          0 |          3 |         43 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/svg/small/wardrobe/woman.svelte                              | Svelte     |         16 |          0 |          1 |         17 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/lib/type/supabase.ts                                             | TypeScript |        813 |          0 |          8 |        821 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/+layout.server.ts                                   | TypeScript |         18 |          0 |          5 |         23 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/+layout.svelte                                      | Svelte     |         43 |          0 |          5 |         48 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/by/+layout@.svelte                                  | Svelte     |         19 |          0 |          4 |         23 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/by/myphotos/+page.server.ts                         | TypeScript |         13 |          0 |          3 |         16 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/by/myphotos/+page@by.svelte                         | Svelte     |         27 |          0 |          3 |         30 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/by/profile/+page.server.ts                          | TypeScript |          6 |          1 |          2 |          9 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/by/profile/+page@by.svelte                          | Svelte     |         84 |         19 |          8 |        111 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/home/+page.server.ts                                | TypeScript |        396 |         11 |         50 |        457 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/home/+page.svelte                                   | Svelte     |        489 |          9 |         31 |        529 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/outfits/+page.server.ts                             | TypeScript |         55 |          2 |         16 |         73 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/outfits/+page.svelte                                | Svelte     |         53 |          0 |          4 |         57 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/outfits/create-ai/+page.server.ts                   | TypeScript |         16 |          0 |          3 |         19 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/outfits/create-ai/+page.svelte                      | Svelte     |         40 |          0 |          3 |         43 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/outfits/create-custom/+page.svelte                  | Svelte     |          4 |          0 |          2 |          6 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/wardrobe/+page.server.ts                            | TypeScript |         37 |          1 |          9 |         47 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(app)/wardrobe/+page.svelte                               | Svelte     |        202 |          1 |         11 |        214 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/+layout.server.ts                                   | TypeScript |          0 |          8 |          2 |         10 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/+layout.svelte                                      | Svelte     |         30 |          0 |          4 |         34 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/+page.server.ts                                     | TypeScript |         15 |          0 |          3 |         18 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/+page.svelte                                        | Svelte     |         14 |          0 |          2 |         16 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/confirm/+server.ts                             | TypeScript |         24 |          6 |          6 |         36 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/error/+page.svelte                             | Svelte     |          1 |          0 |          0 |          1 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/login/+page.server.ts                          | TypeScript |         18 |          0 |          2 |         20 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/login/+page.svelte                             | Svelte     |         77 |          5 |          8 |         90 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/logout/+server.ts                              | TypeScript |          5 |          0 |          2 |          7 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/password_reset/+page.server.ts                 | TypeScript |         17 |          0 |          3 |         20 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/password_reset/+page.svelte                    | Svelte     |        128 |          5 |         13 |        146 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/reset/+page.server.ts                          | TypeScript |         16 |          0 |          4 |         20 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/reset/+page.svelte                             | Svelte     |         41 |          5 |          6 |         52 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/signup/+page.server.ts                         | TypeScript |         16 |          0 |          3 |         19 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/auth/signup/+page.svelte                            | Svelte     |        138 |         20 |         12 |        170 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/beta/melt/+page.server.ts                           | TypeScript |         75 |          4 |         11 |         90 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/beta/melt/+page.svelte                              | Svelte     |         60 |         25 |         11 |         96 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/beta/vto-test/body-image-upload/+page.server.ts     | TypeScript |         12 |          0 |          3 |         15 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/beta/vto-test/body-image-upload/+page.svelte        | Svelte     |        130 |          8 |         13 |        151 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/beta/vto-test/clothing-image-upload/+page.server.ts | TypeScript |          4 |          0 |          3 |          7 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/beta/vto-test/clothing-image-upload/+page.svelte    | Svelte     |        175 |         33 |         18 |        226 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/beta/vto-test/generation/+page.server.ts            | TypeScript |        267 |          6 |         44 |        317 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/beta/vto-test/generation/+page.svelte               | Svelte     |        147 |          4 |          8 |        159 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/(vto)/beta/vto-test/generation/utils.ts                   | TypeScript |         78 |          1 |         12 |         91 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/+layout.server.ts                                         | TypeScript |          8 |          0 |          1 |          9 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/+layout.svelte                                            | Svelte     |         16 |          0 |          4 |         20 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/+layout.ts                                                | TypeScript |         29 |          9 |          6 |         44 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/api/queryTask/+server.ts                                  | TypeScript |        105 |          3 |         16 |        124 |
+| /Users/jayden/Desktop/FYP/virtual-try-on-app/src/routes/api/submitTask/+server.ts                                 | TypeScript |        222 |          2 |         30 |        254 |
+| Total                                                                                                             |            |      7,684 |        372 |        853 |      8,909 |
++-------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

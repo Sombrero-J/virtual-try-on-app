@@ -1,14 +1,15 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export async function uploadToStorage(
   bucket: string,
-  fileName: string,
   file: File,
   supabase: supabaseFull,
   user_id?: string
 ) {
-  const timestamp = Date.now();
-  const filePath = user_id
-    ? `${user_id}/${timestamp}-${fileName || "null"}`
-    : `${timestamp}-${fileName || "null"}`;
+  const fileName = file.name;
+  const fileExt = file.name.split('.').pop();
+  const uniqueId = uuidv4();
+  const filePath = `${user_id}/${uniqueId}.${fileExt}`;
 
   const { data, error } = await supabase.storage
     .from(bucket)

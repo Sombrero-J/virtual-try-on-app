@@ -55,6 +55,8 @@ export async function getTryOns(supabase: supabaseFull, user_id: string) {
 	return data;
 }
 
+export type ModelsType = Awaited<ReturnType<typeof getModels>>;
+
 export async function getModels(supabase: supabaseFull, user_id: string) {
 	const { data, error } = await supabase
 		.from('model_images')
@@ -65,9 +67,67 @@ export async function getModels(supabase: supabaseFull, user_id: string) {
 	if (error) {
 		throw new Error('Error fetching model images: ' + error.message);
 	}
-  
+
 	const processedData = await Promise.all(data.map((item) => resolveSignedUrls(item, supabase)));
 	return processedData;
+}
+
+// INSERT INTO model_images (
+// 	image_url,
+// 	user_id,
+// 	created_at
+// )
+// VALUES (
+// 	p_model_image_url,
+// 	p_user_id,
+// 	NOW()
+// )
+
+export async function insertModel(supabase: supabaseFull, user_id: string, model_paths: string[]) {
+	if (!model_paths || model_paths.length === 0) {
+		console.log('No model paths provided to insert.');
+		return [];
+	}
+
+	const newRows = model_paths.map((path) => ({
+		image_url: path,
+		user_id: user_id
+	}));
+
+	const { data, error } = await supabase.from('model_images').insert(newRows).select('*');
+
+	if (error) {
+		throw new Error('Error inserting model image: ' + error.message);
+	}
+
+	return data;
+}
+
+export async function insertClothings(
+	supabase: supabaseFull,
+	user_id: string,
+	model_paths: string[]
+) {
+	if (!model_paths || model_paths.length === 0) {
+		console.log('No model paths provided to insert.');
+		return [];
+	}
+
+	const newRows = model_paths.map((path) => ({
+		front_image_url: path,
+		user_id: user_id,
+		name: path.split('/').pop() || 'Unknown'
+	}));
+
+	// const { data, error } = await supabase.from('clothings').insert(newRows).select('*');
+
+	// if (error) {
+	// 	throw new Error('Error inserting model image: ' + error.message);
+	// }
+
+	// return data;
+
+	return newRows;
 }
 
 interface UrlMappingConfig {

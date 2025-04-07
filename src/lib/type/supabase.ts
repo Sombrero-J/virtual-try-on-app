@@ -120,6 +120,7 @@ export type Database = {
           owned: boolean | null
           signed_back: string | null
           signed_front: string | null
+          status: Database["public"]["Enums"]["clothing_status"]
           updated_at: string | null
           user_id: string
         }
@@ -139,6 +140,7 @@ export type Database = {
           owned?: boolean | null
           signed_back?: string | null
           signed_front?: string | null
+          status?: Database["public"]["Enums"]["clothing_status"]
           updated_at?: string | null
           user_id: string
         }
@@ -158,6 +160,7 @@ export type Database = {
           owned?: boolean | null
           signed_back?: string | null
           signed_front?: string | null
+          status?: Database["public"]["Enums"]["clothing_status"]
           updated_at?: string | null
           user_id?: string
         }
@@ -636,6 +639,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_new_clothings: {
+        Args: {
+          p_clothing_name: string
+          p_clothing_image_url: string
+          p_user_id: string
+          p_description: string
+          p_colors: string[]
+          p_brands: string
+          p_materials: string
+          p_category: string
+        }
+        Returns: number
+      }
       create_clothing_with_details: {
         Args: {
           p_clothing_name: string
@@ -698,7 +714,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      clothing_status: "uploaded" | "processing" | "done" | "error"
     }
     CompositeTypes: {
       [_ in never]: never

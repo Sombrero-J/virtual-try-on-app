@@ -1,6 +1,86 @@
 import OpenAI from 'openai';
 import { OPENAI_API_KEY } from '$env/static/private';
 
+const clothingCategories = [
+	// Tops
+	'T-Shirts',
+	'Long-Sleeve Tops',
+	'Shirts', // Simplified from "Shirts & Blouses"
+	'Sweaters', // Simplified from "Sweaters & Knitwear"
+	'Hoodies', // Simplified from "Hoodies & Sweatshirts"
+	'Sleeveless', // Simplified from "Tank Tops & Sleeveless Tops"
+
+	// Bottoms
+	'Jeans',
+	'Pants', // Simplified from "Trousers & Pants" (using common US term)
+	'Skirts',
+	'Shorts',
+	'Athletic Bottoms', // Simplified from "Leggings & Athletic Bottoms"
+
+	// Outerwear
+	'Coats',
+	'Jackets',
+	'Blazers', // Simplified from "Blazers & Suit Jackets"
+
+	// Full Body
+	'Dresses',
+	'Jumpsuits', // Simplified from "Jumpsuits & Rompers"
+
+	// Shoes
+	'Sneakers', // Simplified from "Sneakers & Trainers"
+	'Boots',
+	'Sandals', // Simplified from "Sandals & Flip-Flops"
+	'Heels',
+	'Flats', // Simplified from "Flats & Loafers"
+	'Formal Shoes',
+
+	// Accessories
+	'Bags',
+	'Scarves', // Simplified from "Scarves & Shawls"
+	'Hats', // Simplified from "Hats & Beanies"
+	'Belts',
+	'Jewellery',
+	'Sunglasses',
+	'Watches',
+	'Ties', // Simplified from "Ties & Bow Ties"
+
+	// Other Essentials
+	'Socks', // Simplified from "Socks & Tights" (Socks are more universal)
+	'Swimwear',
+	'Loungewear'
+];
+
+const fashionColors = [
+	'Black',
+	'White',
+	'Ivory / Cream',
+	'Grey',
+	'Charcoal',
+	'Beige / Tan',
+	'Brown',
+	'Navy',
+	'Red',
+	'Burgundy / Wine',
+	'Pink',
+	'Hot Pink / Fuchsia',
+	'Purple / Violet',
+	'Lavender / Lilac',
+	'Blue',
+	'Light Blue / Sky Blue',
+	'Teal / Turquoise',
+	'Green',
+	'Olive / Khaki',
+	'Mint / Sage',
+	'Yellow',
+	'Mustard',
+	'Orange',
+	'Rust / Terracotta',
+	'Coral / Peach',
+	'Gold',
+	'Silver',
+	'Bronze / Rose Gold'
+];
+
 const openai = new OpenAI({
 	apiKey: OPENAI_API_KEY
 });
@@ -34,9 +114,9 @@ export async function describeImage(base64Image: string) {
 						properties: {
 							description: { type: 'string' },
 							brand: { type: ['string', 'null'] },
-							color: { type: 'array', items: { type: 'string' } },
+							color: { type: 'array', items: { type: 'string', enum: fashionColors } },
 							material: { type: ['string', 'null'] },
-							category: { type: 'string' }
+							category: { type: 'string', enum: clothingCategories }
 						},
 						required: ['description', 'color', 'category', 'brand', 'material'],
 						additionalProperties: false
@@ -59,7 +139,7 @@ export async function describeImage(base64Image: string) {
 				return { result: null, error: contentItem.refusal };
 			} else {
 				console.log(response.output_text);
-				return { result: response.output_text, error: null};
+				return { result: response.output_text, error: null };
 			}
 		} else {
 			console.error('Unexpected output type', outputItem);

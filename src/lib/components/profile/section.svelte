@@ -11,7 +11,7 @@
 
 <section>
 	<header>
-		<h2 class="text-base text-black-tertiary">{title}</h2>
+		<h2 class="text-black-tertiary text-base">{title}</h2>
 	</header>
 	{@render children()}
 </section>

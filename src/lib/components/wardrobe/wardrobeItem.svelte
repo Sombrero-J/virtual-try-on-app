@@ -17,7 +17,6 @@
 		? 'border-black-primary border-1'
 		: ''}"
 	{onclick}
-	transition:fade={{ duration: 1000, delay: 300 * (transitionIndex || 1) }}
 >
 	<img {src} {alt} class="h-full w-full object-cover" />
 </button>

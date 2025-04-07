@@ -82,10 +82,6 @@ export const actions: Actions = {
 
 		const taskID = formData.get('taskID') as string;
 
-		const timestamp = Date.now();
-		const modelName = `${timestamp}-${user.id}-model`;
-		const tryonName = `${timestamp}-${user.id}-tryon`;
-
 		const clothingFile = formData.get('clothingFile') as File;
 		const clothingName = clothingFile.name;
 		const modelFile = formData.get('modelFile') as File;
@@ -112,13 +108,12 @@ export const actions: Actions = {
 		if (checkFileSize([clothingFile, modelFile, tryonFile], MAX_SIZE)) {
 			const clothingPath = await uploadToStorage(
 				'clothings',
-				clothingName,
 				clothingFile,
 				supabase,
 				user.id
 			);
-			const modelPath = await uploadToStorage('models', modelName, modelFile, supabase, user.id);
-			const tryonPath = await uploadToStorage('tryon', tryonName, tryonFile, supabase, user.id);
+			const modelPath = await uploadToStorage('models', modelFile, supabase, user.id);
+			const tryonPath = await uploadToStorage('tryon', tryonFile, supabase, user.id);
 
 			const { data, error } = await supabase.rpc('create_clothing_with_details', {
 				p_user_id: user.id,
