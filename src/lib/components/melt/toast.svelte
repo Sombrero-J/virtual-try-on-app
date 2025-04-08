@@ -23,7 +23,6 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 	import { Toaster } from 'melt/builders';
-	import { onMount } from 'svelte';
 
 	import Success from '$lib/svg/indicators/success.svelte';
 	// import Error from "$lib/svg/indicators/error.svelte";
@@ -34,11 +33,13 @@
 <!-- Some browsers automatically apply the inset CSS property to elements with the popover attribute (which toaster.root has due to popover: "manual"). Need to explicitly unset the inset property so bottom-4 right-4 styles work.-->
 <div
 	{...toaster.root}
-	class="!fixed inset-auto flex w-[300px] flex-col gap-2 overflow-hidden max-lg:!top-4 lg:!right-4 lg:!bottom-4"
+	class="!fixed inset-auto flex w-[300px] flex-col gap-2 overflow-hidden
+           max-lg:!top-4 max-lg:left-1/2 max-lg:-translate-x-1/2
+           lg:!right-4 lg:!bottom-4"
 >
 	{#each toaster.toasts as toast (toast.id)}
 		<div
-			class="flex items-start justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-lg"
+			class="flex items-start justify-between rounded-lg border border-gray-200 p-4 shadow-lg"
 			transition:fly={{ y: transitionOrigin, duration: 500 }}
 		>
 			<div class="flex flex-col items-start justify-center">

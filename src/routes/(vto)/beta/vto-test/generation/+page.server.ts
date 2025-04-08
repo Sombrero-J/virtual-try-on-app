@@ -85,6 +85,11 @@ export const actions: Actions = {
 		const clothingFile = formData.get('clothingFile') as File;
 		const clothingName = clothingFile.name;
 		const modelFile = formData.get('modelFile') as File;
+		const model_path = formData.get('model_path') as string;
+
+		if (!model_path && !modelFile) {
+			return { success: false, message: 'All form fields are required.' };
+		}
 
 		const tryon = formData.get('tryonUrl') as string;
 		const tryonFile = await getImageData(tryon, `tryon_${user.id}`);
@@ -101,21 +106,29 @@ export const actions: Actions = {
 		}
 		const { description, brand, color, material, category } = JSON.parse(result);
 
-		const brand_value = brand === "null" ? null : brand;
-		const material_value = material === "null" ? null : material;
+		const brand_value = brand === 'null' ? null : brand;
+		const material_value = material === 'null' ? null : material;
 
 		const MAX_SIZE = 3 * 1024 * 1024;
-		if (checkFileSize([clothingFile, modelFile, tryonFile], MAX_SIZE)) {
-			const clothingPath = await uploadToStorage(
-				'clothings',
-				clothingFile,
-				supabase,
-				user.id
-			);
-			const modelPath = await uploadToStorage('models', modelFile, supabase, user.id);
+
+		let modelPath;
+
+		if (modelFile && checkFileSize([modelFile], MAX_SIZE)) {
+			modelPath = await uploadToStorage('models', modelFile, supabase, user.id);
+		} else if (model_path) {
+			modelPath = model_path;
+		}
+
+		if (checkFileSize([clothingFile, tryonFile], MAX_SIZE)) {
+			const clothingPath = await uploadToStorage('clothings', clothingFile, supabase, user.id);
 			const tryonPath = await uploadToStorage('tryon', tryonFile, supabase, user.id);
 
-			const { data, error } = await supabase.rpc('create_clothing_with_details', {
+			if (!modelPath) {
+				return fail(400, { message: 'Model path does not exist' });
+			}
+
+			const { data, error } = await supabase.rpc('save_clothing_with_details', {
+				// check if this function checks if modelPath exists
 				p_user_id: user.id,
 				p_clothing_name: clothingName,
 				p_task_id: taskID,
@@ -142,7 +155,7 @@ export const actions: Actions = {
 						console.error(`Failed to delete orphaned file from ${bucket}: ${delError.message}`);
 					}
 				}
-				console.log('Error saving: ' + error + 'Rollback storage success.');
+				console.log('Error saving: ' + JSON.stringify(error, null, 2) + 'Rollback storage success.');
 				return fail(400, { message: 'Save error. ' + error });
 			}
 

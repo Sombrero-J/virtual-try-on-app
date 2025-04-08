@@ -13,7 +13,7 @@
 
 	let {
 		text = 'Default Text',
-		type = 'submit',
+		type = 'button',
 		onclick = () => {},
 		ariaLabel = '',
 		src,

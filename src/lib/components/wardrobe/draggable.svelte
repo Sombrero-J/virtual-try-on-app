@@ -60,7 +60,7 @@
 
 <div
 	bind:this={draggable}
-	class="bg-white-primary absolute left-0 h-9/10 w-full overflow-hidden rounded-t-3xl px-4 py-2"
+	class="bg-white-primary absolute left-0 max-h-9/10 w-full overflow-hidden rounded-t-3xl px-4 py-2"
 	style="bottom: {bottom}px ;"
 >
 	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
@@ -80,7 +80,7 @@
 				{/each}
 			</div>
 		</div>
-		<div class="overflow-auto">
+		<div class="overflow-y-auto flex-1">
 			{@render children()}
 		</div>
 	</div>

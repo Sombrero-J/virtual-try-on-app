@@ -1,4 +1,4 @@
-import { getModels, insertClothings, insertModel } from '$lib/server/database_helpers/queryDb';
+import { getModels, insertModel } from '$lib/server/database_helpers/queryDb';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import {
@@ -64,23 +64,37 @@ export const actions: Actions = {
 	tryon: async ({ request, locals: { supabase } }) => {
 		const formData = await request.formData();
 		const model_path = formData.get('model_path') as string;
-		const category = formData.get('category') as string;
-		const clothing_image = formData.get('clothing_image') as File;
+		const model_image = formData.get('model_file') as File;
 
-		if (!model_path || !category || !clothing_image) {
+		if (!model_path && !model_image) {
 			return { success: false, message: 'All form fields are required.' };
 		}
 
-		const fullBodyImageName = model_path.split('/').pop() || '';
+		const category = formData.get('category') as string;
+		const clothing_image = formData.get('clothing_image') as File;
+
+		if (!category || !clothing_image) {
+			return { success: false, message: 'All form fields are required.' };
+		}
+
+		const fullBodyImageName = model_path ? model_path.split('/').pop() || 'model image' : model_image.name;
 		const clothingImageName = clothing_image.name;
 
-		const { data: modelImageFile, error: downloadError } = await supabase.storage
-			.from('models')
-			.download(model_path);
+		let modelImageFile;
 
-		if (downloadError) {
-			return { success: false, message: 'Error downloading model file.' };
+		if (model_path) {
+			const { data, error: downloadError } = await supabase.storage
+				.from('models')
+				.download(model_path);
+
+			if (downloadError) {
+				return { success: false, message: 'Error downloading model file.' };
+			}
+			modelImageFile = data;
+		} else {
+			modelImageFile = model_image;
 		}
+
 		let fullBodyData: Buffer;
 		let clothingData: Buffer;
 		try {
@@ -365,14 +379,12 @@ export const actions: Actions = {
 					});
 
 					if (rpcError) {
-
 						console.error(`RPC 'add_new_clothings' failed for ${clothingData.name}:`, rpcError);
 						dbFailedItems.push({ storagePath, name: clothingData.name, error: rpcError });
 					} else {
 						insertedCount++;
 					}
 				} catch (rpcCatchError) {
-
 					console.error(`Unexpected error calling RPC for ${clothingData.name}:`, rpcCatchError);
 					dbFailedItems.push({ storagePath, name: clothingData.name, error: rpcCatchError });
 				}
@@ -452,15 +464,15 @@ export const actions: Actions = {
 				insertedCount: 0,
 				rejectedImages: allFailedItems
 			});
-	   }
+		}
 
-	   // at least a few successful inserts
-	   return {
-		   success: true,
-		   message: `${insertedCount} clothing item(s) added successfully. ${allFailedItems.length > 0 ? ` ${allFailedItems.length} item(s) failed.` : ''}`,
-		   insertedCount: insertedCount,
-		   rejectedImages: allFailedItems
-	   };
+		// at least a few successful inserts
+		return {
+			success: true,
+			message: `${insertedCount} clothing item(s) added successfully. ${allFailedItems.length > 0 ? ` ${allFailedItems.length} item(s) failed.` : ''}`,
+			insertedCount: insertedCount,
+			rejectedImages: allFailedItems
+		};
 	}
 };
 

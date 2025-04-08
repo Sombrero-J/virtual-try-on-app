@@ -14,7 +14,7 @@
 
 <button
 	class="bg-brand-secondary flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg {selected
-		? 'border-black-primary border-1'
+		? 'border-black-primary border-1 shadow-md'
 		: ''}"
 	{onclick}
 >

@@ -1,4 +1,3 @@
-import { updateClothing } from '$lib/server/database_helpers/queryDb';
 import type { PageServerLoad } from './$types';
 import { fail, type Actions } from '@sveltejs/kit';
 

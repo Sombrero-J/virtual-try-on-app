@@ -26,8 +26,13 @@
 	import Subtitle from '$lib/components/text/subtitle.svelte';
 	import ClothingGuide from '$lib/content/vto-dialogs/clothingGuide.svelte';
 	import Pin from '$lib/svg/pin.svelte';
+	import { filterStore } from '$lib/state/appstate.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { triggerSaveAction } from './helpers';
 
 	let { data, form }: PageProps = $props();
+
+	const filterInstance = filterStore();
 
 	let openDialog = $state(false);
 	let openTryOnDialog = $state(false);
@@ -36,17 +41,20 @@
 	let openAddNewClothingsDialog = $state(false);
 
 	let selectedItem = $state<ClothingWithTryOnsType[number]>();
-	let selectedModel = $state<ModelsType[number]>();
+
+	let selectedModel = $state<ModelsType[number] | null>();
+	let selectedModelFile = $state<File | null>(null);
 	let selectedTryOnModelID = $state<number>();
 	let uniqueCategories = $state();
 	let tryOnCategory = $state<'Upper Body' | 'Lower Body'>();
 
-	let clothingFile = $state<File>();
+	let clothingFile = $state<File | null>(null);
 
 	let progress = $state(10);
 	let tryOnUrl = $state('');
-	let taskID = $derived(form?.taskID as string);
+	let taskID = $state('');
 	let showLoading = $state(false);
+	let isSaving = $state(false); // Optional: Track loading state
 
 	async function fetchTask() {
 		try {
@@ -60,6 +68,15 @@
 				if (res.url) {
 					progress = 100;
 					tryOnUrl = res.url;
+					await triggerSaveAction(
+						isSaving,
+						taskID,
+						clothingFile,
+						tryOnUrl,
+						selectedModel,
+						selectedModelFile
+						// what if selectedModel and selectedModelFile are both truthful
+					);
 				} else if (res.error) {
 					alert('Something went wrong: ' + res.error);
 				}
@@ -87,12 +104,15 @@
 			const parentData = await data.parentData;
 			const clothingsWithTryOns = await parentData.clothingsWithTryOns;
 			if (clothingsWithTryOns && clothingsWithTryOns.length > 0) {
-				selectedItem = clothingsWithTryOns[0];
+				// filter out clothings with no try on sessions
+				const filteredClothingsWithTryOns = clothingsWithTryOns.filter(
+					(item: ClothingWithTryOnsType[number]) => item.try_on_sessions.length > 0
+				);
+				selectedItem = filteredClothingsWithTryOns[0];
 				uniqueCategories = Array.from(
 					new Set(
 						clothingsWithTryOns
-							.map((item) => item.categories?.name)
-							// filter out any falsy values
+							.map((item: ClothingWithTryOnsType[number]) => item.categories?.name)
 							.filter((name): name is string => Boolean(name))
 					)
 				);
@@ -141,6 +161,20 @@
 
 		openAddNewClothingsDialog = true;
 	}
+
+	function handleTryOnUploadModel(event: any) {
+		imageURl = URL.createObjectURL(event.target.files[0]);
+		selectedModel = null;
+		selectedModelFile = event.target.files[0];
+		addToast({
+			data: {
+				type: 'success',
+				title: 'Success',
+				description: 'Image uploaded successfully!'
+			}
+		});
+		step++;
+	}
 </script>
 
 <!-- awaiting page.servers's data -->
@@ -181,12 +215,15 @@
 								>+
 							</button>
 							{#each clothingsWithTryOns as item, i}
-								<WardrobeItem
-									src={item.signed_front}
-									alt="front side of ${item.name}"
-									selected={selectedItem?.front_image_url === item.front_image_url}
-									transitionIndex={i}
-								/>
+								<!-- filtering categories -->
+								{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
+									<WardrobeItem
+										src={item.signed_front}
+										alt="front side of ${item.name}"
+										selected={selectedItem?.front_image_url === item.front_image_url}
+										transitionIndex={i}
+									/>
+								{/if}
 							{/each}
 						</div>
 
@@ -234,29 +271,39 @@
 		method="POST"
 		enctype="multipart/form-data"
 		use:enhance={({ formData, cancel }) => {
-			if (selectedModel && tryOnCategory && clothingFile) {
-				formData.append('model_path', selectedModel.image_url as string);
-				formData.append('category', tryOnCategory);
-				formData.append('clothing_image', clothingFile);
-				showLoading = true;
-			} else {
+			if (!tryOnCategory || !clothingFile) {
+				console.log('Please select a category and upload a clothing image');
 				cancel();
+				return;
 			}
+
+			if (!selectedModel && !selectedModelFile) {
+				console.log('Please select a model image');
+				cancel();
+				return;
+			}
+			if (selectedModel) {
+				formData.append('model_path', selectedModel.signed_url as string);
+			} else if (selectedModelFile) {
+				formData.append('model_file', selectedModelFile);
+			}
+
+			formData.append('category', tryOnCategory);
+			formData.append('clothing_image', clothingFile);
+			showLoading = true;
+
 			return async ({ result, update }) => {
 				step++;
 				update({ invalidateAll: false });
-				if (result.type === 'success' || result.type === 'failure') {
-					step++;
+				if (result.type === 'success') {
+					if (result.data) {
+						taskID = result.data?.taskID as string;
+					}
 					await fetchTask();
-				} else if (result.type === 'error') {
-					// Handle unexpected server errors if needed
-					console.error('Server action failed:', result.error);
-					// Optionally show an error message to the user
+				} else if (result.type === 'failure') {
+					alert('Something went wrong: ' + result.data);
 				}
 
-				// 6. Set loading state to false *after* all post-action
-				//    processing (including update and fetchTask) is done.
-				console.log('Submission processing finished, showLoading = false');
 				showLoading = false;
 			};
 		}}
@@ -266,20 +313,41 @@
 				Loading
 			{:then models}
 				<div class="space-y-4">
-					<h1 class="text-xl font-medium">Select your picture</h1>
+					<h1 class="text-xl font-medium">Choose your model image</h1>
 					<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
+						<label
+							for="upload_tryon_model"
+							class="bg-brand-secondary text-black-primary relative flex aspect-square cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
+						>
+							+
+							<input
+								type="file"
+								name="new_model_image"
+								id="upload_tryon_model"
+								class="absolute h-full w-full cursor-pointer opacity-0"
+								onchange={handleTryOnUploadModel}
+							/>
+						</label>
 						{#each models as model}
 							<WardrobeItem
 								src={model.signed_url}
 								alt={model.description || ''}
 								onclick={() => {
+									selectedModelFile = null;
 									selectedModel = model;
-									step++;
 								}}
 								selected={selectedModel?.id == model.id}
 							/>
 						{/each}
 					</div>
+					<Button
+						text="Next"
+						onclick={() => {
+							step++;
+						}}
+						disabled={!selectedModel}
+						fullWidth={true}
+					/>
 				</div>
 			{/await}
 		{:else if step === 2}
@@ -299,11 +367,11 @@
 						<ClothingGuide />
 					</Dialog>
 				</div>
-				{#if selectedModel}
+				{#if imageURl || selectedModel}
 					<div class="flex w-full items-center justify-center">
 						<div class="relative">
 							<img
-								src={selectedModel.signed_url}
+								src={selectedModel?.signed_url || imageURl}
 								alt="model"
 								class=" max-h-32 rounded-md object-cover shadow-sm"
 							/>
@@ -319,7 +387,7 @@
 				<Button
 					text="Try On"
 					fullWidth={true}
-					disabled={!clothingFile || !selectedModel}
+					disabled={!clothingFile || !(selectedModel || selectedModelFile)}
 					onclick={() => {
 						step++;
 					}}
@@ -336,7 +404,6 @@
 				<ImageButton
 					text="Upper Body"
 					ariaLabel="Scan to upload"
-					type="submit"
 					src={upperimg}
 					alt="a man in button up shirt"
 					onclick={() => {
@@ -346,7 +413,6 @@
 				<ImageButton
 					text="Lower Body"
 					ariaLabel="Scan to upload"
-					type="submit"
 					src={lowerimg}
 					alt="a man in white trousers"
 					onclick={() => {
@@ -354,13 +420,12 @@
 					}}
 				/>
 			</div>
-			<!-- <Button
+			<Button
 				text="Try On"
 				type="submit"
 				fullWidth={true}
-				disabled={!clothingFile || !tryOnCategory || !selectedModel}
-				onclick={() => step++}
-			/> -->
+				disabled={!clothingFile || !tryOnCategory || !(selectedModel || selectedModelFile)}
+			/>
 		{/if}
 	</form>
 	{#if step === 4}
@@ -434,7 +499,7 @@
 					};
 				}}
 			>
-				<Button text="Add" fullWidth={true} disabled={!newModelFile} />
+				<Button type="submit" text="Add" fullWidth={true} disabled={!newModelFile} />
 			</form>
 		{/if}
 	{/await}

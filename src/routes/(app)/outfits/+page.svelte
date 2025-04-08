@@ -42,14 +42,14 @@
 			text="Customise your own"
 			fullWidth={true}
 			onclick={() => {
-				goto('/outfits/create-custom');
+				goto('/by/create-custom');
 			}}
 		/>
 		<Button
 			text="Smart Creation with AI Stylist"
 			fullWidth={true}
 			onclick={() => {
-				goto('/outfits/create-ai');
+				goto('/by/create-ai');
 			}}
 		/>
 	</div>

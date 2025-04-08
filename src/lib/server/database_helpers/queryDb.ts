@@ -17,7 +17,7 @@ export async function getClothingWithTryOns(supabase: supabaseFull, user_id: str
 	const response = supabase
 		.from('clothings')
 		.select(
-			'id, name, categories_id, brands_id, materials_id, front_image_url, back_image_url, signed_front, signed_back, expiry_front, expiry_back, try_on_sessions(try_on_url, signed_try_on, signed_expiry), brands(name), categories(name), materials(name), colors(name)'
+			'id, name, categories_id, brands_id, materials_id, front_image_url, back_image_url, signed_front, signed_back, expiry_front, expiry_back, try_on_sessions(id, try_on_url, signed_try_on, signed_expiry), brands(name), categories(name), materials(name), colors(name)'
 		)
 		.eq('user_id', user_id)
 		.order('last_modified', { ascending: false });
@@ -103,34 +103,9 @@ export async function insertModel(supabase: supabaseFull, user_id: string, model
 	return data;
 }
 
-export async function insertClothings(
-	supabase: supabaseFull,
-	user_id: string,
-	model_paths: string[]
-) {
-	if (!model_paths || model_paths.length === 0) {
-		console.log('No model paths provided to insert.');
-		return [];
-	}
-
-	const newRows = model_paths.map((path) => ({
-		front_image_url: path,
-		user_id: user_id,
-		name: path.split('/').pop() || 'Unknown'
-	}));
-
-	// const { data, error } = await supabase.from('clothings').insert(newRows).select('*');
-
-	// if (error) {
-	// 	throw new Error('Error inserting model image: ' + error.message);
-	// }
-
-	// return data;
-
-	return newRows;
-}
-
 interface UrlMappingConfig {
+	idField: string;
+	table: string;
 	bucket: string;
 	signedField: string;
 	expiryField: string;
@@ -139,24 +114,32 @@ interface UrlMappingConfig {
 
 const urlMappings: { [key: string]: UrlMappingConfig } = {
 	front_image_url: {
+		idField: 'id',
+		table: 'clothings',
 		bucket: 'clothings',
 		signedField: 'signed_front',
 		expiryField: 'expiry_front',
 		defaultExpiry: 3600
 	},
 	back_image_url: {
+		idField: 'id',
+		table: 'clothings',
 		bucket: 'clothings',
 		signedField: 'signed_back',
 		expiryField: 'expiry_back',
 		defaultExpiry: 3600
 	},
 	try_on_url: {
+		idField: 'id',
+		table: 'try_on_sessions',
 		bucket: 'tryon',
 		signedField: 'signed_try_on',
 		expiryField: 'signed_expiry',
 		defaultExpiry: 3600
 	},
 	image_url: {
+		idField: 'id',
+		table: 'model_images',
 		bucket: 'models',
 		signedField: 'signed_url',
 		expiryField: 'expiry_signed',
@@ -169,19 +152,34 @@ async function resolveSignedUrls<T extends Record<string, unknown>>(
 	supabase: supabaseFull
 ): Promise<T> {
 	for (const key in urlMappings) {
-		if (Object.hasOwn(obj, key) && typeof obj[key] === 'string') {
+		if (Object.hasOwn(obj, key) && typeof obj[key] === 'string' && obj[key]) {
 			const config = urlMappings[key];
+			
+			const filePath = obj[key] as string;
+			const id = obj[config.idField];
+
+			if (id === undefined || id === null) {
+				console.warn(
+					`Skipping signed URL for field '${key}': Object missing ID field '${config.idField}'. Object:`,
+					obj
+				);
+				continue; // Cannot update DB without ID
+			}
+
 			const now = new Date();
 			const signedField = config.signedField;
 			const expiryField = config.expiryField;
 
-			const filePath = obj[key];
-			const storedSignedUrl = obj[signedField];
-			const storedExpiry = obj[expiryField] as string | null;
+			const storedSignedUrl = obj[signedField] as string | null | undefined;
+			const storedExpiry = obj[expiryField] as string | null | undefined;
 
 			let needNewUrl = true;
 			if (storedSignedUrl && storedExpiry) {
-				if (new Date(storedExpiry) > now) {
+				const expiryDate = new Date(storedExpiry);
+
+				const bufferMilliseconds = 5 * 60 * 1000;
+
+				if (expiryDate.getTime() > now.getTime() + bufferMilliseconds) {
 					needNewUrl = false;
 				}
 			}
@@ -196,16 +194,28 @@ async function resolveSignedUrls<T extends Record<string, unknown>>(
 						`Error generating signed URLs for field ${String(filePath)}:`,
 						error?.message
 					);
+					(obj as Record<string, unknown>)[signedField] = null;
+					(obj as Record<string, unknown>)[expiryField] = null;
 					continue;
 				}
 
-				// Update the object with the new signed URL and expiry time.
-				(obj as Record<string, unknown>)[signedField] = data.signedUrl;
+				const newSignedUrl = data.signedUrl;
+				const newExpiryISO = new Date(Date.now() + config.defaultExpiry * 1000).toISOString();
 
-				// Set the new expiry as current time (in seconds) plus default expiry
-				(obj as Record<string, unknown>)[expiryField] = new Date(
-					Date.now() + config.defaultExpiry * 1000
-				).toISOString();
+				// Update the object in memory (for immediate return to user)
+				(obj as Record<string, unknown>)[signedField] = newSignedUrl;
+				(obj as Record<string, unknown>)[expiryField] = newExpiryISO;
+
+				triggerDirectBackgroundDbUpdate(
+					config.table,
+					config.idField,
+					id as string | number,
+					{
+						[signedField]: newSignedUrl,
+						[expiryField]: newExpiryISO
+					},
+					supabase
+				);
 			}
 		}
 	}
@@ -226,4 +236,29 @@ async function resolveSignedUrls<T extends Record<string, unknown>>(
 	}
 
 	return obj;
+}
+
+function triggerDirectBackgroundDbUpdate(
+	tableName: string,
+	idField: string,
+	idValue: string | number,
+	updates: Record<string, string | null>,
+	supabase: supabaseFull
+): void {
+	supabase
+		.from(tableName)
+		.update(updates)
+		.eq(idField, idValue)
+		.then(({ error }) => {
+			// we are not awaiting this, so it is fire-and-forget
+			// The await happens implicitly before .then() is called
+			if (error) {
+				console.error(
+					`Background Direct DB Update Error: Table=${tableName}, ID=${idValue}, Error=`,
+					error
+				);
+			} else {
+				console.log(`Background Direct DB Update Successful: Table=${tableName}, ID=${idValue}`);
+			}
+		});
 }

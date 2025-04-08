@@ -58,7 +58,7 @@
 </script>
 
 <div
-	class="bg-white-primary flex h-full w-full flex-col items-stretch justify-start gap-2 overflow-hidden"
+	class="bg-white-primary flex h-full w-full flex-col items-stretch justify-start gap-2"
 >
 	<div
 		{...tabs.triggerList}
@@ -78,7 +78,7 @@
 			>
 		{/each}
 	</div>
-	<div class="flex items-center justify-start gap-2 overflow-x-auto pl-4">
+	<div class="flex items-center justify-start gap-2 pl-4">
 		{#each uniqueCategories as filter}
 			<FilterButton {filter} />
 		{/each}
@@ -89,29 +89,31 @@
 			{#await parent.clothingsWithTryOns}
 				Loading clothes
 			{:then clothings}
-				<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
-					{#each clothings as item}
-						{#if tabs.value === 'Images'}
-							<WardrobeItem
-								onclick={() => {
-									openClothingDialog = true;
-									selectedClothing = item;
-								}}
-								src={item.signed_front}
-								alt="front side of ${item.name}"
-							/>
-						{:else if tabs.value === 'Models'}
-							{#if item.try_on_sessions.length > 0}
+				<div class="overflow-y-auto">
+					<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
+						{#each clothings as item}
+							{#if tabs.value === 'Images'}
 								<WardrobeItem
 									onclick={() => {
 										openClothingDialog = true;
+										selectedClothing = item;
 									}}
-									src={item.try_on_sessions[0].signed_try_on || ''}
-									alt="a person wearing ${item.name}"
+									src={item.signed_front}
+									alt="front side of ${item.name}"
 								/>
+							{:else if tabs.value === 'Models'}
+								{#if item.try_on_sessions.length > 0}
+									<WardrobeItem
+										onclick={() => {
+											openClothingDialog = true;
+										}}
+										src={item.try_on_sessions[0].signed_try_on || ''}
+										alt="a person wearing ${item.name}"
+									/>
+								{/if}
 							{/if}
-						{/if}
-					{/each}
+						{/each}
+					</div>
 				</div>
 			{/await}
 		{/if}
@@ -209,5 +211,8 @@
 </Dialog>
 
 <Dialog title="Tag Info" button={false} bind:open={showTagInfo}>
-	<p>A Tag is a way to categorise or label your clothing items, making it easier to search and organise your wardrobe.</p>
+	<p>
+		A Tag is a way to categorise or label your clothing items, making it easier to search and
+		organise your wardrobe.
+	</p>
 </Dialog>
