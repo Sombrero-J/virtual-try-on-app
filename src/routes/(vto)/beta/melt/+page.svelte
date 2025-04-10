@@ -6,7 +6,7 @@
 	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 	import Progress from '$lib/components/melt/progress.svelte';
-	import Select from '$lib/components/melt/select.svelte';
+	import Select from '$lib/components/melt/multiselect.svelte';
 	import Dialog from '$lib/components/dialog/dialog.svelte';
 	import { text } from '@sveltejs/kit';
 	import DialogButton from '$lib/components/buttons/dialogButton.svelte';

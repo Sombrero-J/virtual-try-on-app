@@ -1,20 +1,24 @@
 <script lang="ts">
 	import { Select } from 'melt/builders';
+	import { fashionColorsWithHex } from '$lib/state/appstate.svelte';
+	import Tick from '$lib/svg/tick.svelte';
 
 	type Option = (typeof options)[number];
 
+	interface Props {
+		label: string;
+		options?: string[];
+	}
+
+	const { label, options = [] }: Props = $props();
+
 	const select = new Select<Option>({
-		multiple: false,
+		multiple: () => false,
 		sameWidth: true,
 		typeaheadTimeout: 500
 	});
 
-	interface Props {
-		label: string;
-		options: string[];
-	}
-
-	const { label, options }: Props = $props();
+	const displayValue = $derived(select.value || `Select ${label}`);
 </script>
 
 <div class={['group justify-center, relative flex w-full flex-col items-start']}>
@@ -26,9 +30,9 @@
 
 	<button
 		{...select.trigger}
-		class="border-gray-subtler group-focus-within:border-brand relative flex min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 py-2 transition-colors duration-100 ease-in"
+		class="border-gray-subtler group-focus-within:border-brand relative flex min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 py-2 transition-colors duration-100 ease-in lg:max-w-[20rem]"
 	>
-		{select.value ?? `Select a ${label}`}
+		{displayValue}
 		<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 18 10" fill="none">
 			<path
 				d="M0.514648 1.46495L8.99965 9.94995L17.4846 1.46495L16.0706 0.0499516L8.99965 7.12195L1.92865 0.0499516L0.514648 1.46495Z"
@@ -43,15 +47,20 @@
 	class="divide-border-gray border-border-gray bg-white-primary flex max-h-40 flex-col divide-y-1 overflow-y-auto rounded-md border-1 shadow-md"
 >
 	{#each options as option}
+		{@const isSelected = select.value === option}
+
 		<div
 			{...select.getOption(option)}
 			class={[
-				'cursor-pointer p-2',
-				select.value === option && 'font-bold',
-				select.highlighted === option && 'bg-gray-200'
+				'flex cursor-pointer justify-between p-2',
+				select.value === option && 'bg-brand-secondary font-bold',
+				select.highlighted === option && 'bg-brand-secondary'
 			]}
 		>
 			{option}
+			{#if isSelected}
+				<Tick />
+			{/if}
 		</div>
 	{/each}
 </div>

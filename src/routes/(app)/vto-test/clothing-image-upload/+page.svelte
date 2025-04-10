@@ -40,14 +40,14 @@
 		}
 	});
 
-	let category = $state('lower');
+	let category = $state('Upper Body');
 	let openQR = $state(false);
 
-	function updateTryOnState(x: string) {
+	function updateTryOnState() {
 		if (clothingImageFile && category) {
 			tryOn.clothingImageFile = clothingImageFile;
-			tryOn.category = x;
-			goto('/beta/vto-test/generation');
+			tryOn.category = category;
+			goto('/vto-test/generation');
 		} else {
 			alert('Something went wrong, please start again.');
 		}
@@ -59,7 +59,7 @@
 	const token = crypto.randomUUID(); // token is unique every component
 	onMount(() => {
 		if (!bodyImageFile) {
-			goto('/beta/vto-test/body-image-upload');
+			goto('/vto-test/body-image-upload');
 		}
 
 		channelSubscription = subscribeToUploadChanges(supabase, token, (newFile: File) => {
@@ -75,29 +75,38 @@
 </script>
 
 <div
-	class="flex w-8/10 flex-1 flex-col items-start justify-between gap-5 pt-6 pb-8 lg:flex-row lg:gap-40 lg:pt-20"
+	class="mx-auto flex w-8/10 flex-1 flex-col items-start justify-between gap-5 pt-6 pb-8 lg:flex-row lg:gap-40 lg:pt-20"
 >
 	<div class="relative flex w-full flex-col justify-between lg:min-h-[40rem] lg:justify-center">
 		<!-- Small screen -->
 		<div class="block lg:hidden">
 			<div class="relative mb-8 flex w-full items-center justify-center">
 				<div class="absolute left-0">
-					<Back onclick={() => goto('/beta/vto-test/body-image-upload')} />
+					<Back onclick={() => goto('/vto-test/body-image-upload')} />
 				</div>
+
 				<StepIndicator steps={3} activeStep={2} />
 			</div>
 		</div>
 		<!-- Large screen -->
 		<div class="hidden lg:block">
 			<div class="absolute top-0 left-0">
-				<Back onclick={() => goto('/beta/vto-test/body-image-upload')} />
+				<Back onclick={() => goto('/vto-test/body-image-upload')} />
 			</div>
 		</div>
 
 		<div class="flex flex-col items-start justify-center gap-1">
 			<!-- TITLE -->
-			<div class="flex flex-col gap-1 lg:mb-4">
-				<div class="mb-4 hidden lg:block">
+			<div class="flex flex-col items-start justify-start gap-1 lg:mb-4">
+				{#if imageUrl}
+					<div class="mb-4 hidden items-center justify-center lg:flex">
+						<div class="relative">
+							<img src={imageUrl} alt="model" class=" max-h-32 rounded-md object-cover shadow-sm" />
+							<Pin twClass="absolute -top-2 -right-2" />
+						</div>
+					</div>
+				{/if}
+				<div class="mb-4 hidden lg:flex">
 					<StepIndicator steps={3} activeStep={2} />
 				</div>
 
@@ -122,7 +131,7 @@
 		</div>
 	</div>
 	{#if imageUrl}
-		<div class="flex w-full items-center justify-center">
+		<div class="flex w-full items-center justify-center lg:hidden">
 			<div class="relative">
 				<img src={imageUrl} alt="model" class=" max-h-32 rounded-md object-cover shadow-sm" />
 				<Pin twClass="absolute -top-2 -right-2" />
@@ -143,7 +152,7 @@
 			type="button"
 			text="Generate"
 			style="primary"
-			loading={showLoader}
+			loading={showLoader && openDialog}
 			onclick={() => {
 				openDialog = true;
 				showLoader = true;
@@ -170,18 +179,24 @@
 		</div>
 	</div>
 
-	<Dialog bind:open={openQR} button={false} title={'Upload image from phone'}>
+	<Dialog bind:open={openQR} textButton={false} title={'Upload image from phone'}>
 		<Qrcode {token} />
 	</Dialog>
 
-	<Dialog title="Please select a category" bind:open={openDialog} button={false}>
-		<div class="flex flex-col gap-4">
+	<Dialog
+		title="Please select a category"
+		buttonText="Confirm"
+		bind:open={openDialog}
+		textButton={false}
+		onclick={updateTryOnState}
+	>
+		<div class="flex flex-col gap-4 lg:flex-row">
 			<ImageButton
 				text="Upper Body"
 				ariaLabel="Scan to upload"
 				type="submit"
 				onclick={() => {
-					updateTryOnState('Upper Body');
+					category = 'Upper Body';
 				}}
 				src={upperimg}
 				alt="a man in button up shirt"
@@ -191,7 +206,7 @@
 				ariaLabel="Scan to upload"
 				type="submit"
 				onclick={() => {
-					updateTryOnState('Lower Body');
+					category = 'Lower Body';
 				}}
 				src={lowerimg}
 				alt="a man in white trousers"

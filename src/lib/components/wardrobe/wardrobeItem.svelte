@@ -13,10 +13,10 @@
 </script>
 
 <button
-	class="bg-brand-secondary flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg {selected
-		? 'border-black-primary border-1 shadow-md'
+	class="bg-brand-secondary flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg shadow-md {selected
+		? 'ring-brand ring-2 shadow-md'
 		: ''}"
 	{onclick}
 >
-	<img {src} {alt} class="h-full w-full object-cover" />
+	<img {src} {alt} class="h-full w-full object-contain" />
 </button>

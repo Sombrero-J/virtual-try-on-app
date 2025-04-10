@@ -20,7 +20,7 @@
 	import lowerimg from '$lib/assets/categories/lower.png?enhanced';
 	import upperimg from '$lib/assets/categories/upper.png?enhanced';
 	import { enhance } from '$app/forms';
-	import { fetchQueryTask } from '../../(vto)/beta/vto-test/generation/utils';
+	import { fetchQueryTask } from '../vto-test/generation/utils';
 	import StepIndicator from '$lib/components/visualiser/stepIndicator.svelte';
 	import { addToast } from '$lib/components/melt/toast.svelte';
 	import Subtitle from '$lib/components/text/subtitle.svelte';
@@ -29,6 +29,9 @@
 	import { filterStore } from '$lib/state/appstate.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { triggerSaveAction } from './helpers';
+	import { innerWidth } from 'svelte/reactivity/window';
+	import Download from '$lib/svg/small/download.svelte';
+	import FilterButton from '$lib/components/wardrobe/filterButton.svelte';
 
 	let { data, form }: PageProps = $props();
 
@@ -40,12 +43,19 @@
 	let openAddModelsDialog = $state(false);
 	let openAddNewClothingsDialog = $state(false);
 
-	let selectedItem = $state<ClothingWithTryOnsType[number]>();
+	let selectedItem = $state<ClothingWithTryOnsType[number] | null>(null);
+	let selectedItemTryOn = $derived.by(() => {
+		if (selectedItem && selectedItem.try_on_sessions.length > 0) {
+			return selectedItem.try_on_sessions[0].signed_try_on;
+		} else {
+			return '';
+		}
+	});
 
 	let selectedModel = $state<ModelsType[number] | null>();
 	let selectedModelFile = $state<File | null>(null);
 	let selectedTryOnModelID = $state<number>();
-	let uniqueCategories = $state();
+	let uniqueCategories = $state<string[]>([]);
 	let tryOnCategory = $state<'Upper Body' | 'Lower Body'>();
 
 	let clothingFile = $state<File | null>(null);
@@ -101,26 +111,43 @@
 
 	onMount(async () => {
 		try {
-			const parentData = await data.parentData;
-			const clothingsWithTryOns = await parentData.clothingsWithTryOns;
+			const parentDataResolved = await data.parentData;
+			const clothingsWithTryOns = await parentDataResolved.clothingsWithTryOns;
+
 			if (clothingsWithTryOns && clothingsWithTryOns.length > 0) {
-				// filter out clothings with no try on sessions
+				// filter out clothings with no try ons
 				const filteredClothingsWithTryOns = clothingsWithTryOns.filter(
-					(item: ClothingWithTryOnsType[number]) => item.try_on_sessions.length > 0
+					(item: ClothingWithTryOnsType[number]) =>
+						item.try_on_sessions && item.try_on_sessions.length > 0
 				);
-				selectedItem = filteredClothingsWithTryOns[0];
-				uniqueCategories = Array.from(
-					new Set(
-						clothingsWithTryOns
-							.map((item: ClothingWithTryOnsType[number]) => item.categories?.name)
-							.filter((name): name is string => Boolean(name))
-					)
-				);
+
+				// Select the first item from filtered list
+				if (filteredClothingsWithTryOns.length > 0) {
+					selectedItem = filteredClothingsWithTryOns[0];
+				} else {
+					// Handle the case where items exist, but none have try-on sessions
+					console.log('No clothing items found with active try-on sessions.');
+					// Optionally alert the user or set a specific state
+					// selectedItem remains null
+				}
+
+				const categoryNames = clothingsWithTryOns
+					.map((item: ClothingWithTryOnsType[number]) => item.categories?.name)
+					.filter((name): name is string => Boolean(name)); // Type guard ensures string[]
+
+				const uniqueNamesSet = new Set(categoryNames);
+
+				// convert Set to an Array and prepend 'All'
+				uniqueCategories = ['All', ...Array.from(uniqueNamesSet)];
 			} else {
 				alert('Your wardrobe is empty. Please add some clothing to your wardrobe.');
+				uniqueCategories = ['All'];
+				selectedItem = null;
 			}
 		} catch (error) {
-			console.error(error);
+			console.error('Error initializing wardrobe categories:', error);
+			uniqueCategories = ['All'];
+			selectedItem = null;
 		}
 	});
 
@@ -175,10 +202,12 @@
 		});
 		step++;
 	}
+
+	let isMobile = $derived((innerWidth.current && innerWidth.current < 1024) || false);
 </script>
 
 <!-- awaiting page.servers's data -->
-<div class="bg-white-primary relative h-full w-full overflow-hidden">
+<div class="bg-white-primary relative h-full w-full overflow-hidden lg:flex lg:py-20 lg:pr-20">
 	{#await data.parentData}
 		Loading
 	{:then parent}
@@ -189,81 +218,150 @@
 			{:then clothingsWithTryOns}
 				{#if clothingsWithTryOns.length > 0}
 					{#if selectedItem}
-						<img
-							class="relative w-full"
-							src={selectedItem.try_on_sessions[0].signed_try_on}
-							alt="try on"
-						/>
-					{/if}
-					<button
-						class="absolute top-3 left-3 cursor-pointer"
-						onclick={() => (openModelsDialog = true)}
-					>
-						<Edit />
-					</button>
-					<button class="absolute top-3 right-3 cursor-pointer">
-						<Share />
-					</button>
-
-					<Draggable filterArray={uniqueCategories as string[]}>
-						<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
-							<button
-								class="bg-brand-secondary text-black-primary flex aspect-square cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
-								onclick={() => {
-									openDialog = true;
-								}}
-								>+
-							</button>
-							{#each clothingsWithTryOns as item, i}
-								<!-- filtering categories -->
-								{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
-									<WardrobeItem
-										src={item.signed_front}
-										alt="front side of ${item.name}"
-										selected={selectedItem?.front_image_url === item.front_image_url}
-										transitionIndex={i}
+						<div class="flex w-full items-center justify-center lg:w-1/2 lg:p-4">
+							<div class="relative w-full max-w-[25rem] p-1 lg:w-2/3 lg:max-w-[30rem]">
+								{#if selectedItemTryOn}
+									<img
+										class="h-full w-full shadow-lg lg:rounded-lg lg:object-cover"
+										src={selectedItemTryOn}
+										alt="try on"
 									/>
+
+									<button
+										class="absolute top-3 left-3 cursor-pointer lg:hidden"
+										onclick={() => (openModelsDialog = true)}
+									>
+										<Edit />
+									</button>
+									<button class="absolute top-3 right-3 cursor-pointer lg:hidden">
+										<Share />
+									</button>
+									<button class="absolute top-3 right-3 cursor-pointer lg:hidden">
+										<Download />
+									</button>
+									<div
+										class="absolute top-0 -right-12 hidden flex-col items-center justify-center gap-3 lg:flex"
+									>
+										<button class="cursor-pointer" onclick={() => (openModelsDialog = true)}>
+											<Edit />
+										</button>
+										<button class="cursor-pointer">
+											<Share />
+										</button>
+										<button class="cursor-pointer">
+											<Download />
+										</button>
+									</div>
+								{:else}
+									<img
+										class="h-full w-full shadow-lg lg:rounded-lg lg:object-cover"
+										src={selectedItem.signed_front}
+										alt="front side of ${selectedItem.name}"
+									/>
+									<h1>No try on available for this clothing</h1>
 								{/if}
-							{/each}
-						</div>
-
-						<Dialog button={false} title="Create" bind:open={openDialog} understood={false}>
-							<div class="flex w-full flex-col gap-2">
-								<DialogButton
-									text="Try on clothing"
-									fullWidth={true}
-									onclick={() => {
-										openTryOnDialog = true;
-										step = 1;
-									}}
-								/>
-								<DialogButton text="Upload clothings to wardrobe" fullWidth={true}>
-									<input
-										type="file"
-										multiple
-										class="absolute size-full cursor-pointer opacity-0"
-										accept="image/*"
-										onchange={handleNewClothingsUpload}
-									/>
-								</DialogButton>
 							</div>
-						</Dialog>
-					</Draggable>
+						</div>
+					{/if}
+
+					{#if isMobile}
+						<Draggable filterArray={uniqueCategories}>
+							<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
+								<button
+									class="bg-brand-secondary text-black-primary flex aspect-square cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
+									onclick={() => {
+										openDialog = true;
+									}}
+									>+
+								</button>
+								{#each clothingsWithTryOns as item, i}
+									<!-- filtering categories -->
+									{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
+										<WardrobeItem
+											src={item.signed_front}
+											alt="front side of ${item.name}"
+											selected={selectedItem?.front_image_url === item.front_image_url}
+											onclick={() => {
+												selectedItem = item;
+											}}
+											transitionIndex={i}
+										/>
+									{/if}
+								{/each}
+							</div>
+						</Draggable>
+					{:else}
+						<div class="flex w-1/2 flex-col items-start justify-start gap-5">
+							<div class="flex items-center justify-start gap-2 overflow-x-auto">
+								{#each uniqueCategories as filter}
+									<FilterButton {filter} />
+								{/each}
+							</div>
+							<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
+								<button
+									class="bg-brand-secondary text-brand flex aspect-square cursor-pointer items-center justify-center rounded-lg text-6xl font-bold"
+									onclick={() => {
+										openDialog = true;
+									}}
+									>+
+								</button>
+								{#each clothingsWithTryOns as item, i}
+									<!-- filtering categories -->
+									{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
+										<WardrobeItem
+											src={item.signed_front}
+											alt="front side of ${item.name}"
+											selected={selectedItem?.front_image_url === item.front_image_url}
+											onclick={() => {
+												selectedItem = item;
+											}}
+											transitionIndex={i}
+										/>
+									{/if}
+								{/each}
+							</div>
+						</div>
+					{/if}
 				{/if}
 			{/await}
 		{/if}
 	{/await}
 </div>
 
+<Dialog textButton={false} title="Create" bind:open={openDialog}>
+	<div class="flex w-full flex-col gap-2">
+		<DialogButton
+			text="Try on clothing"
+			fullWidth={true}
+			onclick={() => {
+				if (isMobile) {
+					openTryOnDialog = true;
+					step = 1;
+				} else {
+					goto('/vto-test/body-image-upload');
+				}
+			}}
+		/>
+		<DialogButton text="Upload clothings to wardrobe" fullWidth={true}>
+			<input
+				type="file"
+				multiple
+				class="absolute size-full cursor-pointer opacity-0"
+				accept="image/*"
+				onchange={handleNewClothingsUpload}
+			/>
+		</DialogButton>
+	</div>
+</Dialog>
+
 {#snippet stepindicator()}
 	<StepIndicator steps={4} activeStep={step} />
 {/snippet}
 
 <Dialog
-	button={false}
+	textButton={false}
 	titleholder={stepindicator}
 	bind:open={openTryOnDialog}
-	understood={false}
 	backFn={() => step--}
 >
 	<form
@@ -442,7 +540,7 @@
 	{/if}
 </Dialog>
 
-<Dialog button={false} title="Choose a model image" bind:open={openModelsDialog} understood={false}>
+<Dialog textButton={false} title="Choose a model image" bind:open={openModelsDialog}>
 	{#await data.modelData}
 		Loading
 	{:then models}
@@ -506,10 +604,9 @@
 </Dialog>
 
 <Dialog
-	button={false}
+	textButton={false}
 	title="Upload Clothing to Wardrobe"
 	bind:open={openAddNewClothingsDialog}
-	understood={false}
 >
 	<div class="flex flex-col gap-4">
 		{#if wardrobePreviewUrls.length > 0}

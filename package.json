@@ -41,7 +41,7 @@
 		"@huggingface/inference": "^3.6.1",
 		"@supabase/ssr": "^0.6.1",
 		"@supabase/supabase-js": "^2.49.1",
-		"melt": "^0.17.1",
+		"melt": "^0.29.1",
 		"openai": "^4.88.0",
 		"qrcode": "^1.5.4"
 	}

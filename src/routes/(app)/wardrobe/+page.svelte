@@ -9,9 +9,11 @@
 	import { onMount } from 'svelte';
 	import Button from '$lib/components/buttons/button.svelte';
 	import { enhance } from '$app/forms';
-	import Select from '$lib/components/melt/select.svelte';
+	import MultiSelect from '$lib/components/melt/multiselect.svelte';
 	import FloatTextbox from '$lib/components/form/floatTextbox.svelte';
 	import Info from '$lib/svg/info.svelte';
+	import { allCategories, filterStore, materials } from '$lib/state/appstate.svelte';
+	import Select from '$lib/components/melt/select.svelte';
 
 	let openClothingDialog = $state(false);
 	let showTagInfo = $state(false);
@@ -34,35 +36,38 @@
 
 	let selectedClothing = $state<ClothingWithTryOnsType[number]>();
 	let uniqueCategories = $state<string[]>([]);
+	const filterInstance = filterStore();
 
 	onMount(async () => {
 		try {
 			const parentData = await data.parentData;
 			const clothingsWithTryOns = await parentData.clothingsWithTryOns;
 			if (clothingsWithTryOns && clothingsWithTryOns.length > 0) {
-				uniqueCategories = Array.from(
-					new Set(
-						clothingsWithTryOns
-							.map((item) => item.categories?.name)
-							// filter out any falsy values
-							.filter((name): name is string => Boolean(name))
-					)
-				);
+				const categoryNames = clothingsWithTryOns
+					.map((item: ClothingWithTryOnsType[number]) => item.categories?.name)
+					.filter((name): name is string => Boolean(name)); // Type guard ensures string[]
+
+				const uniqueNamesSet = new Set(categoryNames);
+
+				// convert Set to an Array and prepend 'All'
+				uniqueCategories = ['All', ...Array.from(uniqueNamesSet)];
 			} else {
 				alert('Your wardrobe is empty. Please add some clothing to your wardrobe.');
+				uniqueCategories = ['All'];
 			}
 		} catch (error) {
 			console.error(error);
+			uniqueCategories = ['All'];
 		}
 	});
 </script>
 
 <div
-	class="bg-white-primary flex h-full w-full flex-col items-stretch justify-start gap-2"
+	class="bg-white-primary flex h-full w-full flex-col items-stretch justify-start gap-2 p-4 lg:gap-5 lg:px-20 lg:py-10"
 >
 	<div
 		{...tabs.triggerList}
-		class="border-border-gray mx-4 flex items-center justify-center gap-2 rounded-xl border-1 p-0.5"
+		class="border-border-gray flex items-center justify-center gap-2 rounded-xl border-1 p-0.5"
 	>
 		{#each tabIds as id}
 			<button
@@ -78,7 +83,7 @@
 			>
 		{/each}
 	</div>
-	<div class="flex items-center justify-start gap-2 pl-4">
+	<div class="flex items-center justify-start gap-2 overflow-x-auto overflow-y-hidden py-2">
 		{#each uniqueCategories as filter}
 			<FilterButton {filter} />
 		{/each}
@@ -89,27 +94,39 @@
 			{#await parent.clothingsWithTryOns}
 				Loading clothes
 			{:then clothings}
-				<div class="overflow-y-auto">
+				<div class="overflow-y-auto p-2">
 					<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
 						{#each clothings as item}
-							{#if tabs.value === 'Images'}
-								<WardrobeItem
-									onclick={() => {
-										openClothingDialog = true;
-										selectedClothing = item;
-									}}
-									src={item.signed_front}
-									alt="front side of ${item.name}"
-								/>
-							{:else if tabs.value === 'Models'}
-								{#if item.try_on_sessions.length > 0}
+							{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
+								{#if tabs.value === 'Images'}
 									<WardrobeItem
 										onclick={() => {
 											openClothingDialog = true;
+											selectedClothing = item;
 										}}
-										src={item.try_on_sessions[0].signed_try_on || ''}
-										alt="a person wearing ${item.name}"
+										src={item.signed_front}
+										alt="front side of ${item.name}"
 									/>
+								{:else if tabs.value === 'Models'}
+									{#if item.try_on_sessions.length > 0}
+										<WardrobeItem
+											onclick={() => {
+												openClothingDialog = true;
+												selectedClothing = item;
+											}}
+											src={item.try_on_sessions[0].signed_try_on || ''}
+											alt="a person wearing ${item.name}"
+										/>
+									{:else}
+										<WardrobeItem
+											onclick={() => {
+												openClothingDialog = true;
+												selectedClothing = item;
+											}}
+											src={item.signed_front}
+											alt="front side of ${item.name}"
+										/>
+									{/if}
 								{/if}
 							{/if}
 						{/each}
@@ -120,17 +137,15 @@
 	{/await}
 </div>
 
-<Dialog button={false} title="Clothing details" bind:open={openClothingDialog} understood={false}>
-	<div class="flex w-full flex-col gap-2">
-		{#if tabs.value === 'Images'}
-			<img
-				src={selectedClothing!.signed_front}
-				alt="front side of ${selectedClothing!.name}"
-				class="h-40 w-auto object-contain lg:h-90"
-			/>
-		{/if}
+<Dialog textButton={false} title="Clothing details" bind:open={openClothingDialog}>
+	<div class="flex w-full flex-col gap-2 lg:flex-row lg:gap-5">
+		<img
+			src={selectedClothing!.signed_front}
+			alt="front side of ${selectedClothing!.name}"
+			class="h-40 w-auto object-contain lg:h-90"
+		/>
 
-		<form method="post" class="flex flex-col gap-4" action="?/update" use:enhance>
+		<form method="post" class="flex flex-col gap-4 py-2" action="?/update" use:enhance>
 			<FloatTextbox
 				label="Name"
 				name="name"
@@ -145,58 +160,9 @@
 				value={selectedClothing?.brands?.name ?? null}
 				bind:changed
 			/>
-			<FloatTextbox
-				label="Category"
-				name="category"
-				placeholder="T-shirt, Dress..."
-				value={selectedClothing?.categories?.name ?? null}
-				bind:changed
-			/>
-			<FloatTextbox
-				label="Material"
-				name="material"
-				placeholder="Cotton, Wool..."
-				value={selectedClothing?.materials?.name ?? null}
-				bind:changed
-			/>
-
-			<Select
-				label="Color"
-				options={[
-					'red',
-					'blue',
-					'green',
-					'yellow',
-					'purple',
-					'orange',
-					'pink',
-					'brown',
-					'black',
-					'white',
-					'gray',
-					'silver',
-					'gold',
-					'beige',
-					'turquoise',
-					'maroon',
-					'navy',
-					'teal',
-					'lime',
-					'olive',
-					'azure',
-					'ivory',
-					'fuchsia',
-					'khaki',
-					'magenta',
-					'plum',
-					'salmon',
-					'tan',
-					'turquoise',
-					'violet',
-					'wheat',
-					'zinc'
-				]}
-			/>
+			<MultiSelect label="Material" options={materials} />
+			<MultiSelect label="Color" color={true} />
+			<Select label="Category" options={allCategories} />
 			<FloatTextbox label="Tag" name="tag" placeholder="Summer, Dinner...">
 				{#snippet iconright()}
 					<button class="cursor-pointer" onclick={() => (showTagInfo = !showTagInfo)}>
@@ -210,7 +176,7 @@
 	</div>
 </Dialog>
 
-<Dialog title="Tag Info" button={false} bind:open={showTagInfo}>
+<Dialog title="Tag Info" textButton={false} bind:open={showTagInfo}>
 	<p>
 		A Tag is a way to categorise or label your clothing items, making it easier to search and
 		organise your wardrobe.

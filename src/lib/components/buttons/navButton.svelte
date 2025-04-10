@@ -24,8 +24,10 @@
 		onclick();
 	}}
 >
-	{@render icon()}
-	<span class={[selected === text ? 'text-brand' : 'text-black-tertiary', 'text-sm']}>
+	<div class="lg:hidden">
+		{@render icon()}
+	</div>
+	<span class={[selected === text ? 'text-brand' : 'text-black-tertiary lg:text-black-primary', 'text-sm, lg:text-2xl']}>
 		{text}
 	</span>
 </button>

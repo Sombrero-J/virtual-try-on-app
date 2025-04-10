@@ -63,9 +63,10 @@
 		titleholder?: Snippet;
 		children: Snippet;
 		open?: boolean;
-		button?: boolean;
-		understood?: boolean;
+		textButton?: boolean;
+		buttonText?: string;
 		backFn?: () => void;
+		onclick?: () => void;
 	}
 
 	let {
@@ -73,9 +74,10 @@
 		title,
 		titleholder,
 		open = $bindable(),
-		button = true,
-		understood = true,
-		backFn
+		textButton = true,
+		buttonText = '',
+		backFn,
+		onclick = () => {}
 	}: Props = $props();
 
 	let isMobile = $derived((innerWidth.current && innerWidth.current < 1024) || false);
@@ -97,7 +99,7 @@
 	onpointermove={handlePointerMove}
 />
 
-{#if button}
+{#if textButton}
 	<TextButton onclick={() => (open = !open)} text="Show Examples" />
 {/if}
 
@@ -114,10 +116,10 @@
 		<div
 			class="justify-top flex max-h-2/3 max-w-8/10 flex-col items-center gap-5 rounded-3xl bg-white p-7 shadow-xl"
 		>
-			<div class="flex w-full items-center justify-center gap-2">
-				<h1 class="flex-1 text-4xl font-medium">{title}</h1>
+			<div class="relative flex w-full items-center justify-center gap-2">
+				<h1 class="flex-1 text-4xl font-medium text-center mx-20">{title}</h1>
 				<button
-					class="right-0 cursor-pointer"
+					class="absolute right-0 cursor-pointer"
 					aria-label="Close modal"
 					onclick={() => (open = false)}
 				>
@@ -129,12 +131,15 @@
 			<div class="h-full overflow-y-auto">
 				{@render children?.()}
 			</div>
-			{#if understood}
+			{#if buttonText}
 				<Button
 					twClass={'cursor-pointer'}
 					fullWidth={true}
-					text="Understood"
-					onclick={() => (open = false)}
+					text={buttonText}
+					onclick={() => {
+						open = false;
+						onclick();
+					}}
 				/>
 			{/if}
 		</div>

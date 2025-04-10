@@ -12,7 +12,7 @@
 </script>
 
 <button
-	class="bg-brand-tertiary flex w-full items-center justify-start gap-2 p-2 whitespace-nowrap first:rounded-t-md last:rounded-b-md cursor-pointer"
+	class="bg-brand-tertiary lg:bg-white-primary flex w-full cursor-pointer items-center justify-start gap-2 p-2 lg:p-3 whitespace-nowrap first:rounded-t-md last:rounded-b-md lg:text-2xl lg:hover:bg-brand-secondary"
 	{onclick}
 	aria-label={ariaLabel}
 >

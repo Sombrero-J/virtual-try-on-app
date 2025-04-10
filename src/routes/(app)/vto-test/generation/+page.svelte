@@ -80,7 +80,7 @@
 </script>
 
 <div
-	class="flex w-8/10 flex-1 flex-col items-start justify-between gap-5 py-8 lg:flex-row lg:gap-40 lg:pt-20"
+	class="mx-auto flex w-8/10 flex-1 flex-col items-start justify-between gap-5 py-8 lg:flex-row lg:gap-40 lg:pt-20"
 >
 	<div class="relative flex w-full flex-col justify-between lg:min-h-[40rem] lg:justify-center">
 		<!-- Small screen -->
@@ -102,7 +102,7 @@
 		<div class="flex flex-col items-start justify-center gap-1">
 			<!-- TITLE -->
 			<div class="flex flex-col gap-1 lg:mb-4">
-				<div class="mb-4 hidden lg:block">
+				<div class="mb-4 hidden lg:flex">
 					<StepIndicator steps={3} activeStep={2} />
 				</div>
 				<Title title="Virtual Try On Generation" level="h1" />
