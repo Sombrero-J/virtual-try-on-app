@@ -2,6 +2,8 @@
 	import { Select } from 'melt/builders';
 	import { fashionColorsWithHex } from '$lib/state/appstate.svelte';
 	import Tick from '$lib/svg/tick.svelte';
+	import { SvelteSet } from 'svelte/reactivity';
+	import { onDestroy } from 'svelte';
 
 	type Option = (typeof options)[number];
 
@@ -9,15 +11,27 @@
 		label: string;
 		options?: string[];
 		color?: boolean;
+		defaultValue?: string[];
+		changed?: boolean;
 	}
 
 	const optionNames = $derived(fashionColorsWithHex.map((c) => c.name));
 	// for efficient hex lookup by name
 	const colorMap = $derived(new Map(fashionColorsWithHex.map((c) => [c.name, c.hex])));
 
-	const { label, options = [], color = false }: Props = $props();
+	let {
+		label,
+		options = [],
+		color = false,
+		defaultValue,
+		changed = $bindable(false)
+	}: Props = $props();
+
+	const currentSelectionSet = new SvelteSet<string>(defaultValue);
+	const initialDefaultSet = new SvelteSet<string>(defaultValue);
 
 	const select = new Select<Option, true>({
+		value: currentSelectionSet,
 		multiple: () => true,
 		sameWidth: true,
 		typeaheadTimeout: 500
@@ -27,10 +41,41 @@
 		return typeof hex === 'string' && hex.toUpperCase() === '#FFFFFF';
 	}
 
-	const displayValue = $derived(
-		select.value.size > 0 ? [...select.value].join(', ') : `Select ${label} (multiple)`
-	);
+	$effect(() => {
+		if (currentSelectionSet.size !== initialDefaultSet.size) {
+			changed = true;
+		}
+
+		for (const item of initialDefaultSet) {
+			if (!currentSelectionSet.has(item)) {
+				changed = true;
+			}
+		}
+	});
+
+	onDestroy(() => {
+		changed = false;
+	});
 </script>
+
+{#snippet selected(value: string)}
+	<div
+		class="bg-brand-secondary flex cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1"
+	>
+		<span class="text-black-primary pointer-events-none text-sm">{value}</span>
+		<button
+			onclick={() => select.value.delete(value)}
+			aria-label="Remove option"
+			class="cursor-pointer"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none"
+				><g stroke="#6D6E70" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#a)"
+					><path d="M9 3 3 9M3 3l6 6" /></g
+				><defs><clipPath id="a"><path fill="#fff" d="M0 0h12v12H0z" /></clipPath></defs></svg
+			>
+		</button>
+	</div>
+{/snippet}
 
 <div class={['group justify-center, relative flex w-full flex-col items-start']}>
 	<label
@@ -39,18 +84,26 @@
 		>{label}</label
 	>
 
-	<button
+	<div
 		{...select.trigger}
-		class="border-gray-subtler group-focus-within:border-brand relative flex min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 py-2 transition-colors duration-100 ease-in lg:max-w-[20rem]"
+		class="border-gray-subtler group-focus-within:border-brand relative flex min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 py-2 transition-colors duration-100 ease-in"
 	>
-		{displayValue}
+		{#if select.value.size === 0}
+			<span class="text-gray-500">{`Select ${label} (multiple)`}</span>
+		{:else}
+			<div class="flex flex-wrap items-start justify-start gap-2">
+				{#each select.value as value (value)}
+					{@render selected(value)}
+				{/each}
+			</div>
+		{/if}
 		<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 18 10" fill="none">
 			<path
 				d="M0.514648 1.46495L8.99965 9.94995L17.4846 1.46495L16.0706 0.0499516L8.99965 7.12195L1.92865 0.0499516L0.514648 1.46495Z"
 				fill="#8F9294"
 			/>
 		</svg>
-	</button>
+	</div>
 </div>
 
 <div
@@ -69,7 +122,7 @@
 				class:font-semibold={select.value.has(optionName)}
 			>
 				<!-- Color Swatch -->
-				<div class="flex justify-center items-center gap-1">
+				<div class="flex items-center justify-center gap-1">
 					{#if hexCode}
 						<span
 							class="block h-4 w-4 flex-shrink-0 rounded-full"
@@ -95,7 +148,7 @@
 				{...select.getOption(option)}
 				class={[
 					'flex cursor-pointer justify-between p-2',
-					select.value.has(option) && 'font-bold bg-brand-secondary',
+					select.value.has(option) && 'bg-brand-secondary font-bold',
 					select.highlighted === option && 'bg-brand-secondary'
 				]}
 			>
@@ -108,7 +161,7 @@
 	{/if}
 </div>
 
-<input type="hidden" name={label} value={select.value} />
+<input type="hidden" name={label} value={select.valueAsString} />
 
 <style>
 	[data-melt-select-content] {

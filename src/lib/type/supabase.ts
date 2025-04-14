@@ -115,12 +115,10 @@ export type Database = {
           front_image_url: string
           id: number
           last_modified: string | null
-          materials_id: number | null
           name: string | null
           owned: boolean | null
           signed_back: string | null
           signed_front: string | null
-          status: Database["public"]["Enums"]["clothing_status"]
           updated_at: string | null
           user_id: string
         }
@@ -135,12 +133,10 @@ export type Database = {
           front_image_url: string
           id?: number
           last_modified?: string | null
-          materials_id?: number | null
           name?: string | null
           owned?: boolean | null
           signed_back?: string | null
           signed_front?: string | null
-          status?: Database["public"]["Enums"]["clothing_status"]
           updated_at?: string | null
           user_id: string
         }
@@ -155,12 +151,10 @@ export type Database = {
           front_image_url?: string
           id?: number
           last_modified?: string | null
-          materials_id?: number | null
           name?: string | null
           owned?: boolean | null
           signed_back?: string | null
           signed_front?: string | null
-          status?: Database["public"]["Enums"]["clothing_status"]
           updated_at?: string | null
           user_id?: string
         }
@@ -177,13 +171,6 @@ export type Database = {
             columns: ["categories_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clothings_materials_id_fkey"
-            columns: ["materials_id"]
-            isOneToOne: false
-            referencedRelation: "materials"
             referencedColumns: ["id"]
           },
           {
@@ -221,6 +208,36 @@ export type Database = {
             columns: ["color_id"]
             isOneToOne: false
             referencedRelation: "colors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clothings_materials: {
+        Row: {
+          clothing_id: number
+          material_id: number
+        }
+        Insert: {
+          clothing_id: number
+          material_id: number
+        }
+        Update: {
+          clothing_id?: number
+          material_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clothings_materials_clothing_id_fkey"
+            columns: ["clothing_id"]
+            isOneToOne: false
+            referencedRelation: "clothings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clothings_materials_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
             referencedColumns: ["id"]
           },
         ]
@@ -514,34 +531,43 @@ export type Database = {
         Row: {
           clothings_id: number
           created_at: string
+          error: string | null
           id: number
           model_images_id: number
           signed_expiry: string | null
           signed_try_on: string | null
-          task_id: string
-          try_on_url: string
+          status: Database["public"]["Enums"]["clothing_status"] | null
+          task_id: string | null
+          try_on_url: string | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
           clothings_id: number
           created_at?: string
+          error?: string | null
           id?: number
           model_images_id: number
           signed_expiry?: string | null
           signed_try_on?: string | null
-          task_id: string
-          try_on_url: string
+          status?: Database["public"]["Enums"]["clothing_status"] | null
+          task_id?: string | null
+          try_on_url?: string | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
           clothings_id?: number
           created_at?: string
+          error?: string | null
           id?: number
           model_images_id?: number
           signed_expiry?: string | null
           signed_try_on?: string | null
-          task_id?: string
-          try_on_url?: string
+          status?: Database["public"]["Enums"]["clothing_status"] | null
+          task_id?: string | null
+          try_on_url?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -652,22 +678,6 @@ export type Database = {
         }
         Returns: number
       }
-      create_clothing_with_details: {
-        Args: {
-          p_clothing_name: string
-          p_clothing_image_url: string
-          p_user_id: string
-          p_try_on_image_url: string
-          p_task_id: string
-          p_model_image_url: string
-          p_description: string
-          p_colors: string[]
-          p_brands: string
-          p_materials: string
-          p_category: string
-        }
-        Returns: number
-      }
       get_clothings_for_outfit: {
         Args: { p_outfit_id: number }
         Returns: {
@@ -680,7 +690,7 @@ export type Database = {
           created_at: string
         }[]
       }
-      save_clothing_with_details: {
+      save_tryon: {
         Args: {
           p_clothing_name: string
           p_clothing_image_url: string
@@ -696,36 +706,26 @@ export type Database = {
         }
         Returns: number
       }
-      save_try_on_to_wardrobe: {
-        Args: {
-          p_user_id: string
-          p_clothing_name: string
-          p_task_id: string
-          p_clothing_image_url: string
-          p_model_image_url: string
-          p_try_on_image_url: string
-        }
-        Returns: number
-      }
       update_clothing_metadata: {
         Args: {
           p_user_id: string
-          p_id: number
+          p_id: string
           p_name: string
           p_brands: string
           p_categories: string
-          p_materials: string
+          p_materials: string[]
           p_colors: string[]
         }
         Returns: undefined
       }
-      upload_clothings: {
-        Args: { user_id: string; file_path: string }
-        Returns: number
-      }
     }
     Enums: {
-      clothing_status: "uploaded" | "processing" | "done" | "error"
+      clothing_status:
+        | "uploaded"
+        | "processing"
+        | "done"
+        | "error"
+        | "unavailable"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -844,7 +844,13 @@ export const Constants = {
   },
   public: {
     Enums: {
-      clothing_status: ["uploaded", "processing", "done", "error"],
+      clothing_status: [
+        "uploaded",
+        "processing",
+        "done",
+        "error",
+        "unavailable",
+      ],
     },
   },
 } as const

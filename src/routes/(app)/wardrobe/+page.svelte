@@ -34,7 +34,16 @@
 
 	let { data }: PageProps = $props();
 
-	let selectedClothing = $state<ClothingWithTryOnsType[number]>();
+	let selectedClothing = $state<ClothingWithTryOnsType[number] | null>();
+	let selectedClothingColors = $derived(selectedClothing?.colors.map((color) => color.name) ?? []);
+	let selectedClothingMaterials: string[] = $derived.by(() => {
+		if (selectedClothing && selectedClothing?.materials.length > 0) {
+			return selectedClothing?.materials?.map((material) => material.name);
+		} else {
+			return [];
+		}
+	});
+
 	let uniqueCategories = $state<string[]>([]);
 	const filterInstance = filterStore();
 
@@ -142,15 +151,33 @@
 		<img
 			src={selectedClothing!.signed_front}
 			alt="front side of ${selectedClothing!.name}"
-			class="h-40 w-auto object-contain lg:h-90"
+			class="h-40 w-auto object-contain lg:h-90 rounded-lg"
 		/>
 
-		<form method="post" class="flex flex-col gap-4 py-2" action="?/update" use:enhance>
+		<form
+			method="post"
+			class="flex flex-col gap-4 py-2 w-[25rem]"
+			action="?/update"
+			use:enhance={() => {
+				return ({ result, update }) => {
+					if (result.type === 'success') {
+						// Handle success
+						alert('Clothing updated successfully!');
+						changed = false;
+						openClothingDialog = false;
+					} else if (result.type === 'failure') {
+						alert('Error updating clothing. Please try again.' + result.data);
+						openClothingDialog = false;
+					}
+				};
+			}}
+		>
 			<FloatTextbox
 				label="Name"
 				name="name"
 				placeholder="My Favourite..."
 				value={selectedClothing?.name ?? ''}
+				required={false}
 				bind:changed
 			/>
 			<FloatTextbox
@@ -158,12 +185,29 @@
 				name="brand"
 				placeholder="Gucci, Polo..."
 				value={selectedClothing?.brands?.name ?? null}
+				required={false}
 				bind:changed
 			/>
-			<MultiSelect label="Material" options={materials} />
-			<MultiSelect label="Color" color={true} />
-			<Select label="Category" options={allCategories} />
-			<FloatTextbox label="Tag" name="tag" placeholder="Summer, Dinner...">
+			<MultiSelect
+				label="Materials"
+				options={materials}
+				defaultValue={selectedClothingMaterials}
+				bind:changed
+			/>
+			<MultiSelect label="Colors" color={true} defaultValue={selectedClothingColors} bind:changed />
+			<Select
+				label="Category"
+				options={allCategories}
+				defaultValue={selectedClothing?.categories?.name}
+				bind:changed
+			/>
+			<FloatTextbox
+				label="Tag"
+				name="tag"
+				placeholder="Summer, Dinner..."
+				required={false}
+				bind:changed
+			>
 				{#snippet iconright()}
 					<button class="cursor-pointer" onclick={() => (showTagInfo = !showTagInfo)}>
 						<Info />

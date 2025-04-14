@@ -17,7 +17,7 @@ export async function getClothingWithTryOns(supabase: supabaseFull, user_id: str
 	const response = supabase
 		.from('clothings')
 		.select(
-			'id, name, categories_id, brands_id, materials_id, front_image_url, back_image_url, signed_front, signed_back, expiry_front, expiry_back, try_on_sessions(id, try_on_url, signed_try_on, signed_expiry), brands(name), categories(name), materials(name), colors(name)'
+			'id, name, categories_id, brands_id, front_image_url, back_image_url, signed_front, signed_back, expiry_front, expiry_back, try_on_sessions(id, try_on_url, signed_try_on, signed_expiry), brands(name), categories(name), colors(name), materials(name)'
 		)
 		.eq('user_id', user_id)
 		.order('last_modified', { ascending: false });

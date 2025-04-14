@@ -1,21 +1,34 @@
 <script lang="ts">
 	import { Select } from 'melt/builders';
-	import { fashionColorsWithHex } from '$lib/state/appstate.svelte';
 	import Tick from '$lib/svg/tick.svelte';
+	import { onDestroy } from 'svelte';
 
 	type Option = (typeof options)[number];
 
 	interface Props {
 		label: string;
 		options?: string[];
+		defaultValue?: string;
+		changed?: boolean;
 	}
 
-	const { label, options = [] }: Props = $props();
+	let { label, options = [], defaultValue, changed = $bindable(false) }: Props = $props();
 
 	const select = new Select<Option>({
+		value: defaultValue,
 		multiple: () => false,
 		sameWidth: true,
 		typeaheadTimeout: 500
+	});
+
+	$effect(() => {
+		if (select.value !== defaultValue) {
+			changed = true;
+		}
+	});
+
+	onDestroy(() => {
+		changed = false;
 	});
 
 	const displayValue = $derived(select.value || `Select ${label}`);
@@ -30,7 +43,7 @@
 
 	<button
 		{...select.trigger}
-		class="border-gray-subtler group-focus-within:border-brand relative flex min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 py-2 transition-colors duration-100 ease-in lg:max-w-[20rem]"
+		class="border-gray-subtler group-focus-within:border-brand relative flex min-h-[44px] w-full cursor-pointer items-center justify-between gap-2 rounded-md border px-3 py-2 transition-colors duration-100 ease-in"
 	>
 		{displayValue}
 		<svg xmlns="http://www.w3.org/2000/svg" width="18" height="10" viewBox="0 0 18 10" fill="none">

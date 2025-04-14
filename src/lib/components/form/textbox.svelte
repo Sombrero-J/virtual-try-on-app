@@ -57,7 +57,7 @@
 			<input
 				type="password"
 				id="this"
-				{value}
+				bind:value
 				{name}
 				{placeholder}
 				{disabled}
@@ -69,7 +69,7 @@
 			<input
 				type="email"
 				id="this"
-				{value}
+				bind:value
 				{name}
 				{placeholder}
 				{disabled}
@@ -80,7 +80,7 @@
 		{:else if type === 'textbox'}
 			<textarea
 				id="this"
-				{value}
+				bind:value
 				{name}
 				class="min-h-[8rem] w-full resize-none border-0 focus:outline-none"
 				{oninput}
@@ -89,7 +89,7 @@
 			<input
 				type="text"
 				id="this"
-				{value}
+				bind:value
 				{name}
 				{placeholder}
 				{disabled}

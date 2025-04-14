@@ -127,7 +127,7 @@ export const actions: Actions = {
 				return fail(400, { message: 'Model path does not exist' });
 			}
 
-			const { data, error } = await supabase.rpc('save_clothing_with_details', {
+			const { data, error } = await supabase.rpc('save_tryon', {
 				// check if this function checks if modelPath exists
 				p_user_id: user.id,
 				p_clothing_name: clothingName,

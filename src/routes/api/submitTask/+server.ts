@@ -31,9 +31,6 @@ export const POST: RequestHandler = async ({ request }) => {
     );
   }
 
-  const data = await createTask(fullBodyImageName, clothingImageName, category);
-  console.log(data);
-
   // Create the task
   const taskCreationResult = await createTask(
     fullBodyImageName,

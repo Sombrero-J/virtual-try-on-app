@@ -58,7 +58,7 @@
       <Textbox
         placeholder="• • • • • • • •"
         label="Password"
-        type="password"
+        type={showPassword ? "text" : "password"}
         name="password"
         bind:value={password}
         showPassword={inputPassword}

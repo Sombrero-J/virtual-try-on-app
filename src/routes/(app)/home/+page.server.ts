@@ -373,8 +373,8 @@ export const actions: Actions = {
 						p_user_id: clothingData.user_id,
 						p_description: clothingData.description,
 						p_colors: clothingData.colors, // array
-						p_brands: clothingData.brand,
-						p_materials: clothingData.material,
+						p_brands: clothingData.brand, // can be null
+						p_materials: clothingData.material, // can be null
 						p_category: clothingData.category
 					});
 
@@ -383,6 +383,7 @@ export const actions: Actions = {
 						dbFailedItems.push({ storagePath, name: clothingData.name, error: rpcError });
 					} else {
 						insertedCount++;
+						// call edge vto here with clothingData.image_path with model_images
 					}
 				} catch (rpcCatchError) {
 					console.error(`Unexpected error calling RPC for ${clothingData.name}:`, rpcCatchError);
