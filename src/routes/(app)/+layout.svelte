@@ -36,17 +36,32 @@
 		</div>
 
 		<div class="bg-brand-secondary flex w-full justify-between gap-1 px-8 py-3">
-			<NavButton text="Outfits" href="/outfits" onclick={() => (selectedTab = 'Outfits')}>
+			<NavButton
+				selected={selectedTab}
+				text="Outfits"
+				href="/outfits"
+				onclick={() => (selectedTab = 'Outfits')}
+			>
 				{#snippet icon()}
 					<Outfit selected={selectedTab === 'Outfits'} />
 				{/snippet}
 			</NavButton>
-			<NavButton text="All items" href="/home" onclick={() => (selectedTab = 'All items')}>
+			<NavButton
+				selected={selectedTab}
+				text="All items"
+				href="/home"
+				onclick={() => (selectedTab = 'All items')}
+			>
 				{#snippet icon()}
 					<Uploaded selected={selectedTab === 'All items'} />
 				{/snippet}
 			</NavButton>
-			<NavButton text="Wardrobe" href="/wardrobe" onclick={() => (selectedTab = 'Wardrobe')}>
+			<NavButton
+				selected={selectedTab}
+				text="Wardrobe"
+				href="/wardrobe"
+				onclick={() => (selectedTab = 'Wardrobe')}
+			>
 				{#snippet icon()}
 					<Hangar selected={selectedTab === 'Wardrobe'} />
 				{/snippet}
@@ -58,22 +73,37 @@
 		<div
 			class="bg-brand-secondary flex h-[5rem] w-full items-center justify-center gap-8 px-4 py-4"
 		>
-			<NavButton text="All items" href="/home" onclick={() => (selectedTab = 'All items')}>
+			<NavButton
+				selected={selectedTab}
+				text="All items"
+				href="/home"
+				onclick={() => (selectedTab = 'All items')}
+			>
 				{#snippet icon()}
 					<Uploaded selected={selectedTab === 'All items'} />
 				{/snippet}
 			</NavButton>
-			<NavButton text="Wardrobe" href="/wardrobe" onclick={() => (selectedTab = 'Wardrobe')}>
+			<NavButton
+				selected={selectedTab}
+				text="Wardrobe"
+				href="/wardrobe"
+				onclick={() => (selectedTab = 'Wardrobe')}
+			>
 				{#snippet icon()}
 					<Hangar selected={selectedTab === 'Wardrobe'} />
 				{/snippet}
 			</NavButton>
-			<NavButton text="Outfits" href="/outfits" onclick={() => (selectedTab = 'Outfits')}>
+			<NavButton
+				selected={selectedTab}
+				text="Outfits"
+				href="/outfits"
+				onclick={() => (selectedTab = 'Outfits')}
+			>
 				{#snippet icon()}
 					<Outfit selected={selectedTab === 'Outfits'} />
 				{/snippet}
 			</NavButton>
-			<Profilepopover {user}/>
+			<Profilepopover {user} />
 		</div>
 
 		<div class="flex-1 overflow-hidden">

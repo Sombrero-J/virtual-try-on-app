@@ -87,19 +87,19 @@ export type Database = {
           created_at: string
           description: string | null
           id: number
-          name: string
+          name: Database["public"]["Enums"]["categories_type"]
         }
         Insert: {
           created_at?: string
           description?: string | null
           id?: number
-          name: string
+          name: Database["public"]["Enums"]["categories_type"]
         }
         Update: {
           created_at?: string
           description?: string | null
           id?: number
-          name?: string
+          name?: Database["public"]["Enums"]["categories_type"]
         }
         Relationships: []
       }
@@ -115,7 +115,7 @@ export type Database = {
           front_image_url: string
           id: number
           last_modified: string | null
-          name: string | null
+          name: string
           owned: boolean | null
           signed_back: string | null
           signed_front: string | null
@@ -133,7 +133,7 @@ export type Database = {
           front_image_url: string
           id?: number
           last_modified?: string | null
-          name?: string | null
+          name: string
           owned?: boolean | null
           signed_back?: string | null
           signed_front?: string | null
@@ -151,7 +151,7 @@ export type Database = {
           front_image_url?: string
           id?: number
           last_modified?: string | null
-          name?: string | null
+          name?: string
           owned?: boolean | null
           signed_back?: string | null
           signed_front?: string | null
@@ -247,19 +247,19 @@ export type Database = {
           created_at: string
           description: string | null
           id: number
-          name: string
+          name: Database["public"]["Enums"]["colors_type"]
         }
         Insert: {
           created_at?: string
           description?: string | null
           id?: number
-          name: string
+          name: Database["public"]["Enums"]["colors_type"]
         }
         Update: {
           created_at?: string
           description?: string | null
           id?: number
-          name?: string
+          name?: Database["public"]["Enums"]["colors_type"]
         }
         Relationships: []
       }
@@ -393,19 +393,19 @@ export type Database = {
           created_at: string
           description: string | null
           id: number
-          name: string
+          name: Database["public"]["Enums"]["materials_type"]
         }
         Insert: {
           created_at?: string
           description?: string | null
           id?: number
-          name: string
+          name: Database["public"]["Enums"]["materials_type"]
         }
         Update: {
           created_at?: string
           description?: string | null
           id?: number
-          name?: string
+          name?: Database["public"]["Enums"]["materials_type"]
         }
         Relationships: []
       }
@@ -485,35 +485,47 @@ export type Database = {
       }
       outfits: {
         Row: {
-          cover_image_url: string
+          cover_image_url: string | null
           created_at: string
           description: string | null
+          error: string | null
           expiry_cover: string | null
           id: number
+          model_path: string
           outfit_name: string | null
           signed_cover: string | null
+          status: Database["public"]["Enums"]["clothing_status"]
+          task_id: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
-          cover_image_url: string
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          error?: string | null
           expiry_cover?: string | null
           id?: number
+          model_path: string
           outfit_name?: string | null
           signed_cover?: string | null
+          status?: Database["public"]["Enums"]["clothing_status"]
+          task_id?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
-          cover_image_url?: string
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          error?: string | null
           expiry_cover?: string | null
           id?: number
+          model_path?: string
           outfit_name?: string | null
           signed_cover?: string | null
+          status?: Database["public"]["Enums"]["clothing_status"]
+          task_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -673,9 +685,27 @@ export type Database = {
           p_description: string
           p_colors: string[]
           p_brands: string
-          p_materials: string
+          p_materials: string[]
           p_category: string
         }
+        Returns: number
+      }
+      add_new_models: {
+        Args: { p_image_urls: string[]; p_user_id: string }
+        Returns: number
+      }
+      create_new_outfit: {
+        Args: {
+          p_clothing_ids: number[]
+          p_user_id: string
+          p_cover_image_url: string
+          p_model_path: string
+          p_outfit_name?: string
+        }
+        Returns: number
+      }
+      find_outfit_id_by_combination: {
+        Args: { p_item_id_1: number; p_item_id_2: number }
         Returns: number
       }
       get_clothings_for_outfit: {
@@ -709,7 +739,7 @@ export type Database = {
       update_clothing_metadata: {
         Args: {
           p_user_id: string
-          p_id: string
+          p_id: number
           p_name: string
           p_brands: string
           p_categories: string
@@ -720,12 +750,121 @@ export type Database = {
       }
     }
     Enums: {
+      categories_type:
+        | "T-Shirts"
+        | "Long-Sleeve Tops"
+        | "Shirts"
+        | "Sweaters"
+        | "Hoodies"
+        | "Sleeveless"
+        | "Jeans"
+        | "Pants"
+        | "Skirts"
+        | "Shorts"
+        | "Athletic Bottoms"
+        | "Coats"
+        | "Jackets"
+        | "Blazers"
+        | "Dresses"
+        | "Jumpsuits"
+        | "Sneakers"
+        | "Boots"
+        | "Sandals"
+        | "Heels"
+        | "Flats"
+        | "Formal Shoes"
+        | "Bags"
+        | "Scarves"
+        | "Hats"
+        | "Belts"
+        | "Jewellery"
+        | "Sunglasses"
+        | "Watches"
+        | "Ties"
+        | "Socks"
+        | "Swimwear"
+        | "Loungewear"
       clothing_status:
         | "uploaded"
         | "processing"
         | "done"
         | "error"
         | "unavailable"
+      colors_type:
+        | "Black"
+        | "White"
+        | "Ivory / Cream"
+        | "Grey"
+        | "Charcoal"
+        | "Beige / Tan"
+        | "Brown"
+        | "Navy"
+        | "Red"
+        | "Burgundy / Wine"
+        | "Pink"
+        | "Hot Pink / Fuchsia"
+        | "Purple / Violet"
+        | "Lavender / Lilac"
+        | "Blue"
+        | "Light Blue / Sky Blue"
+        | "Teal / Turquoise"
+        | "Green"
+        | "Olive / Khaki"
+        | "Mint / Sage"
+        | "Yellow"
+        | "Mustard"
+        | "Orange"
+        | "Rust / Terracotta"
+        | "Coral / Peach"
+        | "Gold"
+        | "Silver"
+        | "Bronze / Rose Gold"
+      materials_type:
+        | "Acetate"
+        | "Acrylic"
+        | "Alpaca"
+        | "Bamboo Viscose"
+        | "Cashmere"
+        | "Chiffon"
+        | "Corduroy"
+        | "Cotton"
+        | "Cupro"
+        | "Denim"
+        | "Down"
+        | "Elastane"
+        | "Faux Fur"
+        | "Faux Leather"
+        | "Flannel"
+        | "Fleece"
+        | "Hemp"
+        | "Jersey"
+        | "Jute"
+        | "Lace"
+        | "Leather"
+        | "Linen"
+        | "Lyocell"
+        | "Mesh"
+        | "Microfiber"
+        | "Modal"
+        | "Mohair"
+        | "Neoprene"
+        | "Nylon"
+        | "Organic Cotton"
+        | "Polyester"
+        | "Polyurethane"
+        | "Ramie"
+        | "Rayon"
+        | "Satin"
+        | "Sequin"
+        | "Silk"
+        | "Spandex"
+        | "Suede"
+        | "Tencel"
+        | "Terry Cloth"
+        | "Tweed"
+        | "Velvet"
+        | "Viscose"
+        | "Wool"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -844,12 +983,124 @@ export const Constants = {
   },
   public: {
     Enums: {
+      categories_type: [
+        "T-Shirts",
+        "Long-Sleeve Tops",
+        "Shirts",
+        "Sweaters",
+        "Hoodies",
+        "Sleeveless",
+        "Jeans",
+        "Pants",
+        "Skirts",
+        "Shorts",
+        "Athletic Bottoms",
+        "Coats",
+        "Jackets",
+        "Blazers",
+        "Dresses",
+        "Jumpsuits",
+        "Sneakers",
+        "Boots",
+        "Sandals",
+        "Heels",
+        "Flats",
+        "Formal Shoes",
+        "Bags",
+        "Scarves",
+        "Hats",
+        "Belts",
+        "Jewellery",
+        "Sunglasses",
+        "Watches",
+        "Ties",
+        "Socks",
+        "Swimwear",
+        "Loungewear",
+      ],
       clothing_status: [
         "uploaded",
         "processing",
         "done",
         "error",
         "unavailable",
+      ],
+      colors_type: [
+        "Black",
+        "White",
+        "Ivory / Cream",
+        "Grey",
+        "Charcoal",
+        "Beige / Tan",
+        "Brown",
+        "Navy",
+        "Red",
+        "Burgundy / Wine",
+        "Pink",
+        "Hot Pink / Fuchsia",
+        "Purple / Violet",
+        "Lavender / Lilac",
+        "Blue",
+        "Light Blue / Sky Blue",
+        "Teal / Turquoise",
+        "Green",
+        "Olive / Khaki",
+        "Mint / Sage",
+        "Yellow",
+        "Mustard",
+        "Orange",
+        "Rust / Terracotta",
+        "Coral / Peach",
+        "Gold",
+        "Silver",
+        "Bronze / Rose Gold",
+      ],
+      materials_type: [
+        "Acetate",
+        "Acrylic",
+        "Alpaca",
+        "Bamboo Viscose",
+        "Cashmere",
+        "Chiffon",
+        "Corduroy",
+        "Cotton",
+        "Cupro",
+        "Denim",
+        "Down",
+        "Elastane",
+        "Faux Fur",
+        "Faux Leather",
+        "Flannel",
+        "Fleece",
+        "Hemp",
+        "Jersey",
+        "Jute",
+        "Lace",
+        "Leather",
+        "Linen",
+        "Lyocell",
+        "Mesh",
+        "Microfiber",
+        "Modal",
+        "Mohair",
+        "Neoprene",
+        "Nylon",
+        "Organic Cotton",
+        "Polyester",
+        "Polyurethane",
+        "Ramie",
+        "Rayon",
+        "Satin",
+        "Sequin",
+        "Silk",
+        "Spandex",
+        "Suede",
+        "Tencel",
+        "Terry Cloth",
+        "Tweed",
+        "Velvet",
+        "Viscose",
+        "Wool",
       ],
     },
   },

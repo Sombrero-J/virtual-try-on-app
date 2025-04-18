@@ -74,13 +74,13 @@
 		>
 			<div class="bg-gray-subtlest h-[2px] w-1/10 rounded-full"></div>
 			<h2 class="text-base font-semibold">Uploaded Items</h2>
-			<div class="flex items-center justify-start gap-2 overflow-x-auto">
+			<div class="flex items-center justify-start gap-2 overflow-x-auto ml-8">
 				{#each filterArray as filter}
 					<FilterButton {filter} />
 				{/each}
 			</div>
 		</div>
-		<div class="overflow-y-auto flex-1">
+		<div class="overflow-y-auto max-h-full">
 			{@render children()}
 		</div>
 	</div>

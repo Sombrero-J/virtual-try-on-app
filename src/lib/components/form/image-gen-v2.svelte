@@ -17,7 +17,7 @@
       <img
         src={imageUrl}
         alt="Virtual Try On"
-        class="h-full w-auto object-contain"
+        class="h-full w-auto rounded-lg object-contain"
       />
     {/if}
   </div>

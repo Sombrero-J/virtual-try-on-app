@@ -7,15 +7,17 @@
 		alt: string;
 		selected?: boolean;
 		transitionIndex?: number;
+		type?: 'button' | 'submit' | 'reset';
 	}
 
-	let { onclick, src, alt, selected = false, transitionIndex }: Props = $props();
+	let { onclick, src, alt, selected = false, transitionIndex, type = 'button' }: Props = $props();
 </script>
 
 <button
 	class="bg-brand-secondary flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg shadow-md {selected
-		? 'ring-brand ring-2 shadow-md'
+		? 'border-brand border-2 shadow-md'
 		: ''}"
+	{type}
 	{onclick}
 >
 	<img {src} {alt} class="h-full w-full object-contain" />

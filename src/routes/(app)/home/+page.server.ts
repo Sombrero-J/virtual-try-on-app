@@ -1,4 +1,4 @@
-import { getModels, insertModel } from '$lib/server/database_helpers/queryDb';
+import { getModels } from '$lib/server/database_helpers/queryDb';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import {
@@ -77,7 +77,9 @@ export const actions: Actions = {
 			return { success: false, message: 'All form fields are required.' };
 		}
 
-		const fullBodyImageName = model_path ? model_path.split('/').pop() || 'model image' : model_image.name;
+		const fullBodyImageName = model_path
+			? model_path.split('/').pop() || 'model image'
+			: model_image.name;
 		const clothingImageName = clothing_image.name;
 
 		let modelImageFile;
@@ -160,6 +162,7 @@ export const actions: Actions = {
 				return { status: 'rejected', reason: 'size', name: modelFile.name };
 			}
 			try {
+				// upload model images to storage
 				const fullModelPath = await uploadToStorage('models', modelFile, supabase, user.id);
 				return { status: 'uploaded', path: fullModelPath, name: modelFile.name };
 			} catch (error) {
@@ -193,12 +196,41 @@ export const actions: Actions = {
 
 		try {
 			if (uploadedPaths.length > 0) {
-				const insertedData = await insertModel(supabase, user_id, uploadedPaths);
+				// insert models to database
+
+				// const insertedData = await insertModel(supabase, user_id, uploadedPaths);
+
+				const { data: insertedCount, error } = await supabase.rpc('add_new_models', {
+					p_image_urls: uploadedPaths,
+					p_user_id: user_id
+				});
+
+				if (error) {
+					const { error: delError } = await supabase.storage.from('models').remove(uploadedPaths);
+
+					if (delError) {
+						console.error(`Failed to delete orphaned file from models: ${delError.message}`);
+						return fail(500, {
+							success: false,
+							message: 'Failed to upload any files, and rollback unsuccessful.',
+							uploadedPaths: uploadedPaths,
+							rejectedImages: rejectedImages,
+							errors: delError
+						});
+					}
+
+					return fail(500, {
+						success: false,
+						message: `Add new models failure, rollback success: ${error.message}`,
+						uploadedPaths: uploadedPaths,
+						rejectedImages: rejectedImages
+					});
+				}
 
 				return {
 					success: true,
-					message: `${insertedData.length} model(s) added successfully.`,
-					insertedCount: insertedData.length,
+					message: `${insertedCount} model(s) added successfully.`,
+					insertedCount: insertedCount,
 					rejectedImages: rejectedImages
 				};
 			}

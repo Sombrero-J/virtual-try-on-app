@@ -17,8 +17,8 @@ export const actions: Actions = {
 			return fail(401, { message: 'Unauthorized' });
 		}
 		const formData = await request.formData();
-		const name = formData.get('Name');
-		const brand = formData.get('Brand');
+		const name = formData.get('name');
+		const brand = formData.get('brand');
 		const category = formData.get('Category');
 
 		const materials = formData.get('Materials') as string;
@@ -46,7 +46,7 @@ export const actions: Actions = {
 			p_name: name as string,
 			p_brands: brand as string,
 			p_categories: category as string,
-			p_id: id,
+			p_id: Number(id),
 			p_materials: materialsArray as string[],
 			p_colors: colorsArray as string[]
 		});

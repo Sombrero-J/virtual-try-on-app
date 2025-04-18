@@ -10,9 +10,10 @@
 		options?: string[];
 		defaultValue?: string;
 		changed?: boolean;
+		required?: boolean;
 	}
 
-	let { label, options = [], defaultValue, changed = $bindable(false) }: Props = $props();
+	let { label, options = [], defaultValue, changed = $bindable(false), required = false }: Props = $props();
 
 	const select = new Select<Option>({
 		value: defaultValue,
@@ -78,7 +79,7 @@
 	{/each}
 </div>
 
-<input type="hidden" name={label} value={select.value} />
+<input type="hidden" name={label} value={select.value} {required}/>
 
 <style>
 	[data-melt-select-content] {

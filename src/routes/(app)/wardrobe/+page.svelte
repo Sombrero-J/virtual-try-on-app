@@ -43,6 +43,7 @@
 			return [];
 		}
 	});
+	let clothingCount = $state(0);
 
 	let uniqueCategories = $state<string[]>([]);
 	const filterInstance = filterStore();
@@ -51,6 +52,7 @@
 		try {
 			const parentData = await data.parentData;
 			const clothingsWithTryOns = await parentData.clothingsWithTryOns;
+			clothingCount = clothingsWithTryOns.length;
 			if (clothingsWithTryOns && clothingsWithTryOns.length > 0) {
 				const categoryNames = clothingsWithTryOns
 					.map((item: ClothingWithTryOnsType[number]) => item.categories?.name)
@@ -74,6 +76,10 @@
 <div
 	class="bg-white-primary flex h-full w-full flex-col items-stretch justify-start gap-2 p-4 lg:gap-5 lg:px-20 lg:py-10"
 >
+	<div class="hidden lg:flex justify-between w-full items-center">
+		<h1 class="text-4xl font-medium">Wardrobe</h1>
+		<p class="text-black-tertiary text-2xl">{clothingCount <= 0 ? 'No' : clothingCount} items</p>
+	</div>
 	<div
 		{...tabs.triggerList}
 		class="border-border-gray flex items-center justify-center gap-2 rounded-xl border-1 p-0.5"
@@ -151,12 +157,12 @@
 		<img
 			src={selectedClothing!.signed_front}
 			alt="front side of ${selectedClothing!.name}"
-			class="h-40 w-auto object-contain lg:h-90 rounded-lg"
+			class="h-40 w-auto rounded-lg object-contain lg:h-90"
 		/>
 
 		<form
 			method="post"
-			class="flex flex-col gap-4 py-2 w-[25rem]"
+			class="flex w-[25rem] flex-col gap-4 py-2"
 			action="?/update"
 			use:enhance={() => {
 				return ({ result, update }) => {
@@ -177,7 +183,7 @@
 				name="name"
 				placeholder="My Favourite..."
 				value={selectedClothing?.name ?? ''}
-				required={false}
+				required={true}
 				bind:changed
 			/>
 			<FloatTextbox
@@ -199,6 +205,7 @@
 				label="Category"
 				options={allCategories}
 				defaultValue={selectedClothing?.categories?.name}
+				required={true}
 				bind:changed
 			/>
 			<FloatTextbox

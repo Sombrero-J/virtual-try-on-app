@@ -1,7 +1,3 @@
-<script module>
-	let selected = $state('');
-</script>
-
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import type { Snippet } from 'svelte';
@@ -11,9 +7,10 @@
 		href: string;
 		icon: Snippet;
 		onclick?: () => void;
+		selected: string;
 	}
 
-	let { text, href, icon, onclick = () => {} }: Props = $props();
+	let { text, href, icon, onclick = () => {}, selected }: Props = $props();
 </script>
 
 <button
