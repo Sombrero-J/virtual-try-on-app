@@ -38,22 +38,22 @@
 			<p class="text-black-tertiary text-base">{user?.email}</p>
 		</div>
 		<div class="divide-border-gray w-full divide-y-1">
-			<SectionButton text="My photos" onclick={() => goto('/by/myphotos')}>
+			<SectionButton text="My photos" onclick={() => goto('/profile/my-photos')}>
 				{#snippet lefticon()}
 					<Photos />
 				{/snippet}
 			</SectionButton>
-			<SectionButton text="Contact us" onclick={() => goto('/by/help')}>
+			<SectionButton text="Contact us" onclick={() => goto('/profile/help')}>
 				{#snippet lefticon()}
 					<Help />
 				{/snippet}
 			</SectionButton>
-			<SectionButton text="Invite friends" onclick={() => goto('/by/invite')}>
+			<SectionButton text="Invite friends" onclick={() => goto('/profile/invite')}>
 				{#snippet lefticon()}
 					<Link />
 				{/snippet}
 			</SectionButton>
-			<SectionButton text="Give us a feedback" onclick={() => goto('/by/feedback')}>
+			<SectionButton text="Give us a feedback" onclick={() => goto('/profile/feedback')}>
 				{#snippet lefticon()}
 					<Thumbsup />
 				{/snippet}

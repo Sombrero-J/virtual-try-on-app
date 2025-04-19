@@ -147,7 +147,7 @@
 			<Bigdialogbutton
 				text="Customise Your Own"
 				description="Handpick from your own wardrobe"
-				onclick={() => goto('/outfits/desktop-custom-outfit')}
+				onclick={() => goto('/outfits/custom-outfit')}
 			>
 				{#snippet icon()}
 					<svg xmlns="http://www.w3.org/2000/svg" width="60" height="56" fill="none"
@@ -163,7 +163,7 @@
 			</Bigdialogbutton>
 			<Bigdialogbutton
 				onclick={() => {
-					goto('/by/create-ai');
+					goto('/outfits/create-ai');
 				}}
 				text="Smart Creation with AI"
 				description="Find the best outfit for any event"
@@ -184,13 +184,13 @@
 			<DialogButton
 				text="Customise Your Own"
 				onclick={() => {
-					goto('/by/create-custom');
+					goto('/outfits/create-custom');
 				}}
 			/>
 			<DialogButton
 				text="Smart Creation with AI"
 				onclick={() => {
-					goto('/by/create-ai');
+					goto('/outfits/create-ai');
 				}}
 			/>
 		{/if}

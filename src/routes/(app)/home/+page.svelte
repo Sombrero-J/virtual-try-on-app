@@ -214,7 +214,7 @@
 </script>
 
 <!-- awaiting page.servers's data -->
-<div class="bg-white-primary relative h-full w-full overflow-hidden lg:flex lg:py-20 lg:pr-20">
+<div class="bg-white-primary relative h-full w-full overflow-hidden lg:flex lg:pt-20 lg:pr-20">
 	{#await data.parentData}
 		Loading
 	{:then parent}
@@ -230,7 +230,7 @@
 								{#if selectedDisplayTryOn}
 									<div class="flex flex-col items-start justify-start gap-4">
 										<img
-											class="h-full w-full shadow-lg lg:rounded-lg lg:object-cover"
+											class="h-[40rem] w-full shadow-lg lg:rounded-lg lg:object-fill"
 											src={selectedDisplayTryOn}
 											alt="try on"
 										/>
@@ -331,7 +331,7 @@
 												selectedItem = item;
 												selectedDisplayTryOnID = selectedItem.try_on_sessions[0].id || -1;
 											}}
-											transitionIndex={i}
+											id={item.id}
 										/>
 									{/if}
 								{/each}
@@ -340,34 +340,37 @@
 					{:else}
 						<div class="flex w-1/2 flex-col items-start justify-start gap-3">
 							<h1 class="text-4xl font-medium">All Items</h1>
-							<div class="flex items-center justify-start gap-2 overflow-x-auto">
+							<!-- why does this shrink by itself? -->
+							<div class="flex flex-shrink-0 items-center justify-start gap-2 overflow-x-auto">
 								{#each uniqueCategories as filter}
 									<FilterButton {filter} />
 								{/each}
 							</div>
-							<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
-								<button
-									class="bg-brand-secondary text-brand flex aspect-square cursor-pointer items-center justify-center rounded-lg text-6xl font-bold"
-									onclick={() => {
-										openDialog = true;
-									}}
-									>+
-								</button>
-								{#each clothingsWithTryOns as item, i}
-									<!-- filtering categories -->
-									{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
-										<WardrobeItem
-											src={item.signed_front}
-											alt="front side of ${item.name}"
-											selected={selectedItem?.front_image_url === item.front_image_url}
-											onclick={() => {
-												selectedItem = item;
-												selectedDisplayTryOnID = selectedItem.try_on_sessions[0].id || -1;
-											}}
-											transitionIndex={i}
-										/>
-									{/if}
-								{/each}
+							<div class="overflow-y-auto">
+								<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
+									<button
+										class="bg-brand-secondary text-brand flex max-h-[20rem] w-auto cursor-pointer items-center justify-center rounded-lg text-6xl font-bold"
+										onclick={() => {
+											openDialog = true;
+										}}
+										>+
+									</button>
+									{#each clothingsWithTryOns as item, i}
+										<!-- filtering categories -->
+										{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
+											<WardrobeItem
+												src={item.signed_front}
+												alt="front side of ${item.name}"
+												selected={selectedItem?.front_image_url === item.front_image_url}
+												onclick={() => {
+													selectedItem = item;
+													selectedDisplayTryOnID = selectedItem.try_on_sessions[0].id || -1;
+												}}
+												transitionIndex={i}
+											/>
+										{/if}
+									{/each}
+								</div>
 							</div>
 						</div>
 					{/if}

@@ -44,13 +44,13 @@
 	}
 </script>
 
-<div class={['flex flex-col items-start justify-center', fullWidth && 'w-full']}>
+<div class={['group flex flex-col items-start justify-center', fullWidth && 'w-full']}>
 	{#if label}
 		<Label target="this" {label} />
 	{/if}
 	<!-- Input wrapper: Converted from .input-icon -->
 	<div
-		class="border-gray-subtler relative flex min-h-[44px] w-full items-center justify-center gap-2 rounded-md border px-3 py-2"
+		class="border-gray-subtler group-focus-within:border-brand relative flex min-h-[44px] w-full items-center justify-center gap-2 rounded-md border px-3 py-2"
 	>
 		{@render iconleft?.()}
 		{#if type === 'password'}

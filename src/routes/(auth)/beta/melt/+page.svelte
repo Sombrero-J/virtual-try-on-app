@@ -14,34 +14,26 @@
 	import upperimg from '$lib/assets/categories/upper.png?enhanced';
 	import Multiselect from '$lib/components/melt/multiselect.svelte';
 	import { materials } from '$lib/state/appstate.svelte';
+	import { Tween } from 'svelte/motion';
+	import { linear } from 'svelte/easing';
+	import { onMount } from 'svelte';
 
 	let { form }: PageProps = $props();
 	let open = $state(false);
-	let progress = $state(0);
+	let progress = new Tween(0, {
+		duration: 5000,
+		easing: linear,
+		delay: 2000
+	});
 	let openDialog = $state(true);
 
-	function startProgress(startValue: number, stopValue: number, durationInSeconds: number) {
-		progress = startValue;
-
-		if (startValue >= stopValue || durationInSeconds <= 0) return;
-
-		const interval = 50;
-		const totalSteps = (durationInSeconds * 1000) / interval;
-		const step = (stopValue - startValue) / totalSteps;
-
-		let intervalId = setInterval(() => {
-			if (progress >= stopValue) {
-				progress = stopValue;
-			} else {
-				progress += step;
-			}
-		}, interval);
-		return () => clearInterval(intervalId);
-	}
+	onMount(() => {
+		progress.target = 70;
+	});
 </script>
 
 <form method="post" enctype="multipart/form-data" action="?/multiselect" use:enhance>
-	<Multiselect label="Test" options={materials}/>
+	<Multiselect label="Test" options={materials} />
 	<Button text="Submit" type="submit" style="secondary" />
 </form>
 
@@ -52,3 +44,5 @@
 {#if !form?.success}
 	<p>{form?.error}</p>
 {/if}
+
+<Progress value={progress.current} />

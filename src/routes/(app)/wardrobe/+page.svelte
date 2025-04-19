@@ -98,7 +98,7 @@
 			>
 		{/each}
 	</div>
-	<div class="flex items-center justify-start gap-2 overflow-x-auto overflow-y-hidden py-2">
+	<div class="flex items-center flex-shrink-0 justify-start gap-2 overflow-x-auto">
 		{#each uniqueCategories as filter}
 			<FilterButton {filter} />
 		{/each}
@@ -109,7 +109,7 @@
 			{#await parent.clothingsWithTryOns}
 				Loading clothes
 			{:then clothings}
-				<div class="overflow-y-auto p-2">
+				<div class="overflow-y-auto">
 					<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
 						{#each clothings as item}
 							{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
@@ -216,7 +216,7 @@
 				bind:changed
 			>
 				{#snippet iconright()}
-					<button class="cursor-pointer" onclick={() => (showTagInfo = !showTagInfo)}>
+					<button class="cursor-pointer" type="button" onclick={() => (showTagInfo = !showTagInfo)}>
 						<Info />
 					</button>
 				{/snippet}
@@ -228,7 +228,7 @@
 </Dialog>
 
 <Dialog title="Tag Info" textButton={false} bind:open={showTagInfo}>
-	<p>
+	<p class="text-base text-black-primary max-w-[20rem]">
 		A Tag is a way to categorise or label your clothing items, making it easier to search and
 		organise your wardrobe.
 	</p>

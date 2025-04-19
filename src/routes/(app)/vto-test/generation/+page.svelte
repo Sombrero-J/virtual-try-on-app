@@ -13,6 +13,8 @@
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import StepIndicator from '$lib/components/visualiser/stepIndicator.svelte';
+	import { Tween } from 'svelte/motion';
+	import { linear } from 'svelte/easing';
 
 	let tryOn = tryOnStore();
 	let modelFile = tryOn.modelImageFile;
@@ -20,7 +22,12 @@
 	let clothingFile = tryOn.clothingImageFile;
 
 	let tryOnUrl = $state('');
-	let progress = $state(10);
+
+	let progress = new Tween(0, {
+		duration: 15000,
+		easing: linear,
+		delay: 2000
+	});
 	onMount(async () => {
 		checkState();
 		const pendingSave = page.url.searchParams.get('autoSave') === 'true';
@@ -29,14 +36,14 @@
 		}
 		try {
 			const { data, error } = await fetchSubmitTask();
-			progress = 30;
+			progress.target = 30;
 			if (data) {
 				taskID = data;
 				setTimeout(async () => {
-					progress = 80;
+					progress.target = 80;
 					const res = await fetchQueryTask(taskID);
 					if (res.url) {
-						progress = 100;
+						progress.target = 100;
 						tryOnUrl = res.url;
 						tryOn.tryonImageUrl = tryOnUrl;
 					} else if (res.error) {
@@ -152,7 +159,7 @@
 				{/snippet}
 			</ImageGenV2>
 		{:else}
-			<ImageScan imageFile={modelFile} {progress} />
+			<ImageScan imageFile={modelFile} progress={progress.current} />
 		{/if}
 	</div>
 </div>

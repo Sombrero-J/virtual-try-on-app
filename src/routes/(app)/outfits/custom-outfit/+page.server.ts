@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ locals: { user, supabase }, parent 
 	const modelData = getModels(supabase, user_id);
 
 	const backPath = '/outfits';
-	const title = 'Customise outfit';
+	const title = 'Customise Your Own';
 	const parentData = parent();
 
 	return { title, backPath, parentData, modelData };

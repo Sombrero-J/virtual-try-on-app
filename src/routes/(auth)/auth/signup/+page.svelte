@@ -32,10 +32,6 @@
     validatePassword(password);
     passwordConfirmed = password === confirmPassword;
   });
-
-  function navigate() {
-    goto("/");
-  }
 </script>
 
 {#snippet unconfirmedPassword()}

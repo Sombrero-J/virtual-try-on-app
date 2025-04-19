@@ -13,8 +13,16 @@
 	import { enhance } from '$app/forms';
 	import ImageGenV2 from '$lib/components/form/image-gen-v2.svelte';
 	import ImageScan from '$lib/components/imageScan/imageScan.svelte';
+	import { Tween } from 'svelte/motion';
+	import { linear } from 'svelte/easing';
 
 	let { data }: PageProps = $props();
+
+	let progress = new Tween(0, {
+		duration: 15000,
+		easing: linear,
+		delay: 2000
+	});
 
 	let step = $state(1);
 	let selectedUpperGarment = $state<ClothingWithTryOnsType[number]>();
@@ -207,7 +215,7 @@
 				{/snippet}
 			</ImageGenV2>
 		{:else}
-			<ImageScan imageUrl={selectedModel?.signed_url} />
+			<ImageScan imageUrl={selectedModel?.signed_url} progress={progress.current} />
 		{/if}
 	{/if}
 	{#if step === 1}
@@ -239,6 +247,7 @@
 	use:enhance={({ formData, cancel }) => {
 		openModelDialog = false;
 		step++;
+		progress.target = 90;
 
 		if (!selectedUpperGarment || !selectedBottomGarment) {
 			alert('Missing upper or lower garment');
@@ -261,6 +270,7 @@
 		showLoading = true;
 
 		return async ({ result, update }) => {
+			progress.target = 100;
 			update({ invalidateAll: false });
 			if (result.type === 'success') {
 				if (result.data) {
@@ -275,13 +285,15 @@
 ></form>
 
 <Dialog
-	textButton={false}
+	textButton={true}
+	buttonText="Next"
 	title="Choose a model"
 	bind:open={openModelDialog}
 	backFn={() => {
 		selectedModel = null;
 		openModelDialog = false;
 	}}
+	onclick={submitForm}
 >
 	{#await data.modelData}
 		Loading
@@ -300,13 +312,6 @@
 					/>
 				{/each}
 			</div>
-			<Button
-				text="Next"
-				type="button"
-				disabled={!selectedModel}
-				onclick={submitForm}
-				fullWidth={true}
-			/>
 		</div>
 	{/await}
 </Dialog>

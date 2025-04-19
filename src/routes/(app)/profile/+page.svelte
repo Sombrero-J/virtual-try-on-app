@@ -35,7 +35,7 @@
 
 		<Section title="General">
 			<div>
-				<SectionButton text="My Photos" onclick={() => goto('/by/myphotos')}>
+				<SectionButton text="My Photos" onclick={() => goto('/profile/my-photos')}>
 					{#snippet lefticon()}
 						<Photos />
 					{/snippet}
@@ -45,9 +45,18 @@
 
 		<Section title="Support">
 			<div>
-				<SectionButton text="Contact us" onclick={() => goto('/by/help')}>
+				<SectionButton text="Contact us" onclick={() => goto('/help')}>
 					{#snippet lefticon()}
 						<Help />
+					{/snippet}
+				</SectionButton>
+			</div>
+		</Section>
+		<Section title="Account Security">
+			<div>
+				<SectionButton text="Change password" onclick={() => goto('/profile/change-password')}>
+					{#snippet lefticon()}
+						<Lock />
 					{/snippet}
 				</SectionButton>
 			</div>
@@ -55,17 +64,17 @@
 
 		<!-- <Section title="Help us grow">
 			<div class="divide-border-gray divide-y-1">
-				<SectionButton text="Our Social Media" onclick={() => goto('/by/socialmedia')}>
+				<SectionButton text="Our Social Media" onclick={() => goto('/socialmedia')}>
 					{#snippet lefticon()}
 					<Instagram />
 					{/snippet}
 					</SectionButton>
-					<SectionButton text="Invite Friends" onclick={() => goto('/by/invite')}>
+					<SectionButton text="Invite Friends" onclick={() => goto('/invite')}>
 						{#snippet lefticon()}
 						<Link />
 						{/snippet}
 						</SectionButton>
-						<SectionButton text="Give Us A Feedback" onclick={() => goto('/by/feedback')}>
+						<SectionButton text="Give Us A Feedback" onclick={() => goto('/feedback')}>
 							{#snippet lefticon()}
 							<Thumbsup />
 							{/snippet}
@@ -74,17 +83,17 @@
 							</Section> -->
 		<Section title="Legal">
 			<div class="divide-border-gray divide-y-1">
-				<SectionButton text="Version" onclick={() => goto('/by/profile/version')}>
+				<SectionButton text="Version" onclick={() => goto('/profile/version')}>
 					{#snippet lefticon()}
 						<Information />
 					{/snippet}
 				</SectionButton>
-				<SectionButton text="Privacy Policy" onclick={() => goto('/by/profile/privacy-policy')}>
+				<SectionButton text="Privacy Policy" onclick={() => goto('/profile/privacy-policy')}>
 					{#snippet lefticon()}
 						<Lock />
 					{/snippet}
 				</SectionButton>
-				<SectionButton text="Terms of Service" onclick={() => goto('/by/profile/terms')}>
+				<SectionButton text="Terms of Service" onclick={() => goto('/profile/terms')}>
 					{#snippet lefticon()}
 						<Noteboard />
 					{/snippet}
@@ -93,7 +102,7 @@
 		</Section>
 
 		<div>
-			<SectionButton text="Delete Account" onclick={() => goto('/by/profile/delete-account')}>
+			<SectionButton text="Delete Account" onclick={() => goto('/profile/delete-account')}>
 				{#snippet lefticon()}
 					<Trashcan />
 				{/snippet}

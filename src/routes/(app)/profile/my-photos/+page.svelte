@@ -7,6 +7,8 @@
 	import { innerWidth } from 'svelte/reactivity/window';
 	import Dialog from '$lib/components/dialog/dialog.svelte';
 	import Button from '$lib/components/buttons/button.svelte';
+	import { deleteState, selectedDeleteItems } from '$lib/state/deletestate.svelte';
+	import { enhance } from '$app/forms';
 
 	let { data, form }: PageProps = $props();
 	let isMobile = $derived((innerWidth.current && innerWidth.current < 1024) || false);
@@ -75,6 +77,7 @@
 						</button>
 						{#each models as model}
 							<WardrobeItem
+								id={model.id}
 								selected={selectedModel?.id === model.id}
 								src={model.signed_url}
 								alt={model.description || ''}
@@ -90,12 +93,12 @@
 	</div>
 {:else}
 	<div
-		class="bg-white-primary flex h-full w-full flex-col items-stretch justify-start gap-2 overflow-hidden px-4"
+		class="bg-white-primary relative flex h-full w-full flex-col items-stretch justify-start gap-2 overflow-y-auto px-4"
 	>
 		{#await data.modelData then models}
 			<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
 				<div
-					class="bg-brand-secondary text-black-primary relative flex aspect-square cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
+					class="bg-brand-secondary text-black-primary aspect-ratio-3/4 relative flex max-h-[20rem] cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
 				>
 					+
 					<input
@@ -106,19 +109,42 @@
 					/>
 				</div>
 				{#each models as model}
-					<WardrobeItem src={model.signed_url} alt={model.description || ''} />
+					<WardrobeItem src={model.signed_url} alt={model.description || ''} id={model.id} />
 				{/each}
 			</div>
 		{/await}
 	</div>
+	{#if deleteState.isDelete}
+		<div class="fixed right-0 bottom-0 left-0 z-10 flex w-full items-center justify-center p-4">
+			<Button
+				text="Delete"
+				type="button"
+				twClass="w-[20rem]"
+				onclick={() => {
+					opendelete = true;
+				}}
+				disabled={selectedDeleteItems.size === 0}
+			/>
+		</div>
+	{/if}
 {/if}
 
-<Dialog textButton={false} title="Delete photo" open={opendelete}>
+<Dialog textButton={false} title="Delete photo" bind:open={opendelete}>
 	<div class="flex w-full flex-col items-center justify-start gap-5">
-		<h1 class="text-xl text-black-secondary">Are you sure that you want to delete this photo?</h1>
+		<h1 class="text-black-secondary text-xl">Are you sure that you want to delete this photo?</h1>
 		<div class="flex w-full gap-2">
 			<Button text="Cancel" style="secondary" fullWidth={true} />
-			<Button text="Delete" fullWidth={true} />
+			<form
+				action="?/delete"
+				method="post"
+				use:enhance={({ formData }) => {
+					selectedDeleteItems.forEach((id) => {
+						formData.append('deleteID', id.toString());
+					});
+				}}
+			>
+				<Button text="Delete" fullWidth={true} type="submit" />
+			</form>
 		</div>
 	</div>
 </Dialog>

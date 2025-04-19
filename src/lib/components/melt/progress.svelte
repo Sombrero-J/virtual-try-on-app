@@ -22,6 +22,6 @@
 >
   <div
     {...progress.progress}
-    class="h-full bg-brand-gradient rounded-[10px] w-full -translate-x-[var(--progress)] transition-all duration-${duration} ease-in"
+    class="h-full bg-brand-gradient rounded-[10px] w-full -translate-x-[var(--progress)]"
   ></div>
 </div>

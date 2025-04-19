@@ -5,9 +5,9 @@
 		twClass?: string;
 	}
 
-	let { label = 'Default Label', target = 'Default For', twClass = "" }: Props = $props();
+	let { label = 'Default Label', target = 'Default For', twClass = '' }: Props = $props();
 </script>
 
-<label class={['text-black-secondary mb-1 text-base font-normal', twClass]} for={target}
+<label class={['text-black-primary mb-1 text-base font-medium', twClass]} for={target}
 	>{label}</label
 >

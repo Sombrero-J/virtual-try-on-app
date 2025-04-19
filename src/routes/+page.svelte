@@ -14,7 +14,7 @@
 	import { subscribeToUploadChanges } from '$lib/clientUtil/realtime';
 	import type { RealtimeChannel } from '@supabase/supabase-js';
 
-	import type { PageProps } from './$types';
+	import type { PageProps } from './(app)/vto-test/body-image-upload/$types';
 	import { enhance } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
 
@@ -93,6 +93,7 @@
 		<ImageUploadV2 bind:file placeholder="Click to upload image" name="body-image" />
 
 		<!-- BUTTONS UNDER BOX -->
+
 		<Button
 			onclick={() => {
 				uploadBodyImage();

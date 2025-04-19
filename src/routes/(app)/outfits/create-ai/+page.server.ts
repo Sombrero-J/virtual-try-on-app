@@ -2,8 +2,9 @@ import type { Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const title = "AI Stylist";
-	return { title };
+	const title = 'AI Stylist';
+	const backPath = '/outfits';
+	return { title, backPath };
 };
 
 export const actions: Actions = {
