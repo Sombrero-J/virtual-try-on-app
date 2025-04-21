@@ -17,7 +17,7 @@
 
 	const generateQrCode = async () => {
 		try {
-			url = origin + '/vto-test/phone-upload?sessionId=' + token + '&stage=' + stage;
+			url = origin + '/vto/phone-upload?sessionId=' + token + '&stage=' + stage;
 			qrCodeDataUrl = await QRCode.toDataURL(url);
 		} catch (error) {
 			alert('Error generating qrcode: ' + error);

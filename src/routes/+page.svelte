@@ -106,7 +106,7 @@
 			onclick={() => {
 				uploadBodyImage();
 				showLoader = true;
-				goto('/vto-test/clothing-image-upload');
+				goto('/vto/clothing-image-upload');
 			}}
 			disabled={!file}
 			text="Continue"

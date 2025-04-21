@@ -19,7 +19,7 @@
 	import lowerimg from '$lib/assets/categories/lower.png?enhanced';
 	import upperimg from '$lib/assets/categories/upper.png?enhanced';
 	import { enhance } from '$app/forms';
-	import { downloadFileFromBlob, fetchQueryTask } from '../vto-test/generation/utils';
+	import { downloadFileFromBlob, fetchQueryTask } from '../../(vto)/vto/generation/utils';
 	import StepIndicator from '$lib/components/visualiser/stepIndicator.svelte';
 	import { addToast } from '$lib/components/melt/toast.svelte';
 	import Subtitle from '$lib/components/text/subtitle.svelte';

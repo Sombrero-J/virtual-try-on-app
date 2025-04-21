@@ -55,7 +55,7 @@
 					description: `Your ${category.toLowerCase()} try on is starting.`
 				}
 			});
-			goto('/vto-test/generation');
+			goto('/vto/generation');
 		} else {
 			addToast({
 				data: {

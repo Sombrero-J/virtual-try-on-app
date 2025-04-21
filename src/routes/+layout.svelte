@@ -29,7 +29,7 @@
 		specialPath.some((prefix) => page.url.pathname.startsWith(prefix))
 	);
 
-	let isVtoPath = $derived(page.url.pathname.startsWith('/vto-test') || page.url.pathname === '/');
+	let isVtoPath = $derived(page.url.pathname.startsWith('/vto') || page.url.pathname === '/');
 
 	let isMobile = $derived((innerWidth.current && innerWidth.current < 1024) || false);
 

@@ -104,7 +104,7 @@ export async function triggerSaveAction(
 		formData.append('modelFile', selectedModelFile);
 	}
 
-	const actionUrl = '/vto-test/generation?/save';
+	const actionUrl = '/vto/generation?/save';
 
 	try {
 		const response = await fetch(actionUrl, {

@@ -38,12 +38,36 @@
 			<p class="text-black-tertiary text-base">{user?.email}</p>
 		</div>
 		<div class="divide-border-gray w-full divide-y-1">
-			<SectionButton text="My photos" onclick={() => goto('/profile/my-photos')}>
-				{#snippet lefticon()}
-					<Photos />
-				{/snippet}
-			</SectionButton>
-			<SectionButton text="Contact us" onclick={() => goto('/profile/help')}>
+			{#if user}
+				<SectionButton text="My photos" onclick={() => goto('/profile/my-photos')}>
+					{#snippet lefticon()}
+						<Photos />
+					{/snippet}
+				</SectionButton>
+				<SectionButton
+					text="Delete account"
+					onclick={() => {
+						opendeleteaccount = !opendeleteaccount;
+					}}
+				>
+					{#snippet lefticon()}
+						<Trashcan />
+					{/snippet}
+				</SectionButton>
+				<SectionButton
+					text="Log out"
+					onclick={() => {
+						openlogout = !openlogout;
+					}}
+				>
+					{#snippet lefticon()}
+						<Logout />
+					{/snippet}
+				</SectionButton>
+			{:else}
+			not logged in
+			{/if}
+			<!-- <SectionButton text="Contact us" onclick={() => goto('/profile/help')}>
 				{#snippet lefticon()}
 					<Help />
 				{/snippet}
@@ -57,27 +81,7 @@
 				{#snippet lefticon()}
 					<Thumbsup />
 				{/snippet}
-			</SectionButton>
-			<SectionButton
-				text="Delete account"
-				onclick={() => {
-					opendeleteaccount = !opendeleteaccount;
-				}}
-			>
-				{#snippet lefticon()}
-					<Trashcan />
-				{/snippet}
-			</SectionButton>
-			<SectionButton
-				text="Log out"
-				onclick={() => {
-					openlogout = !openlogout;
-				}}
-			>
-				{#snippet lefticon()}
-					<Logout />
-				{/snippet}
-			</SectionButton>
+			</SectionButton> -->
 		</div>
 	</div>
 </div>
@@ -96,7 +100,7 @@
 	<div class="flex w-full flex-col items-center justify-start gap-5">
 		<h1 class="text-black-secondary text-xl">Are you sure that you want to log out?</h1>
 		<div class="flex w-full gap-2">
-			<Button text="Log out" fullWidth={true} />
+			<Button text="Log out" onclick={() => goto('/auth/logout')} fullWidth={true} />
 			<Button text="Cancel" style="secondary" fullWidth={true} />
 		</div>
 	</div></Dialog
