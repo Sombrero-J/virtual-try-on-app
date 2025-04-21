@@ -59,6 +59,7 @@
 			console.log(`Setting up Realtime listener for user ${userId} on try_on_sessions...`);
 
 			const channelName = `try_on_updates_user_${userId}`;
+			const doneText = 'done';
 
 			tryOnChannel = supabase
 				.channel(channelName)
@@ -68,8 +69,8 @@
 						event: 'UPDATE',
 						schema: 'public',
 						table: 'try_on_sessions',
-						// Filter: Only listen to updates for THIS user
-						filter: `user_id=eq.${userId}`
+						// until supabase supports multiple filters, we need to use a single filter
+						filter: `status=eq.${doneText}`,
 					},
 					(payload) => {
 						console.log('Realtime UPDATE received:', payload);
@@ -82,7 +83,8 @@
 							clothings_id: number;
 						};
 
-						if (updatedSession && updatedSession.status === 'done') {
+						// this is extremely risky, we might leak other users' data
+						if (updatedSession && updatedSession.user_id === userId) {
 							addToast({
 								data: {
 									type: 'success',
@@ -236,7 +238,7 @@
 			<Profilepopover {user} />
 		</header>
 
-		<div class="flex-1 overflow-hidden">
+		<div class="flex-1 flex justify-center items-center overflow-hidden">
 			{@render children()}
 		</div>
 	</main>

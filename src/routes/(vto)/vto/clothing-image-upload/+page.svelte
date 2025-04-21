@@ -89,9 +89,9 @@
 </script>
 
 <div
-	class="mx-auto flex h-full w-8/10 flex-1 flex-col items-start justify-between gap-5 py-8 lg:flex-row lg:items-center lg:gap-40 lg:pt-20"
+	class="mx-auto flex max-lg:h-full w-8/10 max-w-[75rem] flex-col items-start lg:items-center justify-between gap-5 py-8 lg:flex-row lg:pt-20"
 >
-	<div class="relative flex w-full flex-col justify-between lg:min-h-[40rem] lg:justify-center">
+	<div class="relative flex w-full self-stretch flex-col justify-between lg:justify-center">
 		<!-- Small screen -->
 		<div class="block lg:hidden">
 			<div class="relative mb-8 flex w-full items-center justify-center">

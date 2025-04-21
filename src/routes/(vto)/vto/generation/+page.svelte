@@ -145,16 +145,16 @@
 </script>
 
 <div
-	class="mx-auto flex w-8/10 flex-1 flex-col items-start lg:items-center justify-between gap-5 py-8 lg:flex-row lg:gap-40 lg:pt-20"
+	class="mx-auto flex w-8/10 max-w-[75rem] flex-col items-start justify-between gap-5 py-8 max-lg:h-full lg:flex-row lg:items-center lg:pt-20"
 >
-	<div class="relative flex w-full flex-col justify-between lg:min-h-[40rem] lg:justify-center">
+	<div class="relative flex w-full flex-col justify-between self-stretch lg:justify-center">
 		<!-- Small screen -->
 		<div class="block lg:hidden">
 			<div class="relative mb-8 flex w-full items-center justify-center">
 				<div class="absolute left-0">
 					<Back onclick={() => goto('/')} />
 				</div>
-				<StepIndicator steps={3} activeStep={2} />
+				<StepIndicator steps={3} activeStep={3} />
 			</div>
 		</div>
 		<!-- Large screen -->
@@ -168,7 +168,7 @@
 			<!-- TITLE -->
 			<div class="flex flex-col gap-1 lg:mb-4">
 				<div class="mb-4 hidden lg:flex">
-					<StepIndicator steps={3} activeStep={2} />
+					<StepIndicator steps={3} activeStep={3} />
 				</div>
 				<Title title="Virtual Try On Generation" level="h1" />
 				<Subtitle>
@@ -178,7 +178,7 @@
 						</div>
 					{:else}
 						<div>
-							<p>It may take up to 14-20 seconds to generate</p>
+							<p>It may take up to 20-30 seconds to generate</p>
 						</div>
 					{/if}
 				</Subtitle>
@@ -192,12 +192,7 @@
 				{#snippet button()}
 					<div class="flex flex-col gap-2">
 						<div class="flex items-center justify-center gap-2">
-							<Button
-								text="Restart"
-								type="button"
-								style="secondary"
-								onclick={() => goto('/')}
-							/>
+							<Button text="Restart" type="button" style="secondary" onclick={() => goto('/')} />
 							<Button
 								text="Download"
 								type="submit"

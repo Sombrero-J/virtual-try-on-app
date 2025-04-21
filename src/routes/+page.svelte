@@ -58,9 +58,9 @@
 </script>
 
 <div
-	class="mx-auto flex max-lg:h-full w-8/10 flex-1 flex-col items-start lg:items-center justify-between gap-5 py-8 border-2 lg:flex-row lg:pt-20"
+	class="mx-auto flex max-lg:h-full w-8/10 max-w-[75rem] flex-col items-start lg:items-center justify-between gap-5 py-8 lg:flex-row lg:pt-20"
 >
-	<div class="relative flex w-full flex-col justify-between bg-amber-200 lg:justify-center">
+	<div class="relative flex w-full self-stretch flex-col justify-between lg:justify-center">
 		<!-- Small screen -->
 		<div class="block lg:hidden">
 			<div class="relative mb-8 flex w-full items-center justify-center">
@@ -96,7 +96,7 @@
 			<!-- END SHOW EXAMPLE BUTTON -->
 		</div>
 	</div>
-	<div class="flex w-full max-w-[30rem] flex-col outline-2 items-center justify-center gap-2">
+	<div class="flex w-full max-w-[30rem] flex-col items-center justify-center gap-2">
 		<!-- UPLOAD IMAGE BOX -->
 		<ImageUploadV2 bind:file placeholder="Click to upload image" name="body-image" />
 

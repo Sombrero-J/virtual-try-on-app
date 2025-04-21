@@ -60,7 +60,7 @@
 </script>
 
 <div
-	class="border-brand bg-brand-secondary relative flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-lg border-1 border-dashed text-center max-lg:max-w-[15rem] h-full"
+	class="border-brand bg-brand-secondary relative flex aspect-square h-[40svh] max-h-[10rem] w-full flex-col items-center justify-center gap-2 rounded-lg border-1 border-dashed text-center lg:max-h-[25rem] lg:min-h-[20rem]"
 >
 	{#if imageURl}
 		<img src={imageURl} alt="A Full Body" class="h-full w-full rounded-lg object-contain" />
