@@ -1,8 +1,8 @@
 import type { RequestHandler } from "./$types";
 import { BEAUTY_API } from "$env/static/private";
 
-const POLLING_INTERVAL_MS = 10000; 
-const MAX_POLLING_ATTEMPTS = 12;
+const POLLING_INTERVAL_MS = 5000; 
+const MAX_POLLING_ATTEMPTS = 8;
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
