@@ -4,18 +4,28 @@ export async function uploadToStorage(
 	bucket: string,
 	file: File,
 	supabase: supabaseFull,
-	prefix?: string
+	user_id: string
 ) {
 	const fileName = file.name;
 	const fileExt = file.name.split('.').pop();
 	const uniqueId = uuidv4();
-	const filePath = `${prefix}/${uniqueId}.${fileExt}`;
+
+	const filePath = `${user_id}/${uniqueId}${fileExt ? '.' + fileExt : ''}`;
 
 	const { data, error } = await supabase.storage.from(bucket).upload(filePath, file);
 
 	if (error) {
-		console.error(`Error uploading file "${fileName}" to bucket "${bucket}": ${error.message}`);
+		console.error(
+			`Error uploading file "${fileName}" to bucket "${bucket}": ${error.message}. Rolling back...`
+		);
 		throw new Error(`Error uploading file. Please try again later.`);
+	}
+
+	if (!data?.path) {
+		console.error(
+			`Upload to ${bucket}/${filePath} succeeded but path is missing in response data.`
+		);
+		throw new Error('Storage upload succeeded but failed to retrieve the file path.');
 	}
 
 	return data.path; // Returns the file path in the storage

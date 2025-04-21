@@ -4,6 +4,7 @@ import { uploadToStorage } from '$lib/server/database_helpers/storage';
 import { BEAUTY_API } from '$env/static/private';
 import { describeImage } from '$lib/server/openai/openai';
 import { json } from '@sveltejs/kit';
+import { insertTryOnCache, type insertTryOnCacheType } from '$lib/server/database_helpers/queryDb';
 
 export const load: PageServerLoad = async () => {
 	return {};
@@ -72,12 +73,6 @@ export const actions: Actions = {
 		// if user is not signed in, redirect them to login page, after that save the image to their profile
 		const { session, user } = await safeGetSession();
 
-		if (!session || !user) {
-			const redirectTo = `${url.pathname}?autoSave=true`;
-			redirect(303, `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
-			// http://localhost:5173/auth/login?redirectTo=%2Fbeta%2Fvto-test%2Fgeneration-11%3FautoSave%3Dtrue
-		}
-
 		const formData = await request.formData();
 
 		const taskID = formData.get('taskID') as string;
@@ -92,7 +87,7 @@ export const actions: Actions = {
 		}
 
 		const tryon = formData.get('tryonUrl') as string;
-		const tryonFile = await getImageData(tryon, `tryon_${user.id}`);
+		const tryonFile = await getImageData(tryon, `tryon_${user?.id || 'anonymous'}`);
 
 		const clothingNodeBuffer = Buffer.from(await clothingFile.arrayBuffer());
 		const clothingBase64 = clothingNodeBuffer.toString('base64');
@@ -114,19 +109,56 @@ export const actions: Actions = {
 		let modelPath;
 
 		if (modelFile && checkFileSize([modelFile], MAX_SIZE)) {
-			modelPath = await uploadToStorage('models', modelFile, supabase, user.id);
+			modelPath = await uploadToStorage('models', modelFile, supabase, user?.id || 'anonymous');
 		} else if (model_path) {
 			modelPath = model_path;
 		}
 
 		if (checkFileSize([clothingFile, tryonFile], MAX_SIZE)) {
-			const clothingPath = await uploadToStorage('clothings', clothingFile, supabase, user.id);
-			const tryonPath = await uploadToStorage('tryon', tryonFile, supabase, user.id);
+			const clothingPath = await uploadToStorage(
+				'clothings',
+				clothingFile,
+				supabase,
+				user?.id || 'anonymous'
+			);
+			const tryonPath = await uploadToStorage(
+				'tryon',
+				tryonFile,
+				supabase,
+				user?.id || 'anonymous'
+			);
 
 			if (!modelPath) {
 				return fail(400, { message: 'Model path does not exist' });
 			}
 
+			if (!session || !user) {
+				const sessionID = crypto.randomUUID();
+				const { success, error } = await insertTryOnCache(supabase, {
+					session_token: sessionID,
+					clothing_name: clothingName,
+					clothing_path: clothingPath,
+					model_path: model_path,
+					try_on_path: tryonPath,
+					task_id: taskID,
+					clothing_description: description,
+					brand: brand_value,
+					colors: color,
+					materials: material_value,
+					category: category
+				});
+
+				if (success) {
+					const redirectTo = `/home?autoSave=${sessionID}`; // redirect to home page
+					redirect(307, `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
+				} else {
+					fail(400, { message: 'Error saving to cache. Please sign in and try again.' });
+				}
+			}
+
+			if (!user) {
+				return fail(400, { message: 'User not found' });
+			}
 			const { data, error } = await supabase.rpc('save_tryon', {
 				// check if this function checks if modelPath exists
 				p_user_id: user.id,
@@ -155,7 +187,9 @@ export const actions: Actions = {
 						console.error(`Failed to delete orphaned file from ${bucket}: ${delError.message}`);
 					}
 				}
-				console.log('Error saving: ' + JSON.stringify(error, null, 2) + 'Rollback storage success.');
+				console.log(
+					'Error saving: ' + JSON.stringify(error, null, 2) + 'Rollback storage success.'
+				);
 				return fail(400, { message: 'Save error. ' + error });
 			}
 

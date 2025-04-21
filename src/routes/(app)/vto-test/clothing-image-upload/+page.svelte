@@ -21,6 +21,7 @@
 	import type { PageProps } from './$types';
 	import StepIndicator from '$lib/components/visualiser/stepIndicator.svelte';
 	import Pin from '$lib/svg/pin.svelte';
+	import { addToast } from '$lib/components/melt/toast.svelte';
 
 	let { data }: PageProps = $props();
 	let { supabase } = data;
@@ -40,16 +41,29 @@
 		}
 	});
 
-	let category = $state('Upper Body');
+	let category = $state('');
 	let openQR = $state(false);
 
 	function updateTryOnState() {
 		if (clothingImageFile && category) {
 			tryOn.clothingImageFile = clothingImageFile;
 			tryOn.category = category;
+			addToast({
+				data: {
+					type: 'info',
+					title: 'Task queued',
+					description: `Your ${category.toLowerCase()} try on is starting.`
+				}
+			});
 			goto('/vto-test/generation');
 		} else {
-			alert('Something went wrong, please start again.');
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Error: Missing category',
+					description: `Please select a category.`
+				}
+			});
 		}
 	}
 
@@ -75,14 +89,14 @@
 </script>
 
 <div
-	class="mx-auto flex w-8/10 flex-1 flex-col items-start justify-between gap-5 pt-6 pb-8 lg:flex-row lg:gap-40 lg:pt-20"
+	class="mx-auto flex h-full w-8/10 flex-1 flex-col items-start justify-between gap-5 pt-6 pb-8 lg:flex-row lg:gap-40 lg:pt-20"
 >
 	<div class="relative flex w-full flex-col justify-between lg:min-h-[40rem] lg:justify-center">
 		<!-- Small screen -->
 		<div class="block lg:hidden">
 			<div class="relative mb-8 flex w-full items-center justify-center">
 				<div class="absolute left-0">
-					<Back onclick={() => goto('/vto-test/body-image-upload')} />
+					<Back onclick={() => goto('/')} />
 				</div>
 
 				<StepIndicator steps={3} activeStep={2} />
@@ -91,7 +105,7 @@
 		<!-- Large screen -->
 		<div class="hidden lg:block">
 			<div class="absolute top-0 left-0">
-				<Back onclick={() => goto('/vto-test/body-image-upload')} />
+				<Back onclick={() => goto('/')} />
 			</div>
 		</div>
 
@@ -124,7 +138,7 @@
 			<!-- END TITLE -->
 
 			<!-- SHOW EXAMPLE BUTON -->
-			<Dialog title={'Clothing Image Examples'}>
+			<Dialog title={'Clothing Image Examples'} textButton={true}>
 				<ClothingGuide />
 			</Dialog>
 			<!-- END SHOW EXAMPLE BUTTON -->
@@ -138,7 +152,7 @@
 			</div>
 		</div>
 	{/if}
-	<div class="flex w-full max-w-[30rem] flex-col gap-2">
+	<div class="flex w-full max-w-[30rem] flex-col items-center justify-center gap-2">
 		<!-- UPLOAD IMAGE BOX -->
 		<ImageUploadV2
 			bind:file={clothingImageFile}
@@ -148,6 +162,7 @@
 
 		<!-- BUTTONS UNDER BOX -->
 		<Button
+			fullWidth={true}
 			disabled={!clothingImageFile || !bodyImageFile}
 			type="button"
 			text="Generate"
@@ -179,8 +194,8 @@
 		</div>
 	</div>
 
-	<Dialog bind:open={openQR} textButton={false} title={'Upload image from phone'}>
-		<Qrcode {token} />
+	<Dialog bind:open={openQR} title={'Upload image from phone'}>
+		<Qrcode {token} stage="clothing" />
 	</Dialog>
 
 	<Dialog
@@ -189,6 +204,7 @@
 		bind:open={openDialog}
 		textButton={false}
 		onclick={updateTryOnState}
+		disabled={!category}
 	>
 		<div class="flex flex-col gap-4 lg:flex-row">
 			<ImageButton

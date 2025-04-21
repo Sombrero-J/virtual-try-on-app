@@ -82,7 +82,7 @@
 			<!-- END TITLE -->
 
 			<!-- SHOW EXAMPLE BUTON -->
-			<Dialog title={'Your Image Examples'}>
+			<Dialog title={'Your Image Examples'} textButton={true}>
 				<BodyGuide />
 			</Dialog>
 			<!-- END SHOW EXAMPLE BUTTON -->
@@ -129,7 +129,7 @@
 		<Dialog
 			bind:open={openQR}
 			textButton={false}
-			title={'Upload image from phone'}
+			title={'Upload from Your Phone'}
 			buttonText="Done"
 		>
 			<Qrcode {token} />

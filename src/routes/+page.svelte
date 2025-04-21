@@ -17,6 +17,7 @@
 	import type { PageProps } from './(app)/vto-test/body-image-upload/$types';
 	import { enhance } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
+	import { addToast } from '$lib/components/melt/toast.svelte';
 
 	let { data }: PageProps = $props();
 	let { supabase } = data;
@@ -38,6 +39,13 @@
 	const token = crypto.randomUUID(); // token is unique every component
 	onMount(() => {
 		channelSubscription = subscribeToUploadChanges(supabase, token, (newFile: File) => {
+			addToast({
+				data: {
+					type: 'success',
+					title: 'Upload image from phone',
+					description: 'Received image from phone!'
+				}
+			});
 			file = newFile;
 		});
 	});
@@ -50,7 +58,7 @@
 </script>
 
 <div
-	class="mx-auto flex w-8/10 flex-1 flex-col items-start justify-between gap-5 py-8 lg:flex-row lg:gap-40 lg:pt-20"
+	class="mx-auto flex h-full w-8/10 flex-1 flex-col items-start justify-between gap-5 py-8 lg:flex-row lg:gap-40 lg:pt-20"
 >
 	<div class="relative flex w-full flex-col justify-between lg:min-h-[40rem] lg:justify-center">
 		<!-- Small screen -->
@@ -82,13 +90,13 @@
 			<!-- END TITLE -->
 
 			<!-- SHOW EXAMPLE BUTON -->
-			<Dialog title={'Your Image Examples'}>
+			<Dialog textButton={true} title={'Your Image Examples'}>
 				<BodyGuide />
 			</Dialog>
 			<!-- END SHOW EXAMPLE BUTTON -->
 		</div>
 	</div>
-	<div class="flex w-full max-w-[30rem] flex-col gap-2">
+	<div class="flex w-full max-w-[30rem] flex-col items-center justify-center gap-2">
 		<!-- UPLOAD IMAGE BOX -->
 		<ImageUploadV2 bind:file placeholder="Click to upload image" name="body-image" />
 
@@ -133,7 +141,7 @@
 			title={'Upload image from phone'}
 			buttonText="Done"
 		>
-			<Qrcode {token} />
+			<Qrcode {token} stage="body" />
 		</Dialog>
 	</div>
 </div>

@@ -15,6 +15,7 @@
 	import ImageScan from '$lib/components/imageScan/imageScan.svelte';
 	import { Tween } from 'svelte/motion';
 	import { linear } from 'svelte/easing';
+	import { goto } from '$app/navigation';
 
 	let { data }: PageProps = $props();
 
@@ -179,6 +180,7 @@
 								{#each filteredClothingsWithTryOns as item}
 									{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
 										<WardrobeItem
+											id={item.id}
 											src={item.signed_front}
 											alt="front side of ${item.name}"
 											selected={selectedUpperGarment?.front_image_url === item.front_image_url ||
@@ -208,9 +210,13 @@
 			<ImageGenV2 imageUrl={outfitUrl}>
 				{#snippet button()}
 					<div class="flex flex-col gap-2">
-						<form action="?/save" method="post" enctype="multipart/form-data">
-							<Button text="Save outfit" fullWidth={true} />
-						</form>
+						<Button
+							text="Done"
+							onclick={() => {
+								goto('/outfits');
+							}}
+							fullWidth={true}
+						/>
 					</div>
 				{/snippet}
 			</ImageGenV2>
@@ -262,7 +268,8 @@
 		}
 
 		if (selectedModel) {
-			formData.append('model_path', selectedModel.id.toString());
+			formData.append('model_id', selectedModel.id.toString());
+			formData.append('model_path', selectedModel.image_url);
 		}
 
 		formData.append('upperBody', selectedUpperGarment.id.toString());
@@ -303,6 +310,7 @@
 			<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
 				{#each models as model}
 					<WardrobeItem
+						id={model.id}
 						src={model.signed_url}
 						alt={model.description || ''}
 						onclick={() => {

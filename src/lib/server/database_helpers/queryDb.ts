@@ -42,7 +42,9 @@ export async function getOutfits(supabase: supabaseFull, user_id: string) {
 	if (error) {
 		throw new Error('Error fetching outfits: ' + error.message);
 	}
-	return data;
+
+	const processedData = await Promise.all(data.map((item) => resolveSignedUrls(item, supabase)));
+	return processedData;
 }
 
 export async function getTryOns(supabase: supabaseFull, user_id: string) {
@@ -103,6 +105,44 @@ export async function insertModel(supabase: supabaseFull, user_id: string, model
 	return data;
 }
 
+export type insertTryOnCacheType = {
+	session_token: string;
+	clothing_name: string;
+	clothing_path: string;
+	model_path: string;
+	try_on_path: string;
+	task_id: string;
+	clothing_description: string;
+	brand: string;
+	colors: string[];
+	materials: string[];
+	category: string;
+};
+
+export async function insertTryOnCache(supabase: supabaseFull, body: insertTryOnCacheType) {
+	const {
+		session_token,
+		clothing_name,
+		clothing_path,
+		model_path,
+		try_on_path,
+		task_id,
+		clothing_description,
+		brand,
+		colors,
+		materials,
+		category
+	} = body;
+	const { data, error } = await supabase.from('anonymous_try_on_cache').insert(body).select('*');
+
+	if (error) {
+		console.error('Supabase insert error:', error);
+		// Return a structured error object
+		return { success: false, error: new Error(`Database Insert Failed: ${error.message}`) };
+	}
+	return { success: true, data: data };
+}
+
 interface UrlMappingConfig {
 	idField: string;
 	table: string;
@@ -144,6 +184,14 @@ const urlMappings: { [key: string]: UrlMappingConfig } = {
 		signedField: 'signed_url',
 		expiryField: 'expiry_signed',
 		defaultExpiry: 3600
+	},
+	cover_image_url: {
+		idField: 'id',
+		table: 'outfits',
+		bucket: 'tryon',
+		signedField: 'signed_cover',
+		expiryField: 'expiry_cover',
+		defaultExpiry: 3600
 	}
 };
 
@@ -154,7 +202,7 @@ async function resolveSignedUrls<T extends Record<string, unknown>>(
 	for (const key in urlMappings) {
 		if (Object.hasOwn(obj, key) && typeof obj[key] === 'string' && obj[key]) {
 			const config = urlMappings[key];
-			
+
 			const filePath = obj[key] as string;
 			const id = obj[config.idField];
 

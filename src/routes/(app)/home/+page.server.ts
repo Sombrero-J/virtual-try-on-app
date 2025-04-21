@@ -506,7 +506,7 @@ export const actions: Actions = {
 			insertedCount: insertedCount,
 			rejectedImages: allFailedItems
 		};
-	}
+	},
 };
 
 function checkFileSize(file: File, maxSize: number): boolean {

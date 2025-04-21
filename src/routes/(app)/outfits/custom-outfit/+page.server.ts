@@ -34,14 +34,15 @@ export const actions: Actions = {
 		const user_id = user.id;
 
 		const formData = await request.formData();
-		const model_id = formData.get('model_path') as string;
+		const model_id = formData.get('model_id') as string;
+		const model_path = formData.get('model_path') as string;
 		const upper_id = formData.get('upperBody') as string;
 		const lower_id = formData.get('lowerBody') as string;
 
-		if (!model_id || !upper_id || !lower_id) {
+		if (!model_id || !upper_id || !lower_id || !model_path) {
 			return fail(400, {
 				error: true,
-				message: 'Missing required fields: Model, Upper Body, or Lower Body ID.'
+				message: 'Missing required fields: Model ID, model path, Upper Body, or Lower Body ID.'
 			});
 		}
 
@@ -216,6 +217,7 @@ export const actions: Actions = {
 				existing_clothing_id: null,
 				user_id: user_id,
 				model_id: Number(model_id),
+				model_path: model_path,
 				base_is_upper: null,
 				upper_clothing_id: Number(upper_id),
 				lower_clothing_id: Number(lower_id)
@@ -292,6 +294,7 @@ type invokeType = {
 	existing_clothing_id: number | null;
 	user_id: string; // user_id works with strings only
 	model_id: number;
+	model_path?: string | null; // this is optional
 	base_is_upper: boolean | null;
 	upper_clothing_id: number | null;
 	lower_clothing_id: number | null;
@@ -306,6 +309,7 @@ async function generateOutfits(body: invokeType) {
 		existing_clothing_id,
 		user_id,
 		model_id,
+		model_path,
 		base_is_upper,
 		upper_clothing_id,
 		lower_clothing_id
@@ -333,6 +337,7 @@ async function generateOutfits(body: invokeType) {
 				action,
 				user_id,
 				model_id,
+				model_path,
 				upper_clothing_id,
 				lower_clothing_id
 			}

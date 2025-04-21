@@ -11,13 +11,15 @@
 	import { enhance } from '$app/forms';
 	import MultiSelect from '$lib/components/melt/multiselect.svelte';
 	import FloatTextbox from '$lib/components/form/floatTextbox.svelte';
-	import Info from '$lib/svg/info.svelte';
+	import Info from '$lib/svg/indicators/info.svelte';
 	import { allCategories, filterStore, materials } from '$lib/state/appstate.svelte';
 	import Select from '$lib/components/melt/select.svelte';
+	import { addToast } from '$lib/components/melt/toast.svelte';
 
 	let openClothingDialog = $state(false);
 	let showTagInfo = $state(false);
 	let changed = $state(false);
+	let loading = $state(false);
 
 	const tabIds = ['Images', 'Models'];
 	type TabId = (typeof tabIds)[number];
@@ -48,6 +50,8 @@
 	let uniqueCategories = $state<string[]>([]);
 	const filterInstance = filterStore();
 
+	type CategoriesEnum = Database['public']['Enums']['categories_type'];
+
 	onMount(async () => {
 		try {
 			const parentData = await data.parentData;
@@ -56,7 +60,7 @@
 			if (clothingsWithTryOns && clothingsWithTryOns.length > 0) {
 				const categoryNames = clothingsWithTryOns
 					.map((item: ClothingWithTryOnsType[number]) => item.categories?.name)
-					.filter((name): name is string => Boolean(name)); // Type guard ensures string[]
+					.filter((name): name is CategoriesEnum => Boolean(name));
 
 				const uniqueNamesSet = new Set(categoryNames);
 
@@ -76,7 +80,7 @@
 <div
 	class="bg-white-primary flex h-full w-full flex-col items-stretch justify-start gap-2 p-4 lg:gap-5 lg:px-20 lg:py-10"
 >
-	<div class="hidden lg:flex justify-between w-full items-center">
+	<div class="hidden w-full items-center justify-between lg:flex">
 		<h1 class="text-4xl font-medium">Wardrobe</h1>
 		<p class="text-black-tertiary text-2xl">{clothingCount <= 0 ? 'No' : clothingCount} items</p>
 	</div>
@@ -98,7 +102,7 @@
 			>
 		{/each}
 	</div>
-	<div class="flex items-center flex-shrink-0 justify-start gap-2 overflow-x-auto">
+	<div class="flex flex-shrink-0 items-center justify-start gap-2 overflow-x-auto">
 		{#each uniqueCategories as filter}
 			<FilterButton {filter} />
 		{/each}
@@ -110,11 +114,14 @@
 				Loading clothes
 			{:then clothings}
 				<div class="overflow-y-auto">
-					<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
+					<div
+						class="mx-auto grid grid-cols-2 justify-items-center gap-2 md:grid-cols-3 md:gap-3 lg:max-w-[80vw] lg:grid-cols-4 lg:gap-5"
+					>
 						{#each clothings as item}
 							{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
 								{#if tabs.value === 'Images'}
 									<WardrobeItem
+										id={item.id}
 										onclick={() => {
 											openClothingDialog = true;
 											selectedClothing = item;
@@ -125,6 +132,7 @@
 								{:else if tabs.value === 'Models'}
 									{#if item.try_on_sessions.length > 0}
 										<WardrobeItem
+											id={item.id}
 											onclick={() => {
 												openClothingDialog = true;
 												selectedClothing = item;
@@ -134,6 +142,7 @@
 										/>
 									{:else}
 										<WardrobeItem
+											id={item.id}
 											onclick={() => {
 												openClothingDialog = true;
 												selectedClothing = item;
@@ -165,15 +174,29 @@
 			class="flex w-[25rem] flex-col gap-4 py-2"
 			action="?/update"
 			use:enhance={() => {
-				return ({ result, update }) => {
+				loading = true;
+				return async ({ result, update }) => {
+					loading = false;
 					if (result.type === 'success') {
-						// Handle success
-						alert('Clothing updated successfully!');
+						addToast({
+							data: {
+								type: 'success',
+								title: 'Clothing updated.',
+								description: 'Your clothing has been updated.'
+							}
+						});
 						changed = false;
 						openClothingDialog = false;
+						await update();
 					} else if (result.type === 'failure') {
-						alert('Error updating clothing. Please try again.' + result.data);
-						openClothingDialog = false;
+						console.error('Clothing update error: ' + result.data?.message);
+						addToast({
+							data: {
+								type: 'error',
+								title: 'Error: Update unsuccesful.',
+								description: 'Something went wrong. Please try again.'
+							}
+						});
 					}
 				};
 			}}
@@ -222,13 +245,13 @@
 				{/snippet}
 			</FloatTextbox>
 			<input type="hidden" name="id" value={selectedClothing?.id} />
-			<Button type="submit" text="Update" fullWidth={true} disabled={!changed} />
+			<Button type="submit" text="Update" {loading} fullWidth={true} disabled={!changed} />
 		</form>
 	</div>
 </Dialog>
 
 <Dialog title="Tag Info" textButton={false} bind:open={showTagInfo}>
-	<p class="text-base text-black-primary max-w-[20rem]">
+	<p class="text-black-primary max-w-[20rem] text-base">
 		A Tag is a way to categorise or label your clothing items, making it easier to search and
 		organise your wardrobe.
 	</p>

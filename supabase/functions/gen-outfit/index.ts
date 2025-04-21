@@ -202,30 +202,325 @@ Deno.serve(async (req) => {
 
 			case 'generate_both': {
 				console.log('Handling "generate_both" action...');
-				const { upper_clothing_id, lower_clothing_id } = body;
-				if (!upper_clothing_id || !lower_clothing_id) {
+
+				const { upper_clothing_id, lower_clothing_id, model_path } = body;
+
+				if (!upper_clothing_id || !lower_clothing_id || !model_path) {
 					return new Response(
-						JSON.stringify({ error: 'Missing fields for generate_both action' }),
+						JSON.stringify({ error: 'Missing fields for generate_both action. Received: ', body }),
 						{ status: 400 }
 					);
 				}
 
-				// --- Add your logic here ---
-				// 1. Check if try_on_sessions exist for (upper_clothing_id, model_id, user_id)
-				// 2. If not, create a new session record (status 'pending'/'queued') and trigger the *actual* VTO generation for it (e.g., call your VTO API, queue a job, etc.)
-				// 3. Check if try_on_sessions exist for (lower_clothing_id, model_id, user_id)
-				// 4. If not, create a new session record (status 'pending'/'queued') and trigger the *actual* VTO generation for it.
-				// *Important*: This function likely shouldn't wait for the VTOs to complete. It just kicks them off.
-				// Example placeholder:
-				// await triggerSingleTryOnGeneration(upper_clothing_id, model_id, user_id);
-				// await triggerSingleTryOnGeneration(lower_clothing_id, model_id, user_id);
+				let upperClothingData: ArrayBuffer | null = null;
+				let lowerClothingData: ArrayBuffer | null = null;
+				let upperCategoryName: string | null = null;
+				let lowerCategoryName: string | null = null;
+
+				const clothingIdsToProcess = [
+					{ id: upper_clothing_id, type: 'upper' },
+					{ id: lower_clothing_id, type: 'lower' }
+				];
+
+				// 1. Download both clothing images from storage with loop
+
+				console.log('Downloading upper clothing image from storage...');
+
+				for (const item of clothingIdsToProcess) {
+					const clothingId = item.id;
+					const itemType = item.type; // 'upper' or 'lower'
+
+					console.log(`--- Start processing ${itemType} clothing (ID: ${clothingId}) ---`);
+
+					// 1. Get image path from database
+					console.log(`Fetching DB details for ${itemType} clothing ID: ${clothingId}`);
+					const { data: clothingDbData, error: clothingDbError } = await supabaseAdminClient
+						.from('clothings')
+						.select('front_image_url, categories ( name )')
+						.eq('id', clothingId)
+						.eq('user_id', user_id) // Ensure user owns the clothing item
+						.single();
+
+					if (clothingDbError) {
+						console.error(
+							`Error fetching DB data for ${itemType} clothing ID ${clothingId}:`,
+							clothingDbError
+						);
+						throw new Error(
+							`Database Error: Failed to get ${itemType} image details for ID ${clothingId}. Reason: ${clothingDbError.message}`
+						);
+					}
+
+					// Ensure data was actually returned (single() returns null if not found)
+					if (!clothingDbData) {
+						console.error(
+							`Data Integrity Error: Clothing item ${clothingId} not found for user ${user_id}.`
+						);
+						throw new Error(
+							`Data Integrity Error: Clothing item ${clothingId} not found or access denied.`
+						);
+					}
+
+					const clothingPath = clothingDbData.front_image_url;
+					const categoryName = clothingDbData.categories?.name;
+
+					if (!clothingPath || !categoryName) {
+						console.error(
+							`Data Integrity Error: ${itemType} clothing ${clothingId} is missing storage path or category name.`
+						);
+						throw new Error(
+							`Data Integrity Error: ${itemType} clothing ${clothingId} is missing its storage path (front_image_url) or category.`
+						);
+					}
+					console.log(
+						`Found storage path: ${clothingPath}, Category: ${categoryName} for ${itemType} clothing ID ${clothingId}`
+					);
+
+					// 2. Download image from storage
+					console.log(`Downloading ${itemType} clothing image from storage path: ${clothingPath}`);
+					const { data: clothingBlob, error: downloadError } = await supabaseAdminClient.storage
+						.from(CLOTHING_BUCKET_NAME) // Use your defined constant
+						.download(clothingPath);
+
+					if (downloadError || !clothingBlob) {
+						const status = downloadError?.message?.includes('Not Found') ? 404 : 500;
+						console.error(
+							`Storage Error (${status}) downloading ${itemType} clothing ID ${clothingId} from path '${clothingPath}':`,
+							downloadError
+						);
+						throw new Error(
+							`Storage Error (${status}): Failed to download ${itemType} clothing file '${clothingPath}'. Reason: ${downloadError?.message || 'Blob is null'}`
+						);
+					}
+
+					// 3. Convert blob to ArrayBuffer
+					const contentType = clothingBlob.type || 'application/octet-stream';
+					const downloadedData: ArrayBuffer = await clothingBlob.arrayBuffer();
+					console.log(
+						`${itemType} clothing ID ${clothingId} downloaded successfully (${downloadedData.byteLength} bytes, type: ${contentType}).`
+					);
+
+					// 4. Assign data to the correct variable based on type
+					if (itemType === 'upper') {
+						upperClothingData = downloadedData;
+						upperCategoryName = categoryName;
+					} else if (itemType === 'lower') {
+						lowerClothingData = downloadedData;
+						lowerCategoryName = categoryName;
+					}
+					console.log(`--- Finished processing ${itemType} clothing (ID: ${clothingId}) ---`);
+				}
+
+				// 2. Get model data
+
+				console.log('Downloading model image from storage...');
+				const { data: modelBlob, error: modelDownloadError } = await supabaseAdminClient.storage
+					.from(MODEL_BUCKET_NAME)
+					.download(model_path);
+
+				if (modelDownloadError || !modelBlob) {
+					const status = modelDownloadError?.message?.includes('Not Found') ? 404 : 500;
+					throw new Error(
+						`Storage Error (${status}): Failed to download model file '${model_path}'. Reason: ${modelDownloadError?.message || 'Blob is null'}`
+					);
+				}
+				const modelType = modelBlob.type || 'application/octet-stream';
+				const modelData: ArrayBuffer = await modelBlob.arrayBuffer();
+				console.log(
+					`Edge Function: Model downloaded (${modelData.byteLength} bytes, type: ${modelType}).`
+				);
+
+				// 2. create new outfit in the database
+
+				console.log('Creating new outfit in the database...');
+				const { data: newOutfitId, error } = await supabaseAdminClient.rpc('create_new_outfit', {
+					p_clothing_ids: [lower_clothing_id, upper_clothing_id],
+					p_user_id: user_id,
+					p_cover_image_url: null,
+					p_model_path: model_path,
+					p_outfit_name: 'New Full Outfit'
+				});
+
+				if (error) {
+					console.error('Error creating outfit:', error);
+					throw new Error(
+						`Database Function Error: Failed to create new outfit. Reason: ${error.message}`
+					);
+				}
+
+				new_outfit_id = newOutfitId;
+
+				if (!new_outfit_id) {
+					console.error('Error: new_outfit_id is undefined.');
+					throw new Error(
+						'Data Integrity Error: new_outfit_id is undefined. Please check the database function.'
+					);
+				}
+
+				console.log('New outfit created with ID:', newOutfitId);
+
 				console.log(
 					`Placeholder: Triggering generation for Upper ${upper_clothing_id} and Lower ${lower_clothing_id}`
 				);
-				// --- End of your logic ---
 
+				// 3. Apply try on for both clothing items
+
+				if (
+					!upperClothingData ||
+					!lowerClothingData ||
+					!upperCategoryName ||
+					!lowerCategoryName ||
+					!modelData
+				) {
+					console.error(
+						'Loop/Setup finished but required data is missing (upper/lower data, categories, or model data).'
+					);
+					throw new Error(
+						'Internal Server Error: Failed to retrieve all necessary data before VTO processing.'
+					);
+				}
+
+				let upperBodyTryOnPath: string | null = null;
+				let finalOutfitPath: string | null = null;
+				let upperBodyTryOnData: ArrayBuffer | null = null;
+
+				const modelName = model_path.split('/').pop() || 'model_image'; // base try on is our model image
+
+				console.log('--- Step 1: Generating Upper Body Try-On ---');
+				const upperVtoInput = {
+					modelName: modelName,
+					clothingName: `upper_${upper_clothing_id}`,
+					categoryName: upperCategoryName,
+					modelData: modelData,
+					clothingData: upperClothingData
+				};
+
+				const dbInfo = {
+					supabaseClient: supabaseAdminClient,
+					try_on_session_id: null,
+					outfits_id: new_outfit_id,
+					user_id
+				};
+
+				console.log('Calling generateTryOn for upper body...');
+
+				const upperResult = await generateTryOn(upperVtoInput, dbInfo);
+
+				if (!upperResult.success || !upperResult.data?.tryOnPath) {
+					throw new Error(
+						`VTO Generation Error (Upper): Failed to generate try-on. Reason: ${upperResult.message || 'Unknown'}`
+					);
+				}
+
+				upperBodyTryOnPath = upperResult.data.tryOnPath;
+
+				// check if the path is valid
+				if (!upperBodyTryOnPath) {
+					console.error('Error: upperBodyTryOnPath is undefined.');
+					throw new Error(
+						'Data Integrity Error: upperBodyTryOnPath is undefined. Please check the VTO generation.'
+					);
+				}
+				console.log(`Upper body VTO successful. Intermediate path: ${upperBodyTryOnPath}`);
+
+				// --- Step 2: Download the Intermediate Upper Body Result ---
+
+				console.log('--- Step 2: Downloading Intermediate Upper Body Result ---');
+
+				const { data: tryOnBlob, error: tryOnDownloadError } = await supabaseAdminClient.storage
+					.from('tryon')
+					.download(upperBodyTryOnPath);
+
+				if (tryOnDownloadError || !tryOnBlob) {
+					const status = tryOnDownloadError?.message?.includes('Not Found') ? 404 : 500;
+					console.error(
+						`Failed to download intermediate VTO result "${upperBodyTryOnPath}"`,
+						tryOnDownloadError
+					);
+					throw new Error(
+						`Storage Error (${status}): Failed to download intermediate file '${upperBodyTryOnPath}'. Reason: ${tryOnDownloadError?.message || 'Blob is null'}`
+					);
+				}
+
+				const intermediateContentType = tryOnBlob.type || 'application/octet-stream';
+				upperBodyTryOnData = await tryOnBlob.arrayBuffer(); // Store the result as ArrayBuffer
+
+				// Check if the data is valid
+
+				if (!upperBodyTryOnData) {
+					console.error('Error: upperBodyTryOnData is undefined.');
+					throw new Error(
+						'Data Integrity Error: upperBodyTryOnData is undefined. Please check the VTO generation.'
+					);
+				}
+
+				console.log(
+					`Intermediate VTO result downloaded (${upperBodyTryOnData.byteLength} bytes, type: ${intermediateContentType}).`
+				);
+
+				// --- Step 3: Generate Final Outfit using Intermediate Result + Lower Body ---
+				console.log('--- Step 3: Generating Final Outfit (Intermediate + Lower Body) ---');
+				const lowerVtoInput = {
+					modelName: `intermediate_${upper_clothing_id}`, // Or derive from upperBodyTryOnPath
+					clothingName: `lower_${lower_clothing_id}`,
+					categoryName: lowerCategoryName,
+					modelData: upperBodyTryOnData,
+					clothingData: lowerClothingData
+				};
+
+				console.log('Calling generateTryOn for lower body...');
+				const lowerResult = await generateTryOn(lowerVtoInput, dbInfo);
+
+				if (!lowerResult.success || !lowerResult.data?.tryOnPath) {
+					throw new Error(
+						`VTO Generation Error (Lower): Failed to generate final outfit. Reason: ${lowerResult.message || 'Unknown'}`
+					);
+				}
+
+				finalOutfitPath = lowerResult.data.tryOnPath; // This is the final result path!
+				const task_uuid = lowerResult.data.task_id;
+
+				// check if the path is valid
+				if (!finalOutfitPath) {
+					console.error('Error: finalOutfitPath is undefined.');
+					throw new Error(
+						'Data Integrity Error: finalOutfitPath is undefined. Please check the VTO generation.'
+					);
+				}
+
+				console.log(`Final outfit VTO successful. Final path: ${finalOutfitPath}`);
+
+				// --- Step 4: Update the 'outfits' table with the final path ---
+				console.log('--- Step 4: Updating outfits table ---');
+
+				const { error: updateOutfitError } = await supabaseAdminClient
+					.from('outfits')
+					.update({
+						cover_image_url: finalOutfitPath,
+						status: 'done',
+						task_id: task_uuid
+					})
+					.eq('id', new_outfit_id)
+					.eq('user_id', user_id);
+
+				if (updateOutfitError) {
+					// Log a warning but maybe don't fail the whole process if VTO succeeded
+					console.warn(
+						`Failed to update outfit record ${new_outfit_id} with final path: ${updateOutfitError.message}`
+					);
+				} else {
+					console.log(
+						`Outfit record ${new_outfit_id} updated successfully with path: ${finalOutfitPath}`
+					);
+				}
+
+				// --- Return Success ---
 				return new Response(
-					JSON.stringify({ success: true, message: 'Individual item generation tasks initiated.' }),
+					JSON.stringify({
+						success: true,
+						message: 'Outfit generation successful.',
+						data: finalOutfitPath
+					}),
 					{ status: 200 }
 				);
 			}
@@ -251,7 +546,6 @@ Deno.serve(async (req) => {
 					.update({
 						status: 'error',
 						error: error.message, // Store the error message
-						task_id: task_uuid
 					})
 					.eq('id', new_outfit_id);
 
@@ -266,7 +560,6 @@ Deno.serve(async (req) => {
 					.update({
 						status: 'error',
 						error: error, // Store the error message
-						task_id: task_uuid
 					})
 					.eq('id', new_outfit_id);
 

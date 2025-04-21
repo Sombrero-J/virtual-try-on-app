@@ -15,6 +15,7 @@
 	import StepIndicator from '$lib/components/visualiser/stepIndicator.svelte';
 	import { Tween } from 'svelte/motion';
 	import { linear } from 'svelte/easing';
+	import { addToast } from '$lib/components/melt/toast.svelte';
 
 	let tryOn = tryOnStore();
 	let modelFile = tryOn.modelImageFile;
@@ -30,10 +31,6 @@
 	});
 	onMount(async () => {
 		checkState();
-		const pendingSave = page.url.searchParams.get('autoSave') === 'true';
-		if (pendingSave) {
-			console.log('need to save.');
-		}
 		try {
 			const { data, error } = await fetchSubmitTask();
 			progress.target = 30;
@@ -43,18 +40,43 @@
 					progress.target = 80;
 					const res = await fetchQueryTask(taskID);
 					if (res.url) {
+						addToast({
+							data: {
+								type: 'success',
+								title: 'Try on success!',
+								description: 'Your try on is successful!'
+							}
+						});
 						progress.target = 100;
 						tryOnUrl = res.url;
 						tryOn.tryonImageUrl = tryOnUrl;
 					} else if (res.error) {
-						alert('Something went wrong: ' + res.error);
+						addToast({
+							data: {
+								type: 'error',
+								title: 'Error: Try on failed.',
+								description: 'An unexpected error occurred during generation. ' + res.error
+							}
+						});
 					}
 				}, 10000);
 			} else if (error) {
-				alert(error);
+				addToast({
+					data: {
+						type: 'error',
+						title: 'Error: Server error.',
+						description: 'An error occurred in the server, please contact support.'
+					}
+				});
 			}
 		} catch (error) {
-			alert(error);
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Error: Server error.',
+					description: 'An error occurred in the server, please contact support.'
+				}
+			});
 		}
 	});
 
@@ -65,23 +87,59 @@
 			formData.append('modelFile', modelFile);
 			formData.append('tryonUrl', tryOnUrl);
 		} else {
-			alert('Something went wrong. Please try again.');
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Error: Missing items.',
+					description: 'Please retry and upload the required items.'
+				}
+			});
 			cancel();
 		}
 
 		return async ({ result }) => {
 			if (result.type == 'success') {
-				console.log('Data: ' + result.data);
-				goto('/wardrobe');
+				if (result.data?.success) {
+					addToast({
+						data: {
+							type: 'success',
+							title: 'Successfully saved to wardrobe.',
+							description: 'Item added to your wardrobe.'
+						}
+					});
+					goto('/wardrobe');
+				} else {
+					addToast({
+						data: {
+							type: 'error',
+							title: 'Error: Failed to save outfit.',
+							description: 'An error occurred. ' + result.data?.message
+						}
+					});
+				}
 			} else if (result.type == 'failure') {
-				alert('Saving failed: ' + result.data);
+				addToast({
+					data: {
+						type: 'error',
+						title: 'Error: Failed to save outfit.',
+						description: 'An error occurred. ' + result.data?.message
+					}
+				});
+			} else if (result.type === 'error') {
+				addToast({
+					data: {
+						type: 'error',
+						title: 'Network Error',
+						description: 'Could not reach the server. Please check your connection.'
+					}
+				});
 			}
 		};
 	};
 
 	const checkState = () => {
 		if (!tryOn.modelImageFile || !tryOn.clothingImageFile) {
-			goto('/beta/vto-test/body-image-upload');
+			goto('/vto-test/body-image-upload');
 		}
 	};
 </script>

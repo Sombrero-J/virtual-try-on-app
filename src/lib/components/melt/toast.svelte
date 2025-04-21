@@ -27,7 +27,7 @@
 	import Success from '$lib/svg/indicators/success.svelte';
 	// import Error from "$lib/svg/indicators/error.svelte";
 	import Warning from '$lib/svg/indicators/warning.svelte';
-	// import Info from "$lib/svg/indicators/info.svelte";
+	import Info from "$lib/svg/indicators/info.svelte";
 </script>
 
 <!-- Some browsers automatically apply the inset CSS property to elements with the popover attribute (which toaster.root has due to popover: "manual"). Need to explicitly unset the inset property so bottom-4 right-4 styles work.-->
@@ -46,12 +46,13 @@
 				<div class="flex items-center justify-start gap-2">
 					{#if toast.data.type === 'success'}
 						<Success />
-						<!-- {:else if toast.data.type === "error"}
-        <Error /> -->
+					{:else if toast.data.type === 'error'}
+						<!-- <Error /> -->
+						<span>(error icon)</span>
 					{:else if toast.data.type === 'warning'}
 						<Warning />
-						<!-- {:else if toast.data.type === "info"}
-        <Info /> -->
+					{:else if toast.data.type === 'info'}
+						<Info />
 					{/if}
 					<h3 {...toast.title} class="text-black-primary font-medium">
 						{toast.data.title}

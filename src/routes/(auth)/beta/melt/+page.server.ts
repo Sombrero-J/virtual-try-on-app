@@ -93,11 +93,6 @@ export const actions: Actions = {
 			// headers: { 'Content-Type': 'application/json' }
 		};
 
-		const supabase = createClient(
-			'http://127.0.0.1:54321',
-			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-		);
-
 		const { data, error } = await supabase.functions.invoke('try-on', invokeOptions);
 
 		console.log('--- Function Invocation Result ---');
@@ -223,6 +218,28 @@ export const actions: Actions = {
 		const materialsArray = materials.split(', ');
 		console.log('From server: ', materialsArray);
 		return { success: true, materials };
+	},
+	uploadImage: async ({ request, locals: { supabase } }) => {
+		const formData = await request.formData();
+		const imageFile = formData.get('compressedimage') as File;
+
+		console.log('Received: ', imageFile);
+
+		if (!imageFile) {
+			return { success: false, message: 'No image file provided.' };
+		}
+
+		if (imageFile.size > 3 * 1024 * 1024) {
+			return { success: false, message: 'File size exceeds 3MB. Please upload a smaller image.' };
+		}
+
+		const { data, error } = await supabase.storage.from('uploads').upload('optimised', imageFile, {
+			cacheControl: 'public, max-age=31536000',
+			contentType: imageFile.type,
+			upsert: false
+		});
+
+		return { success: true };
 	}
 };
 

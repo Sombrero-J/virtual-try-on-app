@@ -34,6 +34,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      anonymous_try_on_cache: {
+        Row: {
+          brand: string | null
+          category: string
+          claimed: boolean
+          clothing_description: string
+          clothing_name: string
+          clothing_path: string
+          colors: string[]
+          created_at: string
+          expires_at: string
+          materials: string[] | null
+          model_path: string
+          session_token: string
+          task_id: string
+          try_on_path: string
+        }
+        Insert: {
+          brand?: string | null
+          category: string
+          claimed?: boolean
+          clothing_description: string
+          clothing_name: string
+          clothing_path: string
+          colors: string[]
+          created_at?: string
+          expires_at?: string
+          materials?: string[] | null
+          model_path: string
+          session_token: string
+          task_id: string
+          try_on_path: string
+        }
+        Update: {
+          brand?: string | null
+          category?: string
+          claimed?: boolean
+          clothing_description?: string
+          clothing_name?: string
+          clothing_path?: string
+          colors?: string[]
+          created_at?: string
+          expires_at?: string
+          materials?: string[] | null
+          model_path?: string
+          session_token?: string
+          task_id?: string
+          try_on_path?: string
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           created_at: string
@@ -731,7 +782,7 @@ export type Database = {
           p_description: string
           p_colors: string[]
           p_brands: string
-          p_materials: string
+          p_materials: string[]
           p_category: string
         }
         Returns: number

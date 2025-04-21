@@ -22,10 +22,16 @@ export const actions: Actions = {
 		const category = formData.get('Category');
 
 		const materials = formData.get('Materials') as string;
-		const materialsArray = materials.split(', ');
+		let materialsArray: string[] = [];
+		if (materials) {
+			materialsArray = materials.split(', ');
+		}
 
 		const color = formData.get('Colors') as string;
-		const colorsArray = color.split(', ');
+		let colorsArray: string[] = [];
+		if (color) {
+			colorsArray = color.split(', ');
+		}
 
 		const id = formData.get('id') as string;
 

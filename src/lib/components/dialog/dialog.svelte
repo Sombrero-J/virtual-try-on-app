@@ -67,6 +67,7 @@
 		buttonText?: string;
 		backFn?: () => void;
 		onclick?: () => void;
+		disabled?: boolean;
 	}
 
 	let {
@@ -74,10 +75,11 @@
 		title,
 		titleholder,
 		open = $bindable(),
-		textButton = true,
+		textButton = false,
 		buttonText = '',
 		backFn,
-		onclick = () => {}
+		onclick = () => {},
+		disabled = false
 	}: Props = $props();
 
 	let isMobile = $derived((innerWidth.current && innerWidth.current < 1024) || false);
@@ -117,7 +119,7 @@
 			class="justify-top flex max-h-2/3 max-w-8/10 flex-col items-center gap-5 rounded-3xl bg-white p-7 shadow-xl"
 		>
 			<div class="relative flex w-full items-center justify-center gap-2">
-				<h1 class="flex-1 text-4xl font-medium text-center mx-20">{title}</h1>
+				<h1 class="mx-20 flex-1 text-center text-4xl font-medium">{title}</h1>
 				<button
 					class="absolute right-0 cursor-pointer"
 					aria-label="Close modal"
@@ -145,7 +147,6 @@
 		</div>
 	</div>
 {:else if open && isMobile}
-	<!-- Positioning (bottom): You're directly manipulating a bottom state variable. It's often better for performance, especially with animations, to use CSS transform: translateY() instead of changing layout properties like bottom. We'll keep a state variable, but have it represent the translateY value. -->
 	<div
 		class="fixed top-0 left-0 z-[100] flex size-full items-center justify-center bg-neutral-200/50"
 		role="presentation"
@@ -157,12 +158,14 @@
 	>
 		<div
 			bind:this={draggable}
-			class="bg-white-primary fixed bottom-0 left-0 min-h-[10rem] w-full overflow-hidden rounded-t-3xl px-4 py-2"
+			class="bg-white-primary fixed bottom-0 left-0 flex max-h-9/10 min-h-[10rem] w-full flex-col rounded-t-3xl px-4 py-2"
 			style={sheetStyle}
 			transition:fly={{ y: 200, duration: 500 }}
 		>
 			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-			<div class="flex w-full flex-col items-center justify-start gap-3 text-center">
+			<div
+				class="flex h-full w-full flex-col items-center justify-start gap-3 overflow-hidden text-center"
+			>
 				<div
 					role="dialog"
 					aria-label="Uploaded Items Bottom Sheet"
@@ -186,9 +189,21 @@
 						</button>
 					</div>
 				</div>
-				<div class="w-full">
+				<div class="w-full overflow-y-auto">
 					{@render children?.()}
 				</div>
+				{#if buttonText}
+					<Button
+						twClass={'cursor-pointer'}
+						fullWidth={true}
+						text={buttonText}
+						onclick={() => {
+							open = false;
+							onclick();
+						}}
+						{disabled}
+					/>
+				{/if}
 			</div>
 		</div>
 	</div>

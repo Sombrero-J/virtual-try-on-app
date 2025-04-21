@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
 	><g
-		stroke="#8F9294"
+		stroke="#6D6E70"
 		stroke-linecap="round"
 		stroke-linejoin="round"
 		stroke-width="2"

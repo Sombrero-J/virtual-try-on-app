@@ -21,7 +21,7 @@
 
 {#if deleteState.isDelete}
 	<div
-		class="bg-white-primary border-border-gray aspect-ratio-3/4 relative flex max-h-[20rem] items-center justify-center overflow-hidden rounded-lg border-1 {selected
+		class="bg-white-primary border-border-gray aspect-ratio-3/4 relative flex max-w-[18rem] items-center justify-center overflow-hidden rounded-lg border-1 {selected
 			? 'border-brand border-2 shadow-md'
 			: ''}"
 	>
@@ -38,7 +38,7 @@
 	</div>
 {:else}
 	<button
-		class="bg-white-primary border-border-gray aspect-ratio-3/4 flex max-h-[20rem] cursor-pointer items-center justify-center overflow-hidden rounded-lg border-1 {selected
+		class="bg-white-primary border-border-gray aspect-ratio-3/4 flex max-w-[18rem] cursor-pointer items-center justify-center overflow-hidden rounded-lg border-1 hover:shadow-md {selected
 			? 'border-brand border-2 shadow-md'
 			: ''}"
 		{type}

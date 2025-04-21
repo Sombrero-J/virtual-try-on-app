@@ -13,7 +13,7 @@
 </script>
 
 <button
-	class="relative bg-brand-secondary min-h-60 w-[30vw] max-w-[35rem] cursor-pointer rounded-3xl p-5 hover:border-2 hover:border-brand"
+	class="bg-brand-secondary hover:border-brand relative min-h-60 w-[30vw] max-w-[35rem] cursor-pointer rounded-3xl p-5 hover:border-2"
 	aria-label="Customise your own"
 	{onclick}
 >

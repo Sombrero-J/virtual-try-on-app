@@ -10,13 +10,14 @@
 
 	interface Props {
 		token: string;
+		stage: string;
 	}
 
-	let { token }: Props = $props();
+	let { token, stage }: Props = $props();
 
 	const generateQrCode = async () => {
 		try {
-			url = origin + '/beta/phone-upload?sessionId=' + token;
+			url = origin + '/vto-test/phone-upload?sessionId=' + token + '&stage=' + stage;
 			qrCodeDataUrl = await QRCode.toDataURL(url);
 		} catch (error) {
 			alert('Error generating qrcode: ' + error);
@@ -28,11 +29,11 @@
 	});
 </script>
 
-<div class="flex flex-col items-center justify-center gap-4">
-	<ol>
-		<li>Scan the QR code with your phone.</li>
-		<li>The code will lead you to the upload page.</li>
-		<li>Upload your photos and click "Submit".</li>
+<div class="flex flex-row items-center justify-center gap-4 p-5">
+	<ol class="max-w-[15rem] list-inside list-decimal space-y-3 text-left">
+		<li>Use your phone's camera to scan the QR code below.</li>
+		<li>Follow the link on your phone to choose your photo.</li>
+		<li>Confirm the upload on your phone. It will then appear here.</li>
 	</ol>
 	<img src={qrCodeDataUrl} alt={qrCodeDataUrl} />
 </div>

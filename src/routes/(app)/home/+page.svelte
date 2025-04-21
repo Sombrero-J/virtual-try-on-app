@@ -4,11 +4,10 @@
 	import NewIcons from '$lib/components/wardrobe/newIcons.svelte';
 	import Share from '$lib/svg/small/share.svelte';
 	import Edit from '$lib/svg/small/wardrobe/edit.svelte';
-	import WomanIcon from '$lib/svg/small/wardrobe/woman.svelte';
 	import type { PageProps } from './$types';
 	import Dialog from '$lib/components/dialog/dialog.svelte';
 	import Button from '$lib/components/buttons/button.svelte';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	import type { ClothingWithTryOnsType, ModelsType } from '$lib/server/database_helpers/queryDb';
@@ -28,13 +27,18 @@
 	import Pin from '$lib/svg/pin.svelte';
 	import { filterStore } from '$lib/state/appstate.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import { triggerSaveAction } from './helpers';
+	import { continueSaveAction, triggerSaveAction } from './helpers';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import Download from '$lib/svg/small/download.svelte';
 	import FilterButton from '$lib/components/wardrobe/filterButton.svelte';
 	import Bigdialogbutton from '$lib/components/buttons/bigdialogbutton.svelte';
+	import type { Database } from '$lib/type/supabase';
+	import { page } from '$app/state';
+
+	type CategoriesEnum = Database['public']['Enums']['categories_type'];
 
 	let { data, form }: PageProps = $props();
+	let { user, supabase } = $derived(data);
 
 	const filterInstance = filterStore();
 
@@ -69,7 +73,8 @@
 	let tryOnUrl = $state('');
 	let taskID = $state('');
 	let showLoading = $state(false);
-	let isSaving = $state(false); // Optional: Track loading state
+
+	const MAX_MODEL_IMAGE_SIZE = 3 * 1024 * 1024; // 3MB in bytes
 
 	async function fetchTask() {
 		try {
@@ -81,10 +86,16 @@
 				progress = 80;
 				const res = await fetchQueryTask(taskID);
 				if (res.url) {
+					addToast({
+						data: {
+							type: 'success',
+							title: 'Try on success!',
+							description: 'Your try on is successful!'
+						}
+					});
 					progress = 100;
 					tryOnUrl = res.url;
-					await triggerSaveAction(
-						isSaving,
+					const { success, message } = await triggerSaveAction(
 						taskID,
 						clothingFile,
 						tryOnUrl,
@@ -92,12 +103,43 @@
 						selectedModelFile
 						// what if selectedModel and selectedModelFile are both truthful
 					);
+
+					if (!success) {
+						addToast({
+							data: {
+								type: 'error',
+								title: 'Error: Saving error',
+								description:
+									'Saving try on error: ' + message + ' Please try again or contact support.'
+							}
+						});
+					} else {
+						addToast({
+							data: {
+								type: 'success',
+								title: 'Try on saved',
+								description: 'Your try on has been successfully saved to the wardrobe.'
+							}
+						});
+					}
 				} else if (res.error) {
-					alert('Something went wrong: ' + res.error);
+					addToast({
+						data: {
+							type: 'error',
+							title: 'Error: Try on failed.',
+							description: 'An unexpected error occurred during generation. ' + res.error
+						}
+					});
 				}
 			}, 10000);
 		} catch (error) {
-			alert(error);
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Error: Server error.',
+					description: 'An error occurred in the server, please contact support.'
+				}
+			});
 		}
 	}
 	let step = $state<1 | 2 | 3 | 4>(1);
@@ -115,6 +157,27 @@
 	});
 
 	onMount(async () => {
+		const sessionId = page.url.searchParams.get('autoSave');
+		if (sessionId) {
+			const { success, data, message } = await continueSaveAction(sessionId);
+			if (success) {
+				addToast({
+					data: {
+						type: 'success',
+						title: 'Try-on saved',
+						description: 'Your try on has been saved.'
+					}
+				});
+			} else {
+				addToast({
+					data: {
+						type: 'error',
+						title: 'Error saving try on',
+						description: message
+					}
+				});
+			}
+		}
 		try {
 			const parentDataResolved = await data.parentData;
 			const clothingsWithTryOns = await parentDataResolved.clothingsWithTryOns;
@@ -139,7 +202,7 @@
 
 				const categoryNames = clothingsWithTryOns
 					.map((item: ClothingWithTryOnsType[number]) => item.categories?.name)
-					.filter((name): name is string => Boolean(name)); // Type guard ensures string[]
+					.filter((name): name is CategoriesEnum => Boolean(name));
 
 				const uniqueNamesSet = new Set(categoryNames);
 
@@ -161,52 +224,201 @@
 	let newModelFile = $state<File | null>(null);
 
 	function handleFileChange(event: any) {
-		imageURl = URL.createObjectURL(event.target.files[0]);
-		newModelFile = event.target.files[0];
+		const inputElement = event.target as HTMLInputElement;
+		const files = inputElement.files;
+
+		if (!files || files.length === 0) {
+			console.log('No file selected.');
+			return;
+		}
+
+		const file = files[0];
+
+		// Check if the file is an image
+		if (!file.type.startsWith('image/')) {
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Invalid File Type',
+					description: `"${file.name}" is not a valid image. Please choose JPG, PNG, WEBP.`
+				}
+			});
+			inputElement.value = '';
+			return;
+		}
+
+		// 4. Check file size
+		if (file.size > MAX_MODEL_IMAGE_SIZE) {
+			addToast({
+				data: {
+					type: 'error',
+					title: 'File Too Large',
+					description: `The image "${file.name}" (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds the limit of ${MAX_MODEL_IMAGE_SIZE / 1024 / 1024}MB.`
+				}
+			});
+			inputElement.value = ''; // Clear selection
+			return;
+		}
+
+		if (imageURl) {
+			URL.revokeObjectURL(imageURl);
+		}
+
+		imageURl = URL.createObjectURL(file);
+
+		newModelFile = file;
 		openModelsDialog = true;
+
 		addToast({
 			data: {
 				type: 'success',
-				title: 'Success',
-				description: 'Image uploaded successfully!'
+				title: 'Image Ready',
+				description: `Selected "${file.name}" successfully.`
 			}
 		});
+
+		inputElement.value = '';
 	}
 
 	let wardrobeFiles = $state<File[]>([]);
 	let wardrobePreviewUrls = $state<string[]>([]);
 
 	function handleNewClothingsUpload(event: any) {
-		const selectedFiles = Array.from(event.target.files) as File[];
+		const inputElement = event.target as HTMLInputElement;
+		const selectedFiles = Array.from(inputElement.files || []) as File[];
+
 		if (!selectedFiles.length) return;
 
-		const newPreviewUrls = selectedFiles.map((file) => URL.createObjectURL(file));
+		const validImageFiles: File[] = [];
+		const invalidFiles: File[] = [];
 
-		wardrobeFiles = [...wardrobeFiles, ...selectedFiles];
-		wardrobePreviewUrls = [...wardrobePreviewUrls, ...newPreviewUrls];
-
-		addToast({
-			data: {
-				type: 'success',
-				title: 'Success',
-				description: `${selectedFiles.length} image(s) selected successfully!`
+		// Check if they are images
+		selectedFiles.forEach((file) => {
+			if (file.type.startsWith('image/')) {
+				validImageFiles.push(file);
+			} else {
+				invalidFiles.push(file);
 			}
 		});
 
-		openAddNewClothingsDialog = true;
+		// 1. Handle ignored non-image files (show warning if some valid images were also selected)
+		if (invalidFiles.length > 0 && validImageFiles.length > 0) {
+			addToast({
+				data: {
+					type: 'warning',
+					title: 'Some Files Ignored',
+					description: `${invalidFiles.length} file(s) are not valid images and were ignored.`
+				}
+			});
+		}
+
+		// 2. Handle the case where ONLY non-image files were selected (show error)
+		if (invalidFiles.length > 0 && validImageFiles.length === 0) {
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Invalid File Type(s)',
+					description: `No valid image files selected. Please choose files like JPG, PNG, WEBP.`
+				}
+			});
+			// Clear the input value so user can select again easily
+			inputElement.value = '';
+			return;
+		}
+
+		// 3. Handle the case where only valid images were selected (or a mix, warning already shown)
+		if (validImageFiles.length > 0) {
+			const newPreviewUrls = validImageFiles.map((file) => URL.createObjectURL(file));
+
+			wardrobeFiles = [...wardrobeFiles, ...validImageFiles];
+			wardrobePreviewUrls = [...wardrobePreviewUrls, ...newPreviewUrls];
+
+			addToast({
+				data: {
+					type: 'success',
+					title: 'Images Ready',
+					description: `${validImageFiles.length} valid image(s) selected.`
+				}
+			});
+
+			openAddNewClothingsDialog = true; // Open dialog only if valid images were processed
+		} else if (
+			validImageFiles.length === 0 &&
+			invalidFiles.length === 0 &&
+			selectedFiles.length > 0
+		) {
+			// Handles potential edge cases
+			console.warn('handleNewClothingsUpload: No files processed, check file filtering logic.');
+			addToast({
+				data: {
+					type: 'info',
+					title: 'No Files Processed',
+					description: `Please select valid image files.`
+				}
+			});
+		}
+
+		// Clear the input value AFTER processing to allow selecting the same file again if needed
+		// (e.g., user closes dialog without saving and wants to re-add).
+		inputElement.value = '';
 	}
 
 	function handleTryOnUploadModel(event: any) {
-		imageURl = URL.createObjectURL(event.target.files[0]);
-		selectedModel = null;
-		selectedModelFile = event.target.files[0];
+		const inputElement = event.target as HTMLInputElement;
+		const files = inputElement.files;
+
+		if (!files || files.length === 0) {
+			console.log('No file selected.');
+			return;
+		}
+
+		const file = files[0];
+
+		// Check if the file is an image
+		if (!file.type.startsWith('image/')) {
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Invalid File Type',
+					description: `The selected file (${file.name}) is not a supported image. Please upload a JPG, PNG, WEBP, etc.`
+				}
+			});
+			inputElement.value = '';
+			return;
+		}
+
+		// 4. Check file size (Client-side check for immediate feedback)
+		if (file.size > MAX_MODEL_IMAGE_SIZE) {
+			addToast({
+				data: {
+					type: 'error',
+					title: 'File Too Large',
+					description: `The image "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Please upload an image smaller than ${MAX_MODEL_IMAGE_SIZE / 1024 / 1024}MB.`
+				}
+			});
+			inputElement.value = '';
+			return;
+		}
+
+		// Revoke the previous Object URL if one exists to prevent memory leaks
+		if (imageURl) {
+			URL.revokeObjectURL(imageURl);
+		}
+
+		imageURl = URL.createObjectURL(file);
+
+		// Update state
+		selectedModel = null; // Reset any previously selected model
+		selectedModelFile = file; // Store the validated file object
+
 		addToast({
 			data: {
 				type: 'success',
-				title: 'Success',
-				description: 'Image uploaded successfully!'
+				title: 'Model Image Selected',
+				description: `Image '${file.name}' is ready.`
 			}
 		});
+
 		step++;
 	}
 
@@ -226,11 +438,11 @@
 				{#if clothingsWithTryOns.length > 0}
 					{#if selectedItem}
 						<div class="flex w-full items-center justify-center lg:w-1/2 lg:p-4">
-							<div class="relative w-full max-w-[25rem] lg:w-2/3 lg:max-w-[30rem]">
+							<div class="relative w-full lg:w-2/3 lg:max-w-[30rem]">
 								{#if selectedDisplayTryOn}
 									<div class="flex flex-col items-start justify-start gap-4">
 										<img
-											class="h-[40rem] w-full shadow-lg lg:rounded-lg lg:object-fill"
+											class="h-auto w-full object-contain shadow-lg lg:h-[40rem] lg:rounded-lg"
 											src={selectedDisplayTryOn}
 											alt="try on"
 										/>
@@ -314,13 +526,13 @@
 								class="grid grid-cols-2 gap-2 p-1 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4"
 							>
 								<button
-									class="bg-brand-secondary text-black-primary flex aspect-square cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
+									class="bg-brand-secondary text-black-primary flex cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
 									onclick={() => {
 										openDialog = true;
 									}}
 									>+
 								</button>
-								{#each clothingsWithTryOns as item, i}
+								{#each clothingsWithTryOns as item}
 									<!-- filtering categories -->
 									{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
 										<WardrobeItem
@@ -349,7 +561,7 @@
 							<div class="overflow-y-auto">
 								<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
 									<button
-										class="bg-brand-secondary text-brand flex max-h-[20rem] w-auto cursor-pointer items-center justify-center rounded-lg text-6xl font-bold"
+										class="bg-brand-secondary text-brand flex cursor-pointer items-center justify-center rounded-lg text-6xl font-bold"
 										onclick={() => {
 											openDialog = true;
 										}}
@@ -366,7 +578,7 @@
 													selectedItem = item;
 													selectedDisplayTryOnID = selectedItem.try_on_sessions[0].id || -1;
 												}}
-												transitionIndex={i}
+												id={item.id}
 											/>
 										{/if}
 									{/each}
@@ -465,40 +677,155 @@
 		method="POST"
 		enctype="multipart/form-data"
 		use:enhance={({ formData, cancel }) => {
-			if (!tryOnCategory || !clothingFile) {
-				console.log('Please select a category and upload a clothing image');
+			if (!tryOnCategory) {
+				addToast({
+					data: {
+						type: 'error',
+						title: 'Missing Category',
+						description: 'Please select a clothing category.'
+					}
+				});
+				cancel();
+				return;
+			}
+			if (!clothingFile) {
+				addToast({
+					data: {
+						type: 'error',
+						title: 'Missing Clothing Image',
+						description: 'Please select or upload a clothing image.'
+					}
+				});
+				cancel();
+				return;
+			}
+			if (!selectedModel && !selectedModelFile) {
+				addToast({
+					data: {
+						type: 'error',
+						title: 'Missing Model Image',
+						description: 'Please select or upload a model image.'
+					}
+				});
 				cancel();
 				return;
 			}
 
-			if (!selectedModel && !selectedModelFile) {
-				console.log('Please select a model image');
-				cancel();
-				return;
-			}
 			if (selectedModel) {
 				formData.append('model_path', selectedModel.signed_url as string);
 			} else if (selectedModelFile) {
 				formData.append('model_file', selectedModelFile);
 			}
-
 			formData.append('category', tryOnCategory);
 			formData.append('clothing_image', clothingFile);
+
 			showLoading = true;
 
-			return async ({ result, update }) => {
-				step++;
-				update({ invalidateAll: false });
-				if (result.type === 'success') {
-					if (result.data) {
-						taskID = result.data?.taskID as string;
-					}
-					await fetchTask();
-				} else if (result.type === 'failure') {
-					alert('Something went wrong: ' + result.data);
+			addToast({
+				data: {
+					type: 'info',
+					title: 'Task queued',
+					description: `Your ${tryOnCategory.toLowerCase()} try on is starting.`
 				}
+			});
 
-				showLoading = false;
+			return async ({ result, update }) => {
+				let tryOnInitiated = false; // Flag to track if fetchTask should run
+
+				try {
+					if (result.type === 'success' && result.data) {
+						if (result.data.success === true) {
+							taskID = result.data.taskID as string;
+
+							if (taskID) {
+								addToast({
+									data: {
+										type: 'info',
+										title: 'Task in progress',
+										description: 'Virtual try-on is processing. Please wait...'
+									}
+								});
+								tryOnInitiated = true;
+								step++;
+							} else {
+								// --- ERROR: Server succeeded but no Task ID ---
+								addToast({
+									data: {
+										type: 'error',
+										title: 'Submission Error',
+										description:
+											(result.data.message as string) ||
+											'Could not start the try-on task (missing Task ID). Please try again.'
+									}
+								});
+							}
+						} else {
+							// --- ERROR: Server reported failure (e.g., validation) ---
+							addToast({
+								data: {
+									type: 'error',
+									title: 'Submission Failed',
+									description:
+										(result.data.message as string) ||
+										'The server could not process your try-on request.'
+								}
+							});
+						}
+					} else if (result.type === 'failure') {
+						// --- ERROR: Unhandled Server Error ---
+						console.error('Try-on server action failed (unhandled):', result);
+						addToast({
+							data: {
+								type: 'error',
+								title: 'Server Error',
+								description:
+									(result.data?.message as string) ||
+									'An unexpected error occurred on the server. Please try again later.'
+							}
+						});
+					} else if (result.type === 'error') {
+						// --- ERROR: Network/Fetch Error ---
+						console.error('Enhance Fetch Error:', result.error);
+						addToast({
+							data: {
+								type: 'error',
+								title: 'Network Error',
+								description: 'Could not connect to the server. Please check your connection.'
+							}
+						});
+					} else {
+						// --- UNEXPECTED STATE ---
+						console.warn('Unexpected result type from enhance:', result);
+						addToast({
+							data: {
+								type: 'warning',
+								title: 'Unknown Error',
+								description: 'An unexpected issue occurred during submission.'
+							}
+						});
+					}
+
+					// --- Fetch Task Result (only if submission was successful) ---
+					if (tryOnInitiated && taskID) {
+						try {
+							await fetchTask();
+							await update();
+						} catch (fetchError) {
+							console.error('fetchTask failed:', fetchError);
+							addToast({
+								data: {
+									type: 'error',
+									title: 'Processing Failed',
+									description:
+										'The virtual try-on process did not complete successfully. Please try again.'
+								}
+							});
+							step--;
+						}
+					}
+				} finally {
+					showLoading = false;
+				}
 			};
 		}}
 	>
@@ -511,7 +838,7 @@
 					<div class="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-4">
 						<label
 							for="upload_tryon_model"
-							class="bg-brand-secondary text-black-primary relative flex aspect-square cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
+							class="bg-brand-secondary text-black-primary relative flex cursor-pointer items-center justify-center rounded-lg text-5xl font-bold"
 						>
 							+
 							<input
@@ -524,6 +851,7 @@
 						</label>
 						{#each models as model}
 							<WardrobeItem
+								id={model.id}
 								src={model.signed_url}
 								alt={model.description || ''}
 								onclick={() => {
@@ -660,6 +988,7 @@
 				</div>
 				{#each models as model}
 					<WardrobeItem
+						id={model.id}
 						src={model.signed_url}
 						alt={model.description || ''}
 						onclick={() => {
@@ -677,26 +1006,73 @@
 				use:enhance={({ formData, cancel }) => {
 					if (newModelFile) {
 						formData.append('model_image', newModelFile);
-						console.log('Adding new model...');
 					} else {
+						addToast({
+							data: {
+								type: 'error',
+								title: 'No Image Selected',
+								description: 'Please select an image file for the model before saving.'
+							}
+						});
 						cancel();
 					}
-					return async ({ result }) => {
-						if (result.type === 'success') {
-							console.log('Result: ', result.data);
+					return async ({ result, update }) => {
+						if (result.type === 'success' && result.data) {
+							if (result.data.success === true) {
+								addToast({
+									data: {
+										type: 'success',
+										title: 'Model Saved',
+										description: (result.data?.message as string) || 'New model added successfully!'
+									}
+								});
+								openModelsDialog = false;
+
+								if (imageURl) {
+									URL.revokeObjectURL(imageURl);
+									imageURl = '';
+								}
+								newModelFile = null;
+								// Optional: Invalidate data to refresh lists, etc.
+								// await invalidateAll(); // Or specific identifiers invalidate('app:models');
+							} else {
+								addToast({
+									data: {
+										type: 'error',
+										title: 'Save Failed',
+										description:
+											(result.data.message as string) ||
+											'Could not save the model. Please try again.'
+									}
+								});
+								// Keep the dialog open so the user can potentially fix the issue
+							}
+						} else if (result.type === 'failure') {
+							// --- ERROR TOAST: Server action crashed / Unhandled Error ---
+							console.error('Server action failed:', result); // Log the full result for debugging
 							addToast({
 								data: {
-									type: 'success',
-									title: 'Success',
-									description: 'Image uploaded successfully!'
+									type: 'error',
+									title: 'Server Error',
+									description:
+										(result.data?.message as string) ||
+										'An unexpected error occurred on the server. Please try again later.'
 								}
 							});
-							openModelsDialog = false;
-							imageURl = '';
-							newModelFile = null;
-						} else if (result.type === 'failure') {
-							console.error('Server action failed:', result.data);
+							// Keep the dialog open
+						} else if (result.type === 'error') {
+							console.error('Enhance Fetch Error:', result.error);
+							addToast({
+								data: {
+									type: 'error',
+									title: 'Network Error',
+									description: 'Could not reach the server. Please check your connection.'
+								}
+							});
+							// Keep the dialog open
 						}
+
+						await update();
 					};
 				}}
 			>
@@ -738,38 +1114,89 @@
 				action="?/addNewClothings"
 				method="post"
 				enctype="multipart/form-data"
-				use:enhance={({ formData }) => {
+				use:enhance={({ formData, cancel }) => {
+					if (wardrobeFiles.length === 0) {
+						addToast({
+							data: {
+								type: 'warning',
+								title: 'No Images Selected',
+								description: 'Please select one or more clothing images to upload.'
+							}
+						});
+						cancel();
+						return;
+					}
+
 					wardrobeFiles.forEach((file) => {
 						formData.append('clothing_images', file);
 					});
 
-					return async ({ result }) => {
-						if (result.type === 'success') {
-							addToast({
-								data: {
-									type: 'success',
-									title: 'Success',
-									description: 'Images uploaded to wardrobe successfully!'
-								}
-							});
-							console.log(result.data);
-							// console: Object { success: true, message: "3 clothing item(s) added successfully. ", insertedCount: 3, rejectedImages: [] }
+					addToast({
+						data: {
+							type: 'info',
+							title: 'Uploading...',
+							description: `Uploading ${wardrobeFiles.length} image(s) to your wardrobe.`
+						}
+					});
 
-							openAddNewClothingsDialog = false;
-							// Clean up state and revoke object URLs to prevent memory leaks
-							wardrobePreviewUrls.forEach(URL.revokeObjectURL);
-							wardrobeFiles = [];
-							wardrobePreviewUrls = [];
-						} else if (result.type === 'error') {
-							console.error('Server action failed:', result.error);
+					return async ({ result, update }) => {
+						if (result.type === 'success' && result.data) {
+							if (result.data.success === true) {
+								addToast({
+									data: {
+										type: 'success',
+										title: 'Upload Successful',
+										description:
+											(result.data.message as string) ||
+											`${result.data.insertedCount || 'Items'} added successfully!`
+									}
+								});
+
+								openAddNewClothingsDialog = false;
+								wardrobePreviewUrls.forEach(URL.revokeObjectURL); // Prevent memory leaks
+								wardrobeFiles = [];
+								wardrobePreviewUrls = [];
+
+								await invalidateAll();
+							} else {
+								addToast({
+									data: {
+										type: 'warning',
+										title: 'Upload Issue',
+										description:
+											(result.data.message as string) ||
+											'Some or all images could not be processed by the server.'
+									}
+								});
+								// DO NOT clear state here - keep dialog open so user sees context/files
+								// try to highlight rejected files if `result.data.rejectedImages` is useful client-side
+							}
+						} else if (result.type === 'failure') {
+							console.error('Server action failed (unhandled exception):', result);
 							addToast({
 								data: {
 									type: 'error',
-									title: 'Error',
-									description: 'Failed to upload images.'
+									title: 'Server Error',
+									description:
+										(result.data?.message as string) ||
+										'An unexpected error occurred on the server while uploading. Please try again later.'
 								}
 							});
+							// Keep dialog open
+						} else if (result.type === 'error') {
+							console.error('Enhance Fetch Error:', result.error);
+							addToast({
+								data: {
+									type: 'error',
+									title: 'Network Error',
+									description:
+										'Could not connect to the server to upload images. Please check your connection.'
+								}
+							});
+							// Keep dialog open
 						}
+
+						await update();
 					};
 				}}
 			>

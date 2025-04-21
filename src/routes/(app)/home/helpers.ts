@@ -1,26 +1,98 @@
 import type { ModelsType } from '$lib/server/database_helpers/queryDb';
+import { error } from '@sveltejs/kit';
+
+export async function continueSaveAction(sessionId: string) {
+	const actionUrl = '/api/saveTryOn';
+	const payload = {
+		sessionId: sessionId
+	};
+	try {
+		const response = await fetch(actionUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(payload)
+		});
+
+		// SvelteKit actions return ActionResult JSON even on errors handled by `fail()`
+		// parse the JSON to understand the outcome.
+		const responseBody = await response.json();
+
+		if (response.ok) {
+			// Status 200-299
+			console.log('Save successful:', responseBody);
+			return {
+				success: true,
+				data: responseBody.newClothingId,
+				message: 'Saving successful.'
+			};
+		} else {
+			// Handle specific known error statuses from your API
+			const errorMessage = responseBody.message || `An error occurred (Status: ${response.status})`;
+			console.error(`Failed to save try-on (${response.status}):`, errorMessage);
+			return {
+				success: false,
+				message: errorMessage
+			};
+
+			// if (response.status === 401) {
+			// 	addToast({ type: 'error', message: 'Authentication error. Please log in again.' });
+			// 	// Optional: redirect to login
+			// 	// goto('/auth/login');
+			// } else if (response.status === 404) {
+			// 	addToast({
+			// 		type: 'warning',
+			// 		message: 'Could not find the try-on data. It might have expired.'
+			// 	});
+			// } else if (response.status === 409) {
+			// 	// Conflict
+			// 	addToast({ type: 'warning', message: errorMessage }); // Use message from API ("already saved" or "record might exist")
+			// 	// Optional: Navigate to the existing outfit if ID is provided
+			// 	// if (responseBody.data?.existingOutfitId) {
+			// 	//    goto(`/outfits/${responseBody.data.existingOutfitId}`);
+			// 	// }
+			// } else if (response.status === 410) {
+			// 	// Gone (Expired)
+			// 	addToast({ type: 'warning', message: 'The cached try-on data has expired.' });
+			// } else if (response.status === 400) {
+			// 	// Bad Request (missing sessionID, invalid JSON)
+			// 	addToast({ type: 'error', message: `Request error: ${errorMessage}` });
+			// } else {
+			// 	// 5xx Server errors or other unexpected client errors
+			// 	addToast({ type: 'error', message: `Save failed: ${errorMessage}` });
+			// }
+		}
+	} catch (error) {
+		// Handle network errors or issues parsing non-JSON responses
+		console.error('Fetch failed or could not parse response:', error);
+		return {
+			success: false,
+			message: 'An error occurred while trying to save the try-on.'
+		}
+	}
+}
 
 export async function triggerSaveAction(
-	isSaving: boolean,
 	taskID: string,
 	clothingFile: File | null,
 	tryOnUrl: string,
 	selectedModel?: ModelsType[number] | null,
 	selectedModelFile?: File | null
 ) {
-	if (isSaving) return;
-
 	if (!taskID || !clothingFile || !tryOnUrl) {
-		alert('Missing required information to save. Please try again.');
-		return;
+		return {
+			success: false,
+			message: 'Missing required information. Please try again or contact support.'
+		};
 	}
 
 	if (!selectedModel && !selectedModelFile) {
-		console.log('Please select a model image');
-		return;
+		return {
+			success: false,
+			message: 'Missing model image. Please try again or contact support.'
+		};
 	}
-
-	isSaving = true;
 
 	const formData = new FormData();
 	formData.append('taskID', taskID);
@@ -33,7 +105,7 @@ export async function triggerSaveAction(
 		formData.append('modelFile', selectedModelFile);
 	}
 
-	const actionUrl = '/beta/vto-test/generation?/save';
+	const actionUrl = '/vto-test/generation?/save';
 
 	try {
 		const response = await fetch(actionUrl, {
@@ -42,49 +114,42 @@ export async function triggerSaveAction(
 		});
 
 		// SvelteKit actions return ActionResult JSON even on errors handled by `fail()`
-		// You need to parse the JSON to understand the outcome.
+		// parse the JSON to understand the outcome.
 		const result = await response.json();
 
 		if (!response.ok) {
-			// Handle HTTP errors (e.g., 500 Internal Server Error)
-			// or errors thrown before `fail()` is called in the action.
-			// `result` might contain error details if the server sent them as JSON.
-			console.error('Save action failed (HTTP Error):', response.status, result);
-			alert(`Saving failed: ${result?.message || response.statusText || 'Server error'}`);
-			isSaving = false;
-			return;
+			return {
+				success: false,
+				message: `Saving failed: ${result?.message || response.statusText || 'Server error'}`
+			};
 		}
 
 		if (result.type === 'success') {
-			console.log('Save successful. Data:', result.data); // Action might return data
-			isSaving = false;
+			return {
+				success: true,
+				data: result.data,
+				message: 'Saving successful.'
+			};
 		} else if (result.type === 'failure') {
-			// Failure typically means validation errors returned via `fail()`
-			console.error('Save action failed (Validation):', result.data);
-			// Adjust based on how your action returns failure data in `result.data`
-			const message =
-				result.data?.message ||
-				JSON.stringify(result.data) ||
-				'Saving failed, please check inputs.';
-			alert('Saving failed: ' + message);
-			isSaving = false;
+			return {
+				success: false,
+				message: `Saving action failed: ${result?.message || response.statusText || 'Server error'}`
+			};
 		} else if (result.type === 'error') {
-			// Error means an unexpected error occurred on the server
-			console.error('Save action failed (Server Error):', result.error);
-			alert(`An error occurred: ${result.error?.message || 'Unknown server error'}`);
-			isSaving = false;
+			return {
+				success: false,
+				message: `Saving action failed: ${result?.message || response.statusText || 'Server error'}`
+			};
 		} else {
-			// Handle unexpected result type? Should not happen with standard actions.
-			console.warn('Unexpected result type from action:', result);
-			alert('An unexpected response was received from the server.');
-			isSaving = false;
+			return {
+				success: false,
+				message: 'Unexpected result.'
+			};
 		}
 	} catch (error) {
-		console.error('Error submitting save action:', error);
-		alert(
-			`An error occurred while trying to save: ${error instanceof Error ? error.message : String(error)}`
-		);
-		isSaving = false;
+		return {
+			success: false,
+			message: 'Error submitting save action:' + error
+		};
 	}
-	// No finally here if navigating away on success
 }

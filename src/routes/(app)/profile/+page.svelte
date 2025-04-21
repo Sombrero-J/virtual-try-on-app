@@ -16,8 +16,18 @@
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/buttons/button.svelte';
 	import EditProfile from '$lib/svg/small/profile/editProfile.svelte';
+	import { onMount } from 'svelte';
+	import { innerWidth } from 'svelte/reactivity/window';
 
 	let { data }: { data: PageData } = $props();
+
+	let isMobile = $derived((innerWidth.current && innerWidth.current < 1024) || false);
+
+	onMount(() => {
+		if (!isMobile) {
+			goto('/home');
+		}
+	});
 </script>
 
 <section class="flex h-full flex-col items-stretch justify-between p-4">
