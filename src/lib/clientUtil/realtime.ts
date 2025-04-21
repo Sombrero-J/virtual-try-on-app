@@ -1,3 +1,4 @@
+import { addToast } from '$lib/components/melt/toast.svelte';
 import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 
 interface UploadPayload {
@@ -36,6 +37,18 @@ export function subscribeToUploadChanges(
         const { data, error } = await supabase.storage
           .from("uploads")
           .download(newPayload.image_path);
+
+        if (error) {
+          addToast({
+            data: {
+              type: "error",
+              title: "Download Failed",
+              description: `Error downloading file: ${error.message}`,
+            },
+          })
+          console.error("Error downloading file:", error);
+          return;
+        }
 
         if (!error && data) {
           // Extract the filename: use everything after the first dash

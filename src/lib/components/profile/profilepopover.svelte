@@ -34,7 +34,7 @@
 <div {...popover.content} class="bg-white-primary rounded-2xl p-5 shadow-lg">
 	<div class="flex w-[20rem] flex-col items-start justify-start gap-5">
 		<div class="flex flex-col items-start justify-center">
-			<h1 class="text-black-primary text-2xl">Username</h1>
+			<h1 class="text-black-primary text-2xl">{user ? 'Welcome back' : 'Welcome'}</h1>
 			<p class="text-black-tertiary text-base">{user?.email}</p>
 		</div>
 		<div class="divide-border-gray w-full divide-y-1">
@@ -65,7 +65,26 @@
 					{/snippet}
 				</SectionButton>
 			{:else}
-			not logged in
+				<SectionButton
+					text="Sign up"
+					onclick={() => {
+						goto('/auth/signup');
+					}}
+				>
+					{#snippet lefticon()}
+						<Logout />
+					{/snippet}
+				</SectionButton>
+				<SectionButton
+					text="Log in"
+					onclick={() => {
+						goto('/auth/login');
+					}}
+				>
+					{#snippet lefticon()}
+						<Logout />
+					{/snippet}
+				</SectionButton>
 			{/if}
 			<!-- <SectionButton text="Contact us" onclick={() => goto('/profile/help')}>
 				{#snippet lefticon()}

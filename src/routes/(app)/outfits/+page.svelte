@@ -9,6 +9,7 @@
 	import DialogButton from '$lib/components/buttons/dialogButton.svelte';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import WardrobeItem from '$lib/components/wardrobe/wardrobeItem.svelte';
+	import { addToast } from '$lib/components/melt/toast.svelte';
 
 	const tops = ['T-Shirts', 'Long-Sleeve Tops', 'Shirts', 'Sweaters', 'Hoodies', 'Sleeveless'];
 	const bottoms = ['Jeans', 'Pants', 'Skirts', 'Shorts', 'Athletic Bottoms'];
@@ -56,15 +57,24 @@
 				numberOfTops = topsCount;
 				numberOfBottoms = bottomsCount;
 			} else {
-				// Handle the case where the wardrobe is empty or data is missing
-				console.log('Wardrobe data is empty or not in the expected format.');
-				// Avoid alert, prefer showing a message in the template:
-				alert('Your wardrobe is empty. Please add some clothing to your wardrobe.');
+				if (!lockOutfits) {
+					addToast({
+						data: {
+							type: 'info',
+							title: 'No Outfits',
+							description: 'You have no outfits yet.'
+						}
+					});
+				}
 			}
 		} catch (error) {
-			console.error('Error initializing wardrobe categories:', error);
-			errorMessage = 'Failed to load wardrobe items. Please try again.'; // Set error message for UI
-			alert(errorMessage);
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Error',
+					description: 'Failed to load outfits. Please try again later.'
+				}
+			});
 		}
 	});
 

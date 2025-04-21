@@ -28,6 +28,7 @@
 	// import Error from "$lib/svg/indicators/error.svelte";
 	import Warning from '$lib/svg/indicators/warning.svelte';
 	import Info from "$lib/svg/indicators/info.svelte";
+	import Erroricon from '$lib/svg/indicators/erroricon.svelte';
 </script>
 
 <!-- Some browsers automatically apply the inset CSS property to elements with the popover attribute (which toaster.root has due to popover: "manual"). Need to explicitly unset the inset property so bottom-4 right-4 styles work.-->
@@ -47,8 +48,7 @@
 					{#if toast.data.type === 'success'}
 						<Success />
 					{:else if toast.data.type === 'error'}
-						<!-- <Error /> -->
-						<span>(error icon)</span>
+						<Erroricon />
 					{:else if toast.data.type === 'warning'}
 						<Warning />
 					{:else if toast.data.type === 'info'}

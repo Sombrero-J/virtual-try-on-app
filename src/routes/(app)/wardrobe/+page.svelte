@@ -15,6 +15,8 @@
 	import { allCategories, filterStore, materials } from '$lib/state/appstate.svelte';
 	import Select from '$lib/components/melt/select.svelte';
 	import { addToast } from '$lib/components/melt/toast.svelte';
+	import type { Database } from '$lib/type/supabase';
+	import { goto } from '$app/navigation';
 
 	let openClothingDialog = $state(false);
 	let showTagInfo = $state(false);
@@ -67,7 +69,13 @@
 				// convert Set to an Array and prepend 'All'
 				uniqueCategories = ['All', ...Array.from(uniqueNamesSet)];
 			} else {
-				alert('Your wardrobe is empty. Please add some clothing to your wardrobe.');
+				addToast({
+					data: {
+						type: 'info',
+						title: 'Empty Wardrobe',
+						description: 'Your wardrobe is empty. Please add some clothing to your wardrobe.'
+					}
+				});
 				uniqueCategories = ['All'];
 			}
 		} catch (error) {
@@ -113,34 +121,14 @@
 			{#await parent.clothingsWithTryOns}
 				Loading clothes
 			{:then clothings}
-				<div class="overflow-y-auto">
-					<div
-						class="mx-auto grid grid-cols-2 justify-items-center gap-2 md:grid-cols-3 md:gap-3 lg:max-w-[80vw] lg:grid-cols-4 lg:gap-5"
-					>
-						{#each clothings as item}
-							{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
-								{#if tabs.value === 'Images'}
-									<WardrobeItem
-										id={item.id}
-										onclick={() => {
-											openClothingDialog = true;
-											selectedClothing = item;
-										}}
-										src={item.signed_front}
-										alt="front side of ${item.name}"
-									/>
-								{:else if tabs.value === 'Models'}
-									{#if item.try_on_sessions.length > 0}
-										<WardrobeItem
-											id={item.id}
-											onclick={() => {
-												openClothingDialog = true;
-												selectedClothing = item;
-											}}
-											src={item.try_on_sessions[0].signed_try_on || ''}
-											alt="a person wearing ${item.name}"
-										/>
-									{:else}
+				{#if clothings.length > 0}
+					<div class="overflow-y-auto">
+						<div
+							class="mx-auto grid grid-cols-2 justify-items-center gap-2 md:grid-cols-3 md:gap-3 lg:max-w-[80vw] lg:grid-cols-4 lg:gap-5"
+						>
+							{#each clothings as item}
+								{#if filterInstance.filterCategory === 'All' || item.categories?.name === filterInstance.filterCategory}
+									{#if tabs.value === 'Images'}
 										<WardrobeItem
 											id={item.id}
 											onclick={() => {
@@ -150,12 +138,48 @@
 											src={item.signed_front}
 											alt="front side of ${item.name}"
 										/>
+									{:else if tabs.value === 'Models'}
+										{#if item.try_on_sessions.length > 0}
+											<WardrobeItem
+												id={item.id}
+												onclick={() => {
+													openClothingDialog = true;
+													selectedClothing = item;
+												}}
+												src={item.try_on_sessions[0].signed_try_on || ''}
+												alt="a person wearing ${item.name}"
+											/>
+										{:else}
+											<WardrobeItem
+												id={item.id}
+												onclick={() => {
+													openClothingDialog = true;
+													selectedClothing = item;
+												}}
+												src={item.signed_front}
+												alt="front side of ${item.name}"
+											/>
+										{/if}
 									{/if}
 								{/if}
-							{/if}
-						{/each}
+							{/each}
+						</div>
 					</div>
-				</div>
+				{:else}
+					<div class="flex h-full w-full flex-col items-center justify-center gap-2 px-4">
+						<div class="flex flex-1 flex-col items-center justify-center gap-1">
+							<h1 class="text-xl font-medium">You have no clothings yet</h1>
+							<p class="text-black-tertiary text-sm">Upload your clothing at the home page.</p>
+						</div>
+						<Button
+							text="Go to Home"
+							fullWidth={true}
+							onclick={() => {
+								goto('/home');
+							}}
+						/>
+					</div>
+				{/if}
 			{/await}
 		{/if}
 	{/await}

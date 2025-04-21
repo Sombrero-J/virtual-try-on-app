@@ -209,7 +209,13 @@
 				// convert Set to an Array and prepend 'All'
 				uniqueCategories = ['All', ...Array.from(uniqueNamesSet)];
 			} else {
-				alert('Your wardrobe is empty. Please add some clothing to your wardrobe.');
+				addToast({
+					data: {
+						type: 'info',
+						title: 'Empty Wardrobe',
+						description: 'Your wardrobe is empty. Please add some clothing to your wardrobe.'
+					}
+				});
 				uniqueCategories = ['All'];
 				selectedItem = null;
 			}
@@ -426,7 +432,7 @@
 </script>
 
 <!-- awaiting page.servers's data -->
-<div class="bg-white-primary relative h-full w-full overflow-hidden lg:flex lg:pt-20 lg:pr-20">
+<div class="bg-white-primary relative h-full w-full overflow-hidden lg:flex lg:p-10">
 	{#await data.parentData}
 		Loading
 	{:then parent}
@@ -436,6 +442,7 @@
 				Loading tryons
 			{:then clothingsWithTryOns}
 				{#if clothingsWithTryOns.length > 0}
+					<!-- Model image -->
 					{#if selectedItem}
 						<div class="flex w-full items-center justify-center lg:w-1/2 lg:p-4">
 							<div class="relative w-full lg:w-2/3 lg:max-w-[30rem]">
@@ -520,6 +527,8 @@
 						</div>
 					{/if}
 
+					<!-- The mini wardrobe -->
+
 					{#if isMobile}
 						<Draggable filterArray={uniqueCategories}>
 							<div
@@ -586,6 +595,42 @@
 							</div>
 						</div>
 					{/if}
+				{:else}
+					<div class="flex h-full w-full flex-col items-center justify-center gap-2 px-4">
+						<div class="flex flex-1 flex-col items-center justify-center gap-1">
+							<h1 class="text-xl font-medium">Upload clothings below</h1>
+							<p class="text-black-tertiary text-sm">
+								Create your first Try On or Clothing by clicking the buttons below.
+							</p>
+						</div>
+						<Button
+							text="Try On"
+							fullWidth={true}
+							onclick={() => {
+								goto('/');
+							}}
+						/>
+						<div class="flex w-full items-center justify-center gap-2">
+							<Button twClass="relative" text="Upload Clothings" fullWidth={true}>
+								<input
+									type="file"
+									multiple
+									class="absolute size-full cursor-pointer opacity-0"
+									accept="image/*"
+									onchange={handleNewClothingsUpload}
+								/></Button
+							>
+							<Button twClass="relative" text="Upload Model Image" fullWidth={true}>
+								<input
+									type="file"
+									name="new_model_image"
+									id="upload_model"
+									class="absolute top-0 left-0 h-full w-full cursor-pointer opacity-0"
+									onchange={handleFileChange}
+								/>
+							</Button>
+						</div>
+					</div>
 				{/if}
 			{/await}
 		{/if}
@@ -1094,7 +1139,7 @@
 					<div class="relative aspect-3/4 w-[18rem] overflow-hidden rounded">
 						<img src={url} alt={`Clothing item ${i + 1}`} class="h-full w-full object-cover" />
 						<button
-							class="bg-brand-secondary absolute top-1 right-1 flex cursor-pointer items-center justify-center rounded-sm px-2 text-black-primary text-2xl shadow-md"
+							class="bg-brand-secondary text-black-primary absolute top-1 right-1 flex cursor-pointer items-center justify-center rounded-sm px-2 text-2xl shadow-md"
 							onclick={() => {
 								wardrobePreviewUrls = wardrobePreviewUrls.filter((_, idx) => idx !== i);
 								wardrobeFiles = wardrobeFiles.filter((_, idx) => idx !== i);
