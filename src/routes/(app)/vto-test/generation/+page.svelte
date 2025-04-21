@@ -139,7 +139,7 @@
 
 	const checkState = () => {
 		if (!tryOn.modelImageFile || !tryOn.clothingImageFile) {
-			goto('/vto-test/body-image-upload');
+			goto('/');
 		}
 	};
 </script>
@@ -152,7 +152,7 @@
 		<div class="block lg:hidden">
 			<div class="relative mb-8 flex w-full items-center justify-center">
 				<div class="absolute left-0">
-					<Back onclick={() => goto('/beta/vto-test/body-image-upload')} />
+					<Back onclick={() => goto('/')} />
 				</div>
 				<StepIndicator steps={3} activeStep={2} />
 			</div>
@@ -160,7 +160,7 @@
 		<!-- Large screen -->
 		<div class="hidden lg:block">
 			<div class="absolute top-0 left-0">
-				<Back onclick={() => goto('/beta/vto-test/body-image-upload')} />
+				<Back onclick={() => goto('/')} />
 			</div>
 		</div>
 
@@ -196,7 +196,7 @@
 								text="Restart"
 								type="button"
 								style="secondary"
-								onclick={() => goto('/beta/vto-test/body-image-upload')}
+								onclick={() => goto('/')}
 							/>
 							<Button
 								text="Download"

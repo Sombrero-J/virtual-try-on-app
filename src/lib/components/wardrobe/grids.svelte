@@ -47,7 +47,7 @@
       text="Try on clothing"
       fullWidth={true}
       onclick={() => {
-        goto("/beta/vto-test/body-image-upload");
+        goto("/");
       }}
     />
     <Button text="Add clothing to wardrobe" fullWidth={true} />

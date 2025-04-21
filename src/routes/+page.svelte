@@ -14,7 +14,7 @@
 	import { subscribeToUploadChanges } from '$lib/clientUtil/realtime';
 	import type { RealtimeChannel } from '@supabase/supabase-js';
 
-	import type { PageProps } from './(app)/vto-test/body-image-upload/$types';
+	import type { PageProps } from './$types';
 	import { enhance } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
 	import { addToast } from '$lib/components/melt/toast.svelte';

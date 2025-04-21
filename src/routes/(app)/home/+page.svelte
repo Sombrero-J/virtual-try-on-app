@@ -599,7 +599,7 @@
 				text="Try On"
 				description="Visualise yourself in any clothing."
 				onclick={() => {
-					goto('/vto-test/body-image-upload');
+					goto('/');
 				}}
 			>
 				{#snippet icon()}

@@ -72,11 +72,24 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	event.locals.session = session;
 	event.locals.user = user;
 
-	if (!event.locals.session && event.url.pathname.startsWith('/private')) {
-		redirect(303, '/auth');
+	const protectedRoutes = ['/home', '/profile', '/wardrobe', '/outfits'];
+	const currentPath = event.url.pathname;
+
+	if (!event.locals.session) {
+		// Check if the current path starts with any of the protected base paths
+		const isAccessingProtectedRoute = protectedRoutes.some((route) =>
+			currentPath.startsWith(route)
+		);
+
+		if (isAccessingProtectedRoute) {
+			// If accessing a protected route without a session, redirect to login
+			redirect(303, '/auth/login');
+		}
+		// If not accessing a protected route (e.g., /auth/login, /, /about), allow access
 	}
-	if (event.locals.session && event.url.pathname === '/auth') {
-		redirect(303, '/private');
+	if (event.locals.session && currentPath === '/auth/login') {
+		// If the user is already logged in and tries to access the login page, redirect to home
+		redirect(303, '/home');
 	}
 	return resolve(event);
 };

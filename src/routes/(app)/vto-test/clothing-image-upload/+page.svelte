@@ -73,7 +73,7 @@
 	const token = crypto.randomUUID(); // token is unique every component
 	onMount(() => {
 		if (!bodyImageFile) {
-			goto('/vto-test/body-image-upload');
+			goto('/');
 		}
 
 		channelSubscription = subscribeToUploadChanges(supabase, token, (newFile: File) => {
