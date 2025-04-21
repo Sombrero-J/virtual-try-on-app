@@ -15,9 +15,9 @@
 	});
 </script>
 
-<div class="flex w-full flex-col items-center justify-center gap-8 lg:max-w-[30rem] my-auto mx-auto">
+<div class="flex w-full flex-col items-center  justify-center gap-8 lg:max-w-[30rem] my-auto mx-auto">
 	<div
-		class="border-brand-purple bg-brand-blue relative flex h-[23rem] w-full flex-col items-center justify-center overflow-hidden rounded-lg border-1 lg:h-[40rem]"
+		class="border-brand-purple bg-brand-blue relative flex h-[23rem] w-full flex-col items-center justify-center overflow-hidden rounded-lg border-1 lg:h-[30rem]"
 	>
 		<img
 			src={imageUrl}

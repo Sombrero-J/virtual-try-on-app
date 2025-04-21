@@ -199,8 +199,8 @@
 		{/if}
 	</main>
 {:else}
-	<header class="flex h-svh max-h-svh w-svw flex-col justify-between">
-		<div
+	<main class="flex h-svh w-svw flex-col justify-between">
+		<header
 			class="bg-brand-secondary flex h-[5rem] w-full items-center justify-center gap-8 px-4 py-4"
 		>
 			<NavButton
@@ -234,10 +234,10 @@
 				{/snippet}
 			</NavButton>
 			<Profilepopover {user} />
-		</div>
+		</header>
 
 		<div class="flex-1 overflow-hidden">
 			{@render children()}
 		</div>
-	</header>
+	</main>
 {/if}
