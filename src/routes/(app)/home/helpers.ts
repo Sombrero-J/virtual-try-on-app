@@ -1,5 +1,4 @@
 import type { ModelsType } from '$lib/server/database_helpers/queryDb';
-import { error } from '@sveltejs/kit';
 
 export async function continueSaveAction(sessionId: string) {
 	const actionUrl = '/api/saveTryOn';

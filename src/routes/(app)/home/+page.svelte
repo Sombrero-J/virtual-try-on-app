@@ -1091,14 +1091,10 @@
 		{#if wardrobePreviewUrls.length > 0}
 			<div class="grid grid-cols-2 gap-2 overflow-y-auto md:grid-cols-3 md:gap-3">
 				{#each wardrobePreviewUrls as url, i}
-					<div class="relative aspect-square">
-						<img
-							src={url}
-							alt={`Clothing item ${i + 1}`}
-							class="h-full w-full rounded object-cover"
-						/>
+					<div class="relative aspect-3/4 w-[18rem] overflow-hidden rounded">
+						<img src={url} alt={`Clothing item ${i + 1}`} class="h-full w-full object-cover" />
 						<button
-							class="bg-opacity-50 absolute top-1 right-1 flex cursor-pointer items-center justify-center rounded-full bg-black px-2 text-white"
+							class="bg-brand-secondary absolute top-1 right-1 flex cursor-pointer items-center justify-center rounded-sm px-2 text-black-primary text-2xl shadow-md"
 							onclick={() => {
 								wardrobePreviewUrls = wardrobePreviewUrls.filter((_, idx) => idx !== i);
 								wardrobeFiles = wardrobeFiles.filter((_, idx) => idx !== i);
@@ -1201,10 +1197,11 @@
 				}}
 			>
 				<div class="flex gap-2">
-					<Button text="Upload to Wardrobe" fullWidth={true} type="submit" />
 					<Button
+						fullWidth={true}
 						text="Add More"
 						type="button"
+						style="secondary"
 						onclick={() => {
 							const input = document.createElement('input');
 							input.type = 'file';
@@ -1214,6 +1211,7 @@
 							input.click();
 						}}
 					/>
+					<Button text="Upload to Wardrobe" fullWidth={true} type="submit" />
 				</div>
 			</form>
 		{:else}
