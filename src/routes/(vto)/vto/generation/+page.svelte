@@ -37,7 +37,7 @@
 			if (data) {
 				taskID = data;
 				setTimeout(async () => {
-					progress.target = 80;
+					progress.target = 70;
 					const res = await fetchQueryTask(taskID);
 					if (res.url) {
 						addToast({
@@ -59,7 +59,7 @@
 							}
 						});
 					}
-				}, 15000);
+				}, 45000);
 			} else if (error) {
 				addToast({
 					data: {

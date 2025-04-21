@@ -103,7 +103,7 @@
 						addToast({
 							data: {
 								type: 'error',
-								title: 'Sign up rrror',
+								title: 'Sign up error',
 								description: 'Something went wrong. Please try again.'
 							}
 						});
