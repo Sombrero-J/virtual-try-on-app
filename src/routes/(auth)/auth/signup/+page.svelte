@@ -23,6 +23,8 @@
 	let showPassword = $state(false);
 	let showConfirmPassword = $state(false);
 
+	let user_exist = $state(false);
+
 	function validatePassword(password: string) {
 		hasUpperCase = /[A-Z]/.test(password);
 		hasLowerCase = /[a-z]/.test(password);
@@ -78,7 +80,6 @@
 				return async ({ result, update }) => {
 					loading = false;
 					if (result.type === 'success') {
-						goto('/home');
 						addToast({
 							data: {
 								type: 'success',
@@ -86,8 +87,18 @@
 								description: 'Account created successfully!'
 							}
 						});
+						goto('/home');
 					} else if (result.type === 'failure') {
-						// Handle error
+						if (result.data?.error === 'user_already_exists') {
+							user_exist = true;
+							addToast({
+								data: {
+									type: 'error',
+									title: 'Error',
+									description: 'Email already exists. Please log in.'
+								}
+							});
+						}
 						addToast({
 							data: {
 								type: 'error',
@@ -162,6 +173,12 @@
 			{#if !passwordConfirmed}
 				<div class="text-xs font-normal text-[color:var(--color-red-warning)]">
 					<p>Passwords must match.</p>
+				</div>
+			{/if}
+
+			{#if user_exist}
+				<div class="text-xs font-normal text-[color:var(--color-red-warning)]">
+					<p>Email already exist. Please log in.</p>
 				</div>
 			{/if}
 			<Button

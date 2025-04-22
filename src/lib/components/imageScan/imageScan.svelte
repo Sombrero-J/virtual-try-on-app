@@ -1,29 +1,40 @@
 <script lang="ts">
 	import Progress from '$lib/components/melt/progress.svelte';
+	import { onDestroy } from 'svelte';
 	interface Props {
 		imageFile?: File | null;
-		imageUrl?: string | null;
 		progress?: number;
 	}
 
-	let { imageFile = null, progress = 10, imageUrl = null }: Props = $props();
+	let { imageFile = null, progress = 10 }: Props = $props();
 
-	$effect(() => {
+	let imageUrl = $derived.by(() => {
 		if (imageFile) {
-			imageUrl = URL.createObjectURL(imageFile);
+			return URL.createObjectURL(imageFile);
+		}
+		return null;
+	});
+
+	onDestroy(() => {
+		if (imageUrl) {
+			URL.revokeObjectURL(imageUrl);
 		}
 	});
 </script>
 
-<div class="flex w-full flex-col items-center  justify-center gap-8 lg:max-w-[30rem] my-auto mx-auto">
+<div
+	class="mx-auto my-auto flex w-full flex-col items-center justify-center gap-8 lg:max-w-[30rem]"
+>
 	<div
 		class="border-brand-purple bg-brand-blue relative flex h-[23rem] w-full flex-col items-center justify-center overflow-hidden rounded-lg border-1 lg:h-[30rem]"
 	>
-		<img
-			src={imageUrl}
-			alt="model uploaded by user"
-			class="h-full w-full rounded-lg object-contain"
-		/>
+		{#if imageUrl}
+			<img
+				src={imageUrl}
+				alt="model uploaded by user"
+				class="h-full w-full rounded-lg object-contain"
+			/>
+		{/if}
 		<div class="bg-glass animate-scan absolute left-0 h-full w-full">
 			<div class="bg-brand-gradient absolute -bottom-2 left-0 h-[0.5rem] w-full"></div>
 		</div>

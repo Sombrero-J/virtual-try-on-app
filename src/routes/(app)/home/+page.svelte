@@ -8,7 +8,7 @@
 	import Dialog from '$lib/components/dialog/dialog.svelte';
 	import Button from '$lib/components/buttons/button.svelte';
 	import { goto, invalidateAll } from '$app/navigation';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	import type { ClothingWithTryOnsType, ModelsType } from '$lib/server/database_helpers/queryDb';
 	import WardrobeItem from '$lib/components/wardrobe/wardrobeItem.svelte';
@@ -34,6 +34,7 @@
 	import Bigdialogbutton from '$lib/components/buttons/bigdialogbutton.svelte';
 	import type { Database } from '$lib/type/supabase';
 	import { page } from '$app/state';
+	import { compressAndPreview } from '$lib/clientUtil/image';
 
 	type CategoriesEnum = Database['public']['Enums']['categories_type'];
 
@@ -73,6 +74,11 @@
 	let tryOnUrl = $state('');
 	let taskID = $state('');
 	let showLoading = $state(false);
+
+	let imageURl = $state('');
+	let newModelFile = $state<File | null>(null);
+
+	let step = $state<1 | 2 | 3 | 4>(1);
 
 	const MAX_MODEL_IMAGE_SIZE = 3 * 1024 * 1024; // 3MB in bytes
 
@@ -142,7 +148,6 @@
 			});
 		}
 	}
-	let step = $state<1 | 2 | 3 | 4>(1);
 
 	$effect(() => {
 		if (openTryOnDialog === false) {
@@ -226,10 +231,16 @@
 		}
 	});
 
-	let imageURl = $state('');
-	let newModelFile = $state<File | null>(null);
+	onDestroy(() => {
+		if (imageURl) {
+			URL.revokeObjectURL(imageURl);
+		}
+		for (const url of wardrobePreviewUrls) {
+			URL.revokeObjectURL(url);
+		}
+	});
 
-	function handleFileChange(event: any) {
+	async function handleFileChange(event: any) {
 		const inputElement = event.target as HTMLInputElement;
 		const files = inputElement.files;
 
@@ -266,13 +277,14 @@
 			return;
 		}
 
+		const { compressedFile } = await compressAndPreview(file);
 		if (imageURl) {
 			URL.revokeObjectURL(imageURl);
 		}
 
-		imageURl = URL.createObjectURL(file);
+		imageURl = URL.createObjectURL(compressedFile);
 
-		newModelFile = file;
+		newModelFile = compressedFile;
 		openModelsDialog = true;
 
 		addToast({
@@ -289,7 +301,7 @@
 	let wardrobeFiles = $state<File[]>([]);
 	let wardrobePreviewUrls = $state<string[]>([]);
 
-	function handleNewClothingsUpload(event: any) {
+	async function handleNewClothingsUpload(event: any) {
 		const inputElement = event.target as HTMLInputElement;
 		const selectedFiles = Array.from(inputElement.files || []) as File[];
 
@@ -307,7 +319,7 @@
 			}
 		});
 
-		// 1. Handle ignored non-image files (show warning if some valid images were also selected)
+		// Handle ignored non-image files (show warning if some valid images were also selected)
 		if (invalidFiles.length > 0 && validImageFiles.length > 0) {
 			addToast({
 				data: {
@@ -318,7 +330,7 @@
 			});
 		}
 
-		// 2. Handle the case where ONLY non-image files were selected (show error)
+		// Handle the case where only non-image files were selected
 		if (invalidFiles.length > 0 && validImageFiles.length === 0) {
 			addToast({
 				data: {
@@ -334,9 +346,15 @@
 
 		// 3. Handle the case where only valid images were selected (or a mix, warning already shown)
 		if (validImageFiles.length > 0) {
-			const newPreviewUrls = validImageFiles.map((file) => URL.createObjectURL(file));
+			const compressedFiles = await Promise.all(
+				validImageFiles.map(async (file) => {
+					const { compressedFile } = await compressAndPreview(file);
+					return compressedFile;
+				})
+			);
+			const newPreviewUrls = compressedFiles.map((file) => URL.createObjectURL(file));
 
-			wardrobeFiles = [...wardrobeFiles, ...validImageFiles];
+			wardrobeFiles = [...wardrobeFiles, ...compressedFiles];
 			wardrobePreviewUrls = [...wardrobePreviewUrls, ...newPreviewUrls];
 
 			addToast({
@@ -348,28 +366,13 @@
 			});
 
 			openAddNewClothingsDialog = true; // Open dialog only if valid images were processed
-		} else if (
-			validImageFiles.length === 0 &&
-			invalidFiles.length === 0 &&
-			selectedFiles.length > 0
-		) {
-			// Handles potential edge cases
-			console.warn('handleNewClothingsUpload: No files processed, check file filtering logic.');
-			addToast({
-				data: {
-					type: 'info',
-					title: 'No Files Processed',
-					description: `Please select valid image files.`
-				}
-			});
 		}
 
 		// Clear the input value AFTER processing to allow selecting the same file again if needed
-		// (e.g., user closes dialog without saving and wants to re-add).
 		inputElement.value = '';
 	}
 
-	function handleTryOnUploadModel(event: any) {
+	async function handleTryOnUploadModel(event: any) {
 		const inputElement = event.target as HTMLInputElement;
 		const files = inputElement.files;
 
@@ -406,7 +409,7 @@
 			return;
 		}
 
-		// Revoke the previous Object URL if one exists to prevent memory leaks
+		const { compressedFile } = await compressAndPreview(file);
 		if (imageURl) {
 			URL.revokeObjectURL(imageURl);
 		}
@@ -415,7 +418,7 @@
 
 		// Update state
 		selectedModel = null; // Reset any previously selected model
-		selectedModelFile = file; // Store the validated file object
+		selectedModelFile = compressedFile; // Store the validated file object
 
 		addToast({
 			data: {

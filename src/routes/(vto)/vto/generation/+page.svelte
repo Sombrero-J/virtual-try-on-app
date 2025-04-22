@@ -5,7 +5,6 @@
 	import Subtitle from '$lib/components/text/subtitle.svelte';
 	import Back from '$lib/components/buttons/back.svelte';
 	import ImageScan from '$lib/components/imageScan/imageScan.svelte';
-	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import ImageGenV2 from '$lib/components/form/image-gen-v2.svelte';
 	import Button from '$lib/components/buttons/button.svelte';
@@ -25,7 +24,7 @@
 	let tryOnUrl = $state('');
 
 	let progress = new Tween(0, {
-		duration: 15000,
+		duration: 45000,
 		easing: linear,
 		delay: 2000
 	});
@@ -36,8 +35,8 @@
 			progress.target = 30;
 			if (data) {
 				taskID = data;
+				progress.target = 75;
 				setTimeout(async () => {
-					progress.target = 70;
 					const res = await fetchQueryTask(taskID);
 					if (res.url) {
 						addToast({

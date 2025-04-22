@@ -4,6 +4,8 @@
 	import BigUploadClothing from '$lib/svg/small/BigUploadClothing.svelte';
 	import UploadClothing from '$lib/svg/small/uploadClothing.svelte';
 	import Restart from '$lib/svg/small/restart.svelte';
+	import { compressAndPreview } from '$lib/clientUtil/image';
+	import { onDestroy } from 'svelte';
 
 	interface Props {
 		placeholder?: string;
@@ -19,17 +21,17 @@
 		required = true
 	}: Props = $props();
 
-	function handleFileChange(event: any) {
-		const target = event.target as HTMLInputElement;
-		file = target.files?.[0];
+	let originalFile: File | null = null;
 
-		if (!file) {
+	async function handleFileChange(event: any) {
+		const target = event.target as HTMLInputElement;
+		originalFile = target.files?.[0] || null;
+
+		if (!originalFile) {
 			return;
 		}
 
-		imageURl = URL.createObjectURL(file);
-
-		if (!file.type.startsWith('image/')) {
+		if (!originalFile.type.startsWith('image/')) {
 			addToast({
 				data: {
 					type: 'error',
@@ -38,15 +40,19 @@
 				}
 			});
 			target.value = ''; // Reset file input
-			file = null;
+			originalFile = null;
 			return;
 		}
 
+		const { compressedFile } = await compressAndPreview(originalFile);
+
+		file = compressedFile;
+
 		addToast({
 			data: {
-				type: 'success',
-				title: 'Success',
-				description: 'Image uploaded successfully!'
+				type: 'info',
+				title: 'Image ready',
+				description: `Image ${originalFile.name} is ready.`
 			}
 		});
 	}
@@ -56,6 +62,12 @@
 			return URL.createObjectURL(file);
 		}
 		return null;
+	});
+
+	onDestroy(() => {
+		if (imageURl) {
+			URL.revokeObjectURL(imageURl);
+		}
 	});
 </script>
 

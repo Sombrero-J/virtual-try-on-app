@@ -85,6 +85,10 @@
 		if (channelSubscription) {
 			supabase.removeChannel(channelSubscription);
 		}
+
+		if (imageUrl) {
+			URL.revokeObjectURL(imageUrl);
+		}
 	});
 </script>
 
@@ -115,7 +119,7 @@
 				{#if imageUrl}
 					<div class="mb-4 hidden items-center justify-center lg:flex">
 						<div class="relative">
-							<img src={imageUrl} alt="model" class=" max-h-32 rounded-md object-cover shadow-sm" />
+							<img src={imageUrl} alt="chosen model" class=" max-h-32 rounded-md object-cover shadow-sm" />
 							<Pin twClass="absolute -top-2 -right-2" />
 						</div>
 					</div>

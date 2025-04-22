@@ -94,7 +94,9 @@
 							}
 						});
 					} else if (result.type === 'error') {
-						console.error('Enhance Fetch Error:', result.error);
+						console.error('Enhance Fetch Error Object:', result.error);
+						console.error('Enhance Fetch Error Message:', result.error.message);
+						console.error('Enhance Fetch Error Stack:', result.error.stack);
 						addToast({
 							data: {
 								type: 'error',
