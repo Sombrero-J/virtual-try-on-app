@@ -14,7 +14,7 @@
     value: () => value,
     max: () => 100,
   });
-</script>
+</script
 
 <div
   {...progress.root}
