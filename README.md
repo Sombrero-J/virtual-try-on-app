@@ -78,7 +78,7 @@ Here's an overall map of the main project directories and their purposes:
     *   `hooks.server.ts`: Populating locals variables with supabase init and enforces auth guards on specific routes.
 
     *   `lib/`: Contains the building blocks of the application. Code is organised into client-side (`clientUtil`), server-side (`server`), UI (`components`), state management (`state`), type definitions (`type`), and assets (`assets`, `svg`).
-    
+
     *   `routes/`: Defines the application's pages and API endpoints.
         *   **Layouts (`+layout.*`):** Provide consistent structure. The root layout handles user session loading, Supabase client availability, the main navigation bar, and initialises real-time database subscriptions.
         *   **Pages (`+page.*`):** Represent individual views. `.svelte` files contain the UI markup and client-side logic (including form handling that often triggers server `actions`). `.server.ts` files handle data loading (`load` function) for the page and process form submissions (`actions`).
@@ -89,14 +89,14 @@ Here's an overall map of the main project directories and their purposes:
 
 To streamline the setup and evaluation process for markers, the `.env` file containing necessary API keys and configuration variables is included within this submitted codebase zip file. **Please be aware:** This is strictly an exception made for the convenience of academic assessment. In any standard development or production environment, committing or directly sharing `.env` files containing sensitive credentials poses a significant security risk and violates best practices.
 
-## 🧪 Testing
+## Testing
 
 The project includes a dedicated area for testing components, API interactions, and functions in isolation:
 
 *   **Location:** `src/routes/(auth)/beta/`
 *   **Purpose:** Contains pages and components used solely for development testing. These are **not** part of the final production application flow and may contain dummy data or direct API call tests.
 
-## 🚀 Getting Started
+## Getting Started
 
 1.  **Extract the Zip:**
     Extract the Zip file contents into a directory and navigate into it using your terminal.
@@ -114,3 +114,11 @@ The project includes a dedicated area for testing components, API interactions, 
     npm run dev -- --open
     ```
     This will start the SvelteKit development server, typically accessible at `http://localhost:5173`.
+
+## URL 
+
+Alternatively, this project can be accessed at `https://taileo.com`.
+
+## Generative AI Assistance Recognition
+
+Generative AI such as Google Gemini has been used to refine the structure of this README.
