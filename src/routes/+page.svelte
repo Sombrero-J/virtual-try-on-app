@@ -27,8 +27,10 @@
 	let tryOn = tryOnStore();
 	let file = $state<File | null>(tryOn.modelImageFile || null);
 
+
 	function uploadBodyImage() {
 		if (file) {
+			// update the tryOn state with the new file
 			tryOn.modelImageFile = file;
 		}
 	}
@@ -37,7 +39,9 @@
 	let showLoader = $state(false);
 
 	const token = crypto.randomUUID(); // token is unique every component
+
 	onMount(() => {
+		// listening for uploads from the phone
 		channelSubscription = subscribeToUploadChanges(supabase, token, (newFile: File) => {
 			addToast({
 				data: {
@@ -51,6 +55,7 @@
 	});
 
 	onDestroy(() => {
+		// unsubscribe from the channel when the component is destroyed
 		if (channelSubscription) {
 			supabase.removeChannel(channelSubscription);
 		}

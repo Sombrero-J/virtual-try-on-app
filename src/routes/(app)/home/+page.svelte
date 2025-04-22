@@ -162,6 +162,7 @@
 	});
 
 	onMount(async () => {
+		// if 
 		const sessionId = page.url.searchParams.get('autoSave');
 		if (sessionId) {
 			const { success, data, message } = await continueSaveAction(sessionId);
@@ -174,6 +175,7 @@
 					}
 				});
 				goto('/home');
+				await invalidateAll();
 			} else {
 				addToast({
 					data: {

@@ -1,3 +1,6 @@
+// Helper functions to query the database
+
+// Get clothings
 export async function getClothings(supabase: supabaseFull, user_id: string) {
 	const { data, error } = await supabase
 		.from('clothings')
@@ -13,6 +16,7 @@ export async function getClothings(supabase: supabaseFull, user_id: string) {
 
 export type ClothingWithTryOnsType = Awaited<ReturnType<typeof getClothingWithTryOns>>;
 
+// Get clothings with its corresponding try ons
 export async function getClothingWithTryOns(supabase: supabaseFull, user_id: string) {
 	const response = supabase
 		.from('clothings')
@@ -32,6 +36,7 @@ export async function getClothingWithTryOns(supabase: supabaseFull, user_id: str
 	return processedData;
 }
 
+// Get outfits
 export async function getOutfits(supabase: supabaseFull, user_id: string) {
 	const { data, error } = await supabase
 		.from('outfits')
@@ -47,6 +52,7 @@ export async function getOutfits(supabase: supabaseFull, user_id: string) {
 	return processedData;
 }
 
+// Get try ons
 export async function getTryOns(supabase: supabaseFull, user_id: string) {
 	const { data, error } = await supabase.from('try_on_sessions').select('*').eq('user_id', user_id);
 	// .order("created_at", { ascending: false });
@@ -73,17 +79,6 @@ export async function getModels(supabase: supabaseFull, user_id: string) {
 	const processedData = await Promise.all(data.map((item) => resolveSignedUrls(item, supabase)));
 	return processedData;
 }
-
-// INSERT INTO model_images (
-// 	image_url,
-// 	user_id,
-// 	created_at
-// )
-// VALUES (
-// 	p_model_image_url,
-// 	p_user_id,
-// 	NOW()
-// )
 
 export async function insertModel(supabase: supabaseFull, user_id: string, model_paths: string[]) {
 	if (!model_paths || model_paths.length === 0) {
@@ -179,7 +174,8 @@ const urlMappings: { [key: string]: UrlMappingConfig } = {
 		signedField: 'signed_cover',
 		expiryField: 'expiry_cover',
 		defaultExpiry: 3600
-	}
+	},
+	
 };
 
 async function resolveSignedUrls<T extends Record<string, unknown>>(

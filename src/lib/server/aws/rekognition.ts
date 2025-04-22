@@ -1,3 +1,5 @@
+// This file contains helper functions for communicating with AWS Rekognition.
+
 import {
   DetectLabelsCommand,
   type DetectLabelsCommandInput,

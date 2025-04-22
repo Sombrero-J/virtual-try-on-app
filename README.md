@@ -29,6 +29,7 @@ This is a Final Year Project built with SvelteKit and Supabase, designed to prov
 ## Project Structure
 
 Here's an overall map of the main project directories and their purposes:
+```
 .
 ├── .env # Environment variables (API keys, Supabase credentials)
 ├── node_modules/ # Project dependencies (managed by npm)
@@ -71,6 +72,7 @@ Here's an overall map of the main project directories and their purposes:
 │ │ ├── saveTryOn/
 │ │ └── submitTask/
 └── ... # Other config files (package.json, svelte.config.js, tailwind.config.js, etc.)
+```
 
 ## Key Functionality Breakdown
 
@@ -99,7 +101,7 @@ The project includes a dedicated area for testing components, API interactions, 
 ## Getting Started
 
 1.  **Extract the Zip:**
-    Extract the Zip file contents into a directory and navigate into it using your terminal.
+    Extract the Zip file contents into a directory. Open the file (virtual-try-on-app) in an editor like VSCode. In the terminal, run:
 
 2.  **Install dependencies:**
     ```
@@ -111,9 +113,9 @@ The project includes a dedicated area for testing components, API interactions, 
 
 4.  **Run the development server:**
     ```
-    npm run dev -- --open
+    npm run dev
     ```
-    This will start the SvelteKit development server, typically accessible at `http://localhost:5173`.
+    This will start the SvelteKit development server, accessible at `http://localhost:5173`.
 
 ## URL 
 
