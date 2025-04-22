@@ -44,6 +44,6 @@
 		{type}
 		{onclick}
 	>
-		<img {src} {alt} class="h-full w-full object-cover object-center" />
+		<img {src} {alt} class="h-full w-full object-cover object-center" loading="lazy"/>
 	</button>
 {/if}

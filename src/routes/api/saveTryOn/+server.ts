@@ -23,7 +23,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, user, 
 		const { data: cachedData, error: fetchCacheError } = await supabase
 			.from('anonymous_try_on_cache')
 			.select('*')
-			.eq('session_id', sessionId)
+			.eq('session_token', sessionId)
 			.single();
 
 		if (fetchCacheError) {

@@ -4,7 +4,7 @@ import { uploadToStorage } from '$lib/server/database_helpers/storage';
 import { BEAUTY_API } from '$env/static/private';
 import { describeImage } from '$lib/server/openai/openai';
 import { json } from '@sveltejs/kit';
-import { insertTryOnCache, type insertTryOnCacheType } from '$lib/server/database_helpers/queryDb';
+import { insertTryOnCache } from '$lib/server/database_helpers/queryDb';
 
 export const load: PageServerLoad = async () => {
 	return {};
@@ -69,7 +69,7 @@ export const actions: Actions = {
 		}
 		return json(task_uuid);
 	},
-	save: async ({ request, locals: { safeGetSession, supabase }, url }) => {
+	save: async ({ request, locals: { safeGetSession, supabase } }) => {
 		// if user is not signed in, redirect them to login page, after that save the image to their profile
 		const { session, user } = await safeGetSession();
 
@@ -138,7 +138,7 @@ export const actions: Actions = {
 					session_token: sessionID,
 					clothing_name: clothingName,
 					clothing_path: clothingPath,
-					model_path: model_path,
+					model_path: modelPath,
 					try_on_path: tryonPath,
 					task_id: taskID,
 					clothing_description: description,
@@ -148,11 +148,14 @@ export const actions: Actions = {
 					category: category
 				});
 
+				console.log('Cache insert result:', success);
+
 				if (success) {
 					const redirectTo = `/home?autoSave=${sessionID}`; // redirect to home page
 					redirect(307, `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`);
-				} else {
-					fail(400, { message: 'Error saving to cache. Please sign in and try again.' });
+				} else if (error) {
+					console.error('Error saving to cache:', error);
+					fail(400, { message: 'Error saving to cache. Please sign in and retry.' });
 				}
 			}
 

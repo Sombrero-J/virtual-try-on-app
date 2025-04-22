@@ -120,20 +120,7 @@ export type insertTryOnCacheType = {
 };
 
 export async function insertTryOnCache(supabase: supabaseFull, body: insertTryOnCacheType) {
-	const {
-		session_token,
-		clothing_name,
-		clothing_path,
-		model_path,
-		try_on_path,
-		task_id,
-		clothing_description,
-		brand,
-		colors,
-		materials,
-		category
-	} = body;
-	const { data, error } = await supabase.from('anonymous_try_on_cache').insert(body).select('*');
+	const { data, error } = await supabase.from('anonymous_try_on_cache').insert(body);
 
 	if (error) {
 		console.error('Supabase insert error:', error);

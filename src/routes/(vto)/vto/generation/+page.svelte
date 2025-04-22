@@ -35,7 +35,7 @@
 			progress.target = 30;
 			if (data) {
 				taskID = data;
-				progress.target = 75;
+				progress.target = 95;
 				setTimeout(async () => {
 					const res = await fetchQueryTask(taskID);
 					if (res.url) {
@@ -46,7 +46,6 @@
 								description: 'Your try on is successful!'
 							}
 						});
-						progress.target = 100;
 						tryOnUrl = res.url;
 						tryOn.tryonImageUrl = tryOnUrl;
 					} else if (res.error) {
@@ -79,12 +78,15 @@
 		}
 	});
 
+	let loading = $state(false);
+
 	const saveToWardrobe: SubmitFunction = ({ formData, cancel }) => {
 		if (taskID && clothingFile && modelFile) {
 			formData.append('taskID', taskID);
 			formData.append('clothingFile', clothingFile);
 			formData.append('modelFile', modelFile);
 			formData.append('tryonUrl', tryOnUrl);
+			loading = true;
 		} else {
 			addToast({
 				data: {
@@ -97,6 +99,7 @@
 		}
 
 		return async ({ result }) => {
+			loading = false;
 			if (result.type == 'success') {
 				if (result.data?.success) {
 					addToast({
@@ -121,7 +124,8 @@
 					data: {
 						type: 'error',
 						title: 'Error: Failed to save outfit.',
-						description: 'An error occurred. ' + result.data?.message
+						description:
+							(result.data?.message as string) || 'An error occurred. Please sign in and try again.'
 					}
 				});
 			} else if (result.type === 'error') {
@@ -132,6 +136,15 @@
 						description: 'Could not reach the server. Please check your connection.'
 					}
 				});
+			} else if (result.type === 'redirect') {
+				addToast({
+					data: {
+						type: 'info',
+						title: 'Sign in required',
+						description: 'Redirecting...'
+					}
+				});
+				goto(result.location);
 			}
 		};
 	};
@@ -205,7 +218,7 @@
 							enctype="multipart/form-data"
 							use:enhance={saveToWardrobe}
 						>
-							<Button text="Save to wardrobe" fullWidth={true} />
+							<Button text="Save to wardrobe" {loading} fullWidth={true} />
 						</form>
 					</div>
 				{/snippet}

@@ -173,6 +173,7 @@
 						description: 'Your try on has been saved.'
 					}
 				});
+				goto('/home');
 			} else {
 				addToast({
 					data: {

@@ -16,7 +16,7 @@ export async function uploadToStorage(
 
 	if (error) {
 		console.error(
-			`Error uploading file "${fileName}" to bucket "${bucket}": ${error.message}. Rolling back...`
+			`Error uploading file "${fileName}" to bucket "${bucket}": ${error.message}.`
 		);
 		throw new Error(`Error uploading file. Please try again later.`);
 	}
