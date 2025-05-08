@@ -44,6 +44,19 @@
 			return;
 		}
 
+		if (originalFile.size > (3 * 1024 * 1024)) {
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Error: File too large',
+					description: 'Please select an image file smaller than 3MB.'
+				}
+			});
+			target.value = ''; // Reset file input
+			originalFile = null;
+			return;
+		}
+
 		const { compressedFile } = await compressAndPreview(originalFile);
 
 		file = compressedFile;

@@ -2,15 +2,17 @@
 	import Progress from '$lib/components/melt/progress.svelte';
 	import { onDestroy } from 'svelte';
 	interface Props {
-		imageFile?: File | null;
+		imageFileOrUrl?: File | string | null;
 		progress?: number;
 	}
 
-	let { imageFile = null, progress = 10 }: Props = $props();
+	let { imageFileOrUrl = null, progress = 10 }: Props = $props();
 
 	let imageUrl = $derived.by(() => {
-		if (imageFile) {
-			return URL.createObjectURL(imageFile);
+		if (imageFileOrUrl instanceof File) {
+			return URL.createObjectURL(imageFileOrUrl);
+		} else if (typeof imageFileOrUrl === 'string') {
+			return imageFileOrUrl;
 		}
 		return null;
 	});

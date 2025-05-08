@@ -15,7 +15,6 @@
 	import type { RealtimeChannel } from '@supabase/supabase-js';
 
 	import type { PageProps } from './$types';
-	import { enhance } from '$app/forms';
 	import { onDestroy, onMount } from 'svelte';
 
 	let { data }: PageProps = $props();

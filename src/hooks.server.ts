@@ -82,10 +82,11 @@ const authGuard: Handle = async ({ event, resolve }) => {
 		);
 
 		if (isAccessingProtectedRoute) {
-			// If accessing a protected route without a session, redirect to login
-			redirect(303, '/auth/login');
+			// If accessing a protected route without a session, redirect to 
+			// Add the current path to the redirect URL
+			const redirectTo = encodeURIComponent(currentPath + event.url.search);
+			redirect(303, `/auth/login?redirectTo=${redirectTo}`);
 		}
-		// If not accessing a protected route (e.g., /auth/login, /, /about), allow access
 	}
 	if (event.locals.session && currentPath === '/auth/login') {
 		// If the user is already logged in and tries to access the login page, redirect to home

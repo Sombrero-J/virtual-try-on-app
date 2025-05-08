@@ -13,6 +13,7 @@
 	import { goto } from '$app/navigation';
 	import Dialog from '$lib/components/dialog/dialog.svelte';
 	import Button from '$lib/components/buttons/button.svelte';
+	import { addToast } from '../melt/toast.svelte';
 
 	const popover = new Popover({
 		floatingConfig: {
@@ -23,6 +24,7 @@
 	});
 
 	let opendeleteaccount = $state(false);
+	let loading = $state(false);
 	let openlogout = $state(false);
 	let { user } = $props();
 </script>
@@ -86,21 +88,6 @@
 					{/snippet}
 				</SectionButton>
 			{/if}
-			<!-- <SectionButton text="Contact us" onclick={() => goto('/profile/help')}>
-				{#snippet lefticon()}
-					<Help />
-				{/snippet}
-			</SectionButton>
-			<SectionButton text="Invite friends" onclick={() => goto('/profile/invite')}>
-				{#snippet lefticon()}
-					<Link />
-				{/snippet}
-			</SectionButton>
-			<SectionButton text="Give us a feedback" onclick={() => goto('/profile/feedback')}>
-				{#snippet lefticon()}
-					<Thumbsup />
-				{/snippet}
-			</SectionButton> -->
 		</div>
 	</div>
 </div>
@@ -109,8 +96,31 @@
 	<div class="flex w-full flex-col items-center justify-start gap-5">
 		<h1 class="text-black-secondary text-xl">Are you sure that you want to delete your account?</h1>
 		<div class="flex w-full gap-2">
-			<Button text="Delete account" fullWidth={true} />
-			<Button text="Cancel" style="secondary" fullWidth={true} />
+			<Button
+				{loading}
+				text="Delete account"
+				fullWidth={true}
+				onclick={() => {
+					loading = true;
+					goto('/auth/logout');
+					addToast({
+						data: {
+							type: 'success',
+							title: 'Success',
+							description: 'Account deleted successfully!'
+						}
+					});
+					opendeleteaccount = false;
+				}}
+			/>
+			<Button
+				text="Cancel"
+				style="secondary"
+				fullWidth={true}
+				onclick={() => {
+					opendeleteaccount = false;
+				}}
+			/>
 		</div>
 	</div></Dialog
 >
@@ -119,8 +129,30 @@
 	<div class="flex w-full flex-col items-center justify-start gap-5">
 		<h1 class="text-black-secondary text-xl">Are you sure that you want to log out?</h1>
 		<div class="flex w-full gap-2">
-			<Button text="Log out" onclick={() => goto('/auth/logout')} fullWidth={true} />
-			<Button text="Cancel" style="secondary" fullWidth={true} />
+			<Button
+				{loading}
+				text="Log out"
+				onclick={() => {
+					loading = true;
+					goto('/auth/logout');
+					addToast({
+						data: {
+							type: 'success',
+							title: 'Success',
+							description: 'Log out successful!'
+						}
+					});
+				}}
+				fullWidth={true}
+			/>
+			<Button
+				text="Cancel"
+				style="secondary"
+				fullWidth={true}
+				onclick={() => {
+					openlogout = false;
+				}}
+			/>
 		</div>
 	</div></Dialog
 >

@@ -3,7 +3,7 @@
 	import type { PageProps } from './$types';
 	import WardrobeItem from '$lib/components/wardrobe/wardrobeItem.svelte';
 	import type { ClothingWithTryOnsType, ModelsType } from '$lib/server/database_helpers/queryDb';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import StepIndicator from '$lib/components/visualiser/stepIndicator.svelte';
 	import { bottoms, filterStore, tops } from '$lib/state/appstate.svelte';
 	import Button from '$lib/components/buttons/button.svelte';
@@ -16,11 +16,16 @@
 	import { Tween } from 'svelte/motion';
 	import { linear } from 'svelte/easing';
 	import { goto } from '$app/navigation';
+	import { addToast } from '$lib/components/melt/toast.svelte';
+	import { subscribeToOutfitGeneration } from '$lib/clientUtil/realtime';
+	import type { RealtimeChannel } from '@supabase/supabase-js';
 
 	let { data }: PageProps = $props();
+	let { supabase, user } = data;
+	let user_id = user.id;
 
 	let progress = new Tween(0, {
-		duration: 15000,
+		duration: 45000,
 		easing: linear,
 		delay: 2000
 	});
@@ -124,9 +129,11 @@
 	function submitForm() {
 		if (!formElement) return;
 
-		// 3. Programmatically submit the persistent form
+		// Programmatically submit the persistent form
 		formElement.requestSubmit();
 	}
+
+	let channelSubscription: RealtimeChannel;
 
 	onMount(async () => {
 		try {
@@ -137,6 +144,20 @@
 			}
 		} catch (error) {
 			console.error(error);
+		}
+
+		channelSubscription = subscribeToOutfitGeneration(supabase, user_id, (newFile: File) => {
+			outfitUrl = URL.createObjectURL(newFile);
+		});
+	});
+
+	onDestroy(() => {
+		if (channelSubscription) {
+			supabase.removeChannel(channelSubscription);
+		}
+
+		if (outfitUrl) {
+			URL.revokeObjectURL(outfitUrl);
 		}
 	});
 </script>
@@ -221,7 +242,7 @@
 				{/snippet}
 			</ImageGenV2>
 		{:else}
-			<ImageScan imageUrl={selectedModel?.signed_url} progress={progress.current} />
+			<ImageScan imageFileOrUrl={selectedModel?.signed_url} progress={progress.current} />
 		{/if}
 	{/if}
 	{#if step === 1}
@@ -256,13 +277,25 @@
 		progress.target = 90;
 
 		if (!selectedUpperGarment || !selectedBottomGarment) {
-			alert('Missing upper or lower garment');
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Error: Missing garment',
+					description: 'Missing upper or lower garment.'
+				}
+			});
 			cancel();
 			return;
 		}
 
 		if (!selectedModel) {
-			console.log('Please select a model image');
+			addToast({
+				data: {
+					type: 'error',
+					title: 'Error: Missing model',
+					description: 'Please select a model image.'
+				}
+			});
 			cancel();
 			return;
 		}
@@ -277,22 +310,30 @@
 		showLoading = true;
 
 		return async ({ result, update }) => {
-			progress.target = 100;
 			update({ invalidateAll: false });
 			if (result.type === 'success') {
-				if (result.data) {
-					outfitUrl = result.data.data.signedUrl as string;
-				}
+				addToast({
+					data: {
+						type: 'info',
+						title: 'Generation in progress',
+						description: 'Hang tight! Your outfit is being generated.'
+					}
+				});
 			} else if (result.type === 'failure') {
-				alert('Something went wrong: ' + result.data?.message);
+				addToast({
+					data: {
+						type: 'error',
+						title: 'Error',
+						description: 'Failed to generate outfit. Please try again.'
+					}
+				});
 			}
-			showLoading = false;
 		};
 	}}
 ></form>
 
 <Dialog
-	textButton={true}
+	textButton={false}
 	buttonText="Next"
 	title="Choose a model"
 	bind:open={openModelDialog}

@@ -1,7 +1,5 @@
 <script lang="ts">
 	import Draggable from '$lib/components/wardrobe/draggable.svelte';
-	import Grids from '$lib/components/wardrobe/grids.svelte';
-	import NewIcons from '$lib/components/wardrobe/newIcons.svelte';
 	import Share from '$lib/svg/small/share.svelte';
 	import Edit from '$lib/svg/small/wardrobe/edit.svelte';
 	import type { PageProps } from './$types';
@@ -26,7 +24,6 @@
 	import ClothingGuide from '$lib/content/vto-dialogs/clothingGuide.svelte';
 	import Pin from '$lib/svg/pin.svelte';
 	import { filterStore } from '$lib/state/appstate.svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import { continueSaveAction, triggerSaveAction } from './helpers';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import Download from '$lib/svg/small/download.svelte';
@@ -48,6 +45,8 @@
 	let openModelsDialog = $state(false);
 	let openAddModelsDialog = $state(false);
 	let openAddNewClothingsDialog = $state(false);
+
+	let uploadClothingLoading = $state(false);
 
 	let selectedItem = $state<ClothingWithTryOnsType[number] | null>(null);
 	let selectedDisplayTryOn = $derived.by(() => {
@@ -162,7 +161,6 @@
 	});
 
 	onMount(async () => {
-		// if 
 		const sessionId = page.url.searchParams.get('autoSave');
 		if (sessionId) {
 			const { success, data, message } = await continueSaveAction(sessionId);
@@ -455,18 +453,18 @@
 								{#if selectedDisplayTryOn}
 									<div class="flex flex-col items-start justify-start gap-4">
 										<img
-											class="h-auto w-full object-contain shadow-lg lg:h-[40rem] lg:rounded-lg"
+											class="h-auto w-full object-contain shadow-lg lg:h-[50svh] lg:max-h-[35rem] lg:rounded-lg"
 											src={selectedDisplayTryOn}
 											alt="try on"
 										/>
 										{#if !isMobile && selectedItem.try_on_sessions.length > 0}
-											<div class="h-[7rem] w-full space-y-1">
+											<div class="w-full space-y-1">
 												<h1 class="text-base font-medium">My model images</h1>
 												<div
-													class="flex h-full w-full items-center justify-start gap-2 overflow-x-auto overflow-y-hidden py-2 pl-2"
+													class="flex h-[12svh] max-h-[7rem] w-full items-center justify-start gap-2 overflow-x-auto overflow-y-hidden py-2 pl-2"
 												>
 													<button
-														class="bg-brand-secondary text-brand relative h-24 w-20 flex-shrink-0 cursor-pointer rounded-lg text-4xl font-normal shadow-sm"
+														class="bg-brand-secondary text-brand relative h-full aspect-3/4 flex-shrink-0 cursor-pointer rounded-lg text-4xl font-normal shadow-sm"
 													>
 														+
 														<input
@@ -527,7 +525,7 @@
 										src={selectedItem.signed_front}
 										alt="front side of ${selectedItem.name}"
 									/>
-									<h1>No try on available for this clothing</h1>
+									<h1>Try on not available yet, please refresh.</h1>
 								{/if}
 							</div>
 						</div>
@@ -1162,6 +1160,7 @@
 				method="post"
 				enctype="multipart/form-data"
 				use:enhance={({ formData, cancel }) => {
+					uploadClothingLoading = true;
 					if (wardrobeFiles.length === 0) {
 						addToast({
 							data: {
@@ -1187,6 +1186,7 @@
 					});
 
 					return async ({ result, update }) => {
+						uploadClothingLoading = false;
 						if (result.type === 'success' && result.data) {
 							if (result.data.success === true) {
 								addToast({
@@ -1262,7 +1262,7 @@
 							input.click();
 						}}
 					/>
-					<Button text="Upload to Wardrobe" fullWidth={true} type="submit" />
+					<Button loading={uploadClothingLoading} text="Upload to Wardrobe" fullWidth={true} type="submit" />
 				</div>
 			</form>
 		{:else}

@@ -8,7 +8,7 @@
 	};
 
 	const toaster = new Toaster<ToastData>({
-		closeDelay: () => 2000,
+		closeDelay: () => 4000,
 		type: () => 'polite', // can be MaybeGetter<"assertive" | "polite" | undefined>
 		hover: () => 'pause'
 	});
@@ -27,7 +27,7 @@
 	import Success from '$lib/svg/indicators/success.svelte';
 	// import Error from "$lib/svg/indicators/error.svelte";
 	import Warning from '$lib/svg/indicators/warning.svelte';
-	import Info from "$lib/svg/indicators/info.svelte";
+	import Info from '$lib/svg/indicators/info.svelte';
 	import Erroricon from '$lib/svg/indicators/erroricon.svelte';
 </script>
 
@@ -35,12 +35,12 @@
 <div
 	{...toaster.root}
 	class="!fixed inset-auto flex w-[300px] flex-col gap-2 overflow-hidden
-           max-lg:!top-4 max-lg:left-1/2 max-lg:-translate-x-1/2
-           lg:!right-4 lg:!bottom-4"
+           bg-transparent max-lg:!top-4 max-lg:left-1/2
+           max-lg:-translate-x-1/2 lg:!right-4 lg:!bottom-4"
 >
 	{#each toaster.toasts as toast (toast.id)}
 		<div
-			class="flex items-start justify-between rounded-lg border border-gray-200 p-4 shadow-lg"
+			class="bg-white-primary flex items-start justify-between rounded-lg p-4 shadow-sm"
 			transition:fly={{ y: transitionOrigin, duration: 500 }}
 		>
 			<div class="flex flex-col items-start justify-center">

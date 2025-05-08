@@ -13,7 +13,7 @@ export const actions: Actions = {
       console.error(error);
       return fail(400, { email, incorrect: true });
     } else {
-      const redirectTo = url.searchParams.get('redirectTo') || '/';
+      const redirectTo = url.searchParams.get('redirectTo') || '/home';
       redirect(303, redirectTo);
     }
   },

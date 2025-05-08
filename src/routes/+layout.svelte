@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import type { LayoutProps } from './$types';
-	import { goto, onNavigate } from '$app/navigation';
+	import { goto, invalidateAll, onNavigate } from '$app/navigation';
 	import ProfileHead from '$lib/svg/small/wardrobe/profileHead.svelte';
 	import NavButton from '$lib/components/buttons/navButton.svelte';
 	import Uploaded from '$lib/svg/small/wardrobe/uploaded.svelte';
@@ -11,7 +11,7 @@
 	import Toast, { addToast } from '$lib/components/melt/toast.svelte';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import Profilepopover from '$lib/components/profile/profilepopover.svelte';
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
 	import Back from '$lib/components/buttons/back.svelte';
 	import Trashcan from '$lib/svg/small/profile/trashcan.svelte';
@@ -22,7 +22,7 @@
 	let { data, children }: LayoutProps = $props();
 	let { session, supabase, user } = $derived(data);
 
-	let selectedTab = $state<'Outfits' | 'All items' | 'Wardrobe'>(page.data.title);
+	let selectedTab = $derived<'Outfits' | 'All items' | 'Wardrobe'>(page.data.title);
 	let specialPath = ['/outfits/desktop-custom-outfit', '/outfits/create-ai', '/profile'];
 	let isSpecialPath = $derived(
 		// Check if any element in specialPath meets the condition
@@ -72,7 +72,7 @@
 						// until supabase supports multiple filters, we need to use a single filter
 						filter: `status=eq.${doneText}`,
 					},
-					(payload) => {
+					async (payload) => {
 						console.log('Realtime UPDATE received:', payload);
 
 						// The updated row data is in payload.new
@@ -83,8 +83,17 @@
 							clothings_id: number;
 						};
 
+						const oldSession = payload.old as {
+							id: number;
+							status: string;
+							user_id: string;
+							clothings_id: number;
+						};
+					
+						console.log('Old session:', oldSession);
+
 						// this is extremely risky, we might leak other users' data
-						if (updatedSession && updatedSession.user_id === userId) {
+						if (updatedSession && oldSession.status !== doneText && updatedSession.user_id === userId) {
 							addToast({
 								data: {
 									type: 'success',
@@ -92,6 +101,7 @@
 									description: `Your try on result is ready for clothing ${updatedSession.clothings_id}`
 								}
 							});
+							await invalidateAll();
 						}
 					}
 				)
@@ -171,7 +181,7 @@
 					selected={selectedTab}
 					text="Outfits"
 					href="/outfits"
-					onclick={() => (selectedTab = 'Outfits')}
+
 				>
 					{#snippet icon()}
 						<Outfit selected={selectedTab === 'Outfits'} />
@@ -181,7 +191,7 @@
 					selected={selectedTab}
 					text="All items"
 					href="/home"
-					onclick={() => (selectedTab = 'All items')}
+
 				>
 					{#snippet icon()}
 						<Uploaded selected={selectedTab === 'All items'} />
@@ -191,7 +201,7 @@
 					selected={selectedTab}
 					text="Wardrobe"
 					href="/wardrobe"
-					onclick={() => (selectedTab = 'Wardrobe')}
+
 				>
 					{#snippet icon()}
 						<Hangar selected={selectedTab === 'Wardrobe'} />
@@ -209,7 +219,7 @@
 				selected={selectedTab}
 				text="All items"
 				href="/home"
-				onclick={() => (selectedTab = 'All items')}
+
 			>
 				{#snippet icon()}
 					<Uploaded selected={selectedTab === 'All items'} />
@@ -219,7 +229,7 @@
 				selected={selectedTab}
 				text="Wardrobe"
 				href="/wardrobe"
-				onclick={() => (selectedTab = 'Wardrobe')}
+
 			>
 				{#snippet icon()}
 					<Hangar selected={selectedTab === 'Wardrobe'} />
@@ -229,7 +239,7 @@
 				selected={selectedTab}
 				text="Outfits"
 				href="/outfits"
-				onclick={() => (selectedTab = 'Outfits')}
+
 			>
 				{#snippet icon()}
 					<Outfit selected={selectedTab === 'Outfits'} />

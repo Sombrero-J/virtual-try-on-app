@@ -93,7 +93,7 @@
 </script>
 
 <div
-	class="mx-auto flex max-lg:h-full w-8/10 max-w-[75rem] flex-col items-start lg:items-center justify-between gap-5 py-8 lg:flex-row lg:pt-20"
+	class="mx-auto flex max-lg:h-full w-8/10 max-w-[75rem] flex-col items-start lg:items-center justify-between gap-5 max-sm:py-8 lg:flex-row"
 >
 	<div class="relative flex w-full self-stretch flex-col justify-between lg:justify-center">
 		<!-- Small screen -->

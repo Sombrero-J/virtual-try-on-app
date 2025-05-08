@@ -120,29 +120,35 @@ export const actions: Actions = {
 					lower_clothing_id: null
 				};
 
-				const { data: tryOnSignedUrl, error, message } = await generateOutfits(body);
+				// const { data: tryOnSignedUrl, error, message } = await generateOutfits(body);
 
-				if (error) {
-					return fail(502, {
-						error: true,
-						message
-					});
-				}
+				// if (error) {
+				// 	return fail(502, {
+				// 		error: true,
+				// 		message
+				// 	});
+				// }
 
-				console.log('Successfully invoked combine-outfit function (Upper Base).');
+				// console.log('Successfully invoked combine-outfit function (Upper Base).');
 
-				if (!tryOnSignedUrl) {
-					return fail(500, {
-						error: true,
-						message: 'No data returned from function.'
-					});
-				}
+				// if (!tryOnSignedUrl) {
+				// 	return fail(500, {
+				// 		error: true,
+				// 		message: 'No data returned from function.'
+				// 	});
+				// }
+
+				generateOutfits(body);
+
+				// return {
+				// 	success: true,
+				// 	message: 'Outfit successfully created.',
+				// 	data: tryOnSignedUrl
+				// };
 
 				return {
-					success: true,
-					message: 'Outfit successfully created.',
-					data: tryOnSignedUrl
-				};
+					success: true
+				}
 			}
 			console.log(`No 'done' session found for Upper. Checking lower body...`);
 
@@ -254,36 +260,6 @@ export const actions: Actions = {
 			});
 		}
 	},
-	tests: async ({ request, locals: { user, supabase } }) => {
-		const { data: tryOnSignedUrl, error: tryOnDownloadError } = await supabase.storage
-			.from('tryon')
-			.createSignedUrl(
-				'6ab87d5e-328e-4fe0-a094-b6f94eef43fb/3646a954-711f-4c73-83df-3303a0adb798.tryon_6ab87d5e-328e-4fe0-a094-b6f94eef43fb',
-				60
-			);
-
-		if (tryOnDownloadError) {
-			console.error('Error downloading try-on image:', tryOnDownloadError);
-			return fail(500, {
-				error: true,
-				message: 'Failed to download try-on image.'
-			});
-		}
-
-		if (!tryOnSignedUrl) {
-			console.error('No try-on image found.');
-			return fail(500, {
-				error: true,
-				message: 'No try-on image found.'
-			});
-		}
-
-		return {
-			success: true,
-			message: 'Outfit successfully created.',
-			data: tryOnSignedUrl
-		};
-	}
 };
 
 type invokeType = {

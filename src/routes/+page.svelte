@@ -144,7 +144,6 @@
 			bind:open={openQR}
 			textButton={false}
 			title={'Upload image from phone'}
-			buttonText="Done"
 		>
 			<Qrcode {token} stage="body" />
 		</Dialog>

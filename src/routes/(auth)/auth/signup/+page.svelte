@@ -5,8 +5,9 @@
 	import { goto } from '$app/navigation';
 	import EyeClosed from '$lib/svg/eyeClosed.svelte';
 	import EyeOpened from '$lib/svg/eyeOpened.svelte';
-	import { enhance } from '$app/forms';
+	import { applyAction, enhance } from '$app/forms';
 	import { addToast } from '$lib/components/melt/toast.svelte';
+	import { page } from '$app/state';
 
 	let email: string = $state('');
 	let password: string = $state('');
@@ -64,31 +65,17 @@
 {/snippet}
 
 <div class="flex flex-col items-start justify-center">
-	<!-- <Button text="Back" style="secondary" size="large" onclick={navigate}>
-      {#snippet lefticon()}
-        <Icons name="leftBlack" />
-      {/snippet}
-    </Button> -->
 	<section class="flex w-[20rem] flex-col items-center gap-6 lg:w-[25rem]">
 		<CardHeader title="Sign Up for Free" />
 		<form
 			class="flex w-full flex-col items-start justify-center gap-4 text-left"
 			method="post"
-			action="?/signup"
+			action={`?/signup&${page.url.searchParams}`}
 			use:enhance={() => {
 				loading = true;
 				return async ({ result, update }) => {
 					loading = false;
-					if (result.type === 'success') {
-						addToast({
-							data: {
-								type: 'success',
-								title: 'Success',
-								description: 'Account created successfully!'
-							}
-						});
-						goto('/home');
-					} else if (result.type === 'failure') {
+					if (result.type === 'failure') {
 						if (result.data?.error === 'user_already_exists') {
 							user_exist = true;
 							addToast({
@@ -98,17 +85,19 @@
 									description: 'Email already exists. Please log in.'
 								}
 							});
+						} else {
+							addToast({
+								data: {
+									type: 'error',
+									title: 'Error',
+									description:
+										(result.data?.message as string) ||
+										'There was an error creating your account. Please try again.'
+								}
+							});
 						}
-						addToast({
-							data: {
-								type: 'error',
-								title: 'Error',
-								description:
-									(result.data?.message as string) ||
-									'There was an error creating your account. Please try again.'
-							}
-						});
 						console.error(result);
+						await update();
 					} else if (result.type === 'error') {
 						// Handle validation errors
 						addToast({
@@ -118,8 +107,18 @@
 								description: 'Something went wrong. Please try again.'
 							}
 						});
+						await update();
+					} else if (result.type === 'redirect') {
+						addToast({
+							data: {
+								type: 'success',
+								title: 'Success',
+								description: 'Account created successfully!'
+							}
+						});
+						console.log('Result:', result);
+						await applyAction(result);
 					}
-					await update();
 				};
 			}}
 		>
@@ -194,25 +193,10 @@
 					!email}
 				fullWidth={true}
 			/>
-			<!-- <div class="text-center w-full text-black-secondary text-sm font-normal">
-        <span>By signing up, you agree to our </span>
-        <a
-          href="/info/terms-and-conditions"
-          class="text-brand hover:underline">Terms</a
-        >
-        <span>, </span>
-        <a href="/info/privacy-policy" class="text-brand hover:underline"
-          >Privacy Policy</a
-        >
-        <span> and </span>
-        <a href="/info/cookie-policy" class="text-brand hover:underline"
-          >Cookie Policy</a
-        >
-      </div> -->
-			<div class="text-black-secondary text-md w-full text-center font-normal">
-				<span>Already have an account?</span>
-				<a href="/auth/login" class="text-brand hover:underline">Log In</a>
-			</div>
 		</form>
+		<div class="text-black-secondary text-md w-full text-center font-normal">
+			<span>Already have an account?</span>
+			<a href={`/auth/login/${page.url.search}`} class="text-brand hover:underline">Log In</a>
+		</div>
 	</section>
 </div>

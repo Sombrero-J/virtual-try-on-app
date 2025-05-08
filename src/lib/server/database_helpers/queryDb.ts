@@ -1,5 +1,7 @@
 // Helper functions to query the database
 
+import type { Database } from "$lib/type/supabase";
+
 // Get clothings
 export async function getClothings(supabase: supabaseFull, user_id: string) {
 	const { data, error } = await supabase
@@ -127,7 +129,7 @@ export async function insertTryOnCache(supabase: supabaseFull, body: insertTryOn
 
 interface UrlMappingConfig {
 	idField: string;
-	table: string;
+	table: keyof Database['public']['Tables'];
 	bucket: string;
 	signedField: string;
 	expiryField: string;
@@ -270,7 +272,7 @@ async function resolveSignedUrls<T extends Record<string, unknown>>(
 }
 
 function triggerDirectBackgroundDbUpdate(
-	tableName: string,
+	tableName: keyof Database['public']['Tables'],
 	idField: string,
 	idValue: string | number,
 	updates: Record<string, string | null>,

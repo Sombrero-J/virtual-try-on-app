@@ -224,7 +224,7 @@
 				{/snippet}
 			</ImageGenV2>
 		{:else}
-			<ImageScan imageFile={modelFile} progress={progress.current} />
+			<ImageScan imageFileOrUrl={modelFile} progress={progress.current} />
 		{/if}
 	</div>
 </div>
